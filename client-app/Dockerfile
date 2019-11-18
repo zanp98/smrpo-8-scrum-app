@@ -1,12 +1,12 @@
 FROM node:latest
 
-# Create app directory
-RUN mkdir -p /usr/app
-WORKDIR /usr/app
+# set working directory
+WORKDIR /app
 
-# Install dependencies
-COPY package.json .
-RUN npm install
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
 
-# Bundle app source
-ADD src /usr/app/src
+# install and cache app dependencies
+COPY package.json /app/package.json
+RUN npm install --silent
+RUN npm install react-scripts@3.0.1 -g --silent

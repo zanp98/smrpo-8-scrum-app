@@ -2,7 +2,7 @@ const { connectMongo } = require("../db/connectMongo");
 const { getFakeMovie } = require("../fakes/movie");
 const Movie = require("../db/Movie");
 
-const MOVIES_COUNT = 10;
+const MOVIES_COUNT = 9;
 
 const seed = async () => {
   try {

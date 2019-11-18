@@ -7,7 +7,12 @@ const run = async () => {
   const app = express();
   const { MONGO_USER, MONGO_PASS, MONGO_DB, MONGO_PORT, PORT } = process.env;
 
-  await connectMongo(MONGO_USER, MONGO_PASS, MONGO_DB, MONGO_PORT);
+  try {
+    await connectMongo(MONGO_USER, MONGO_PASS, MONGO_DB, MONGO_PORT);
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 
   app.use(
     cors({

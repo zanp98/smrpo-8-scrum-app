@@ -1,0 +1,18 @@
+.movie-card {
+  background: white;
+  color: black;
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.movie-card > .title {
+  font-size: 26px;
+  color: #09d3ac;
+  margin-bottom: 12px;
+}
+
+.movie-card > .description {
+  font-size: 20px;
+}

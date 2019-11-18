@@ -1,5 +1,7 @@
 import React from "react";
 import axios from "axios";
+import MovieCard from "./MovieCard";
+import "./movies-list.css";
 
 const MoviesList = () => {
   const [movies, setMovies] = React.useState();
@@ -22,16 +24,15 @@ const MoviesList = () => {
   }, []);
 
   return (
-    <div class="movies-list">
+    <div className="movies-list-wrapper">
+      <span className="title">Awesome Hacker Movies</span>
       {errorMessage && <span>{errorMessage}</span>}
       {movies && (
         <span>
           {movies.length > 0 ? (
-            <div>
-              {movies.map(({ title, description }) => (
-                <div>
-                  {title} {description}
-                </div>
+            <div className="movies-list">
+              {movies.map(({ _id, ...rest }) => (
+                <MovieCard {...rest} />
               ))}
             </div>
           ) : (
