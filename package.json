@@ -1,0 +1,9 @@
+{
+  "name": "docker-mern-example",
+  "version": "0.0.1",
+  "description": "Example repository with MERN stack running on Docker with docker-compose",
+  "main": "index.js",
+  "author": "Maciej Wądołkowski <maciejwadolkowski@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true
+}
