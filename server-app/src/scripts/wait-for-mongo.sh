@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo 'Waiting for mongo to be up...'
 
@@ -8,3 +8,4 @@ done
 
 
 echo 'Mongo is ready!'
+exec "$@"

@@ -1,11 +1,12 @@
-# Example MERN stack app with Docker and docker-compose
+# SCRUM Tool with User Management
 
-This repository contains simple project utilizing MERN stack, with all services running in separate docker containers, managed by docker-compose.
-Note this project is intended to be a _very_ simple demo how to set up such structure, not a real-life example.
+This repository contains a SCRUM tool application with user management functionality built using the MERN stack (MongoDB, Express, React, Node.js). All services run in separate Docker containers, managed by docker-compose.
 
-Application consists of server-app (Node + Express), client-app (React) and MongoDb database. Each service runs in its own Docker container.
+## Features
 
-Both server and client support live-reload of code.
+  - Add new users with username, password, personal information, and system roles
+  - View list of all users
+  - Delete users
 
 ## Setting up
 

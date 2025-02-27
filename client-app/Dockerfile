@@ -1,6 +1,6 @@
 FROM node:latest
 
-# set working directory
+# Create app directory
 WORKDIR /app
 
 # add `/app/node_modules/.bin` to $PATH
@@ -10,3 +10,9 @@ ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json /app/package.json
 RUN npm install --silent
 RUN npm install react-scripts@3.0.1 -g --silent
+
+COPY . .
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
+CMD ["npm", "start"]
