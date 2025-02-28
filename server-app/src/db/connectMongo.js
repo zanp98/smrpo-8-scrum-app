@@ -1,12 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
-module.exports.connectMongo = async (user, pass, db, port) => {
-  const uri = `mongodb://${user}:${pass}@mongo:${port}/${db}?authSource=admin`;
-  
-  return mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false
-  });
+export const connectMongo = async (user, pass, db, host, port) => {
+  const uri = `mongodb://${user}:${pass}@${host}:${port}/${db}?authSource=admin`;
+  return mongoose.connect(uri);
 };
