@@ -1,35 +1,35 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const SprintSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   project: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Project',
-    required: true
+    required: true,
   },
   startDate: {
     type: Date,
-    required: true
+    required: true,
   },
   endDate: {
     type: Date,
-    required: true
+    required: true,
   },
   goal: {
-    type: String
+    type: String,
   },
   status: {
     type: String,
     enum: ['planning', 'active', 'completed'],
-    default: 'planning'
+    default: 'planning',
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model("Sprint", SprintSchema);
+export const Sprint = mongoose.model('Sprint', SprintSchema);
