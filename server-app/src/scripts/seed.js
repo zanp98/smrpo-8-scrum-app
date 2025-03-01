@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { connectMongo } from '../db/connectMongo.js';
-import { User } from '../db/User.js';
+import { User, UserProjectRoles, UserRoles } from '../db/User.js';
 import { Project } from '../db/Project.js';
 import { Sprint } from '../db/Sprint.js';
 import { Task } from '../db/Task.js';
@@ -26,7 +26,8 @@ export const seed = async () => {
         firstName: 'Admin',
         lastName: 'User',
         email: 'admin@scrumapp.com',
-        role: 'admin',
+        systemRole: UserRoles.ADMIN,
+        role: UserProjectRoles.ADMIN,
       },
       {
         username: 'po_user',
@@ -34,7 +35,8 @@ export const seed = async () => {
         firstName: 'Product',
         lastName: 'Owner',
         email: 'po@scrumapp.com',
-        role: 'product_owner',
+        systemRole: UserRoles.ADMIN,
+        role: UserProjectRoles.PRODUCT_OWNER,
       },
       {
         username: 'sm_user',
@@ -42,7 +44,8 @@ export const seed = async () => {
         firstName: 'Scrum',
         lastName: 'Master',
         email: 'sm@scrumapp.com',
-        role: 'scrum_master',
+        systemRole: UserRoles.ADMIN,
+        role: UserProjectRoles.SCRUM_MASTER,
       },
       {
         username: 'dev1',
@@ -50,7 +53,8 @@ export const seed = async () => {
         firstName: 'John',
         lastName: 'Developer',
         email: 'john@scrumapp.com',
-        role: 'developer',
+        systemRole: UserRoles.USER,
+        role: UserProjectRoles.DEVELOPER,
       },
       {
         username: 'dev2',
@@ -58,7 +62,8 @@ export const seed = async () => {
         firstName: 'Jane',
         lastName: 'Coder',
         email: 'jane@scrumapp.com',
-        role: 'developer',
+        systemRole: UserRoles.USER,
+        role: UserProjectRoles.DEVELOPER,
       },
     ]);
 

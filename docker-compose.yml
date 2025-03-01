@@ -24,6 +24,7 @@ services:
     command: bash -c "sh ./src/scripts/wait-for-mongo.sh && npm run dev"
     profiles:
       - all
+      - be
       - ''
 
   client-app:
@@ -57,4 +58,5 @@ services:
     profiles:
       - all
       - db
+      - be
       - ''

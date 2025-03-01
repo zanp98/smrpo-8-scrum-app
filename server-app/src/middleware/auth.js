@@ -35,7 +35,7 @@ export default (req, res, next) => {
   }
 };
 
-export const rolesRequired = (...roles) => {
+export const systemRolesRequired = (...roles) => {
   return (req, res, next) => {
     const requestingUser = req.user;
     if (!requestingUser ?? !(roles ?? []).includes(requestingUser.role)) {

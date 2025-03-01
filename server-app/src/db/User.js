@@ -3,6 +3,11 @@ import bcrypt from 'bcryptjs';
 
 export const UserRoles = Object.freeze({
   ADMIN: 'admin',
+  USER: 'user',
+});
+
+export const UserProjectRoles = Object.freeze({
+  ADMIN: 'admin',
   PRODUCT_OWNER: 'product_owner',
   SCRUM_MASTER: 'scrum_master',
   DEVELOPER: 'developer',
@@ -31,10 +36,16 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  role: {
+  systemRole: {
     type: String,
     enum: Object.values(UserRoles),
-    default: 'developer',
+    default: UserRoles.DEVELOPER,
+  },
+  // TODO SST: Move this to a new table ProjectRoles
+  role: {
+    type: String,
+    enum: Object.values(UserProjectRoles),
+    default: UserProjectRoles.DEVELOPER,
   },
   createdAt: {
     type: Date,

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { backendApi } from '../api/backend';
 
 export const AuthContext = createContext();
 
@@ -12,13 +13,14 @@ export const AuthProvider = ({ children }) => {
     // Check if user is already logged in (token in localStorage)
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
+
     if (token && user) {
       setCurrentUser(JSON.parse(user));
       // Set axios default header
+      backendApi.defaults.headers.common['x-auth-token'] = token;
       axios.defaults.headers.common['x-auth-token'] = token;
     }
-    
+
     setLoading(false);
   }, []);
 
@@ -26,24 +28,25 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       setLoading(true);
-      
-      const res = await axios.post('http://localhost:8000/api/v1/auth/login', {
+
+      const res = await backendApi.post('/auth/login', {
         username,
-        password
+        password,
       });
-      
+
       const { token, user } = res.data;
-      
+
       // Save to localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
-      
+
       // Set axios default header
+      backendApi.defaults.headers.common['x-auth-token'] = token;
       axios.defaults.headers.common['x-auth-token'] = token;
-      
+
       setCurrentUser(user);
       setLoading(false);
-      
+
       return user;
     } catch (err) {
       setLoading(false);
@@ -57,10 +60,11 @@ export const AuthProvider = ({ children }) => {
     // Remove from localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
+
     // Remove axios default header
     delete axios.defaults.headers.common['x-auth-token'];
-    
+    delete backendApi.defaults.headers.common['x-auth-token'];
+
     setCurrentUser(null);
   };
 
@@ -71,7 +75,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         error,
         login,
-        logout
+        logout,
       }}
     >
       {children}

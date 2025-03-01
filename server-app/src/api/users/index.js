@@ -1,6 +1,6 @@
 import { User, UserRoles } from '../../db/User.js';
 import express from 'express';
-import { rolesRequired } from '../../middleware/auth.js';
+import { systemRolesRequired } from '../../middleware/auth.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 
 export const usersRouter = express.Router();
@@ -8,7 +8,7 @@ export const usersRouter = express.Router();
 // Get all users
 usersRouter.get(
   '/',
-  rolesRequired(UserRoles.ADMIN),
+  systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     const users = await User.find().select('-password').sort({ createdAt: 'desc' }).exec();
     res.json(users);
@@ -17,7 +17,7 @@ usersRouter.get(
 
 usersRouter.post(
   '/',
-  rolesRequired(UserRoles.ADMIN),
+  systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     const { username, password, firstName, lastName, email, role } = req.body;
     const usersCount = await User.find({ $or: [{ username }, { email }] })
@@ -40,7 +40,7 @@ usersRouter.post(
 
 usersRouter.delete(
   '/:id',
-  rolesRequired(UserRoles.ADMIN),
+  systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     const { id } = req.params;
     const result = await User.updateOne({ _id: id }, { deletedAt: new Date() }).exec();

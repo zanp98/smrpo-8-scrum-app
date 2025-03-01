@@ -6,3 +6,6 @@ up:
 
 down:
 	docker-compose --profile all down
+
+up_be_only:
+	docker-compose --profile be up -d

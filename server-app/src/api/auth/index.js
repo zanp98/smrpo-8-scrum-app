@@ -30,6 +30,7 @@ authRouter.post(
         {
           id: user.id,
           username: user.username,
+          systemRole: user.systemRole,
           role: user.role,
         },
         JWT_SECRET,
@@ -45,6 +46,7 @@ authRouter.post(
           lastName: user.lastName,
           email: user.email,
           role: user.role,
+          systemRole: user.systemRole,
         },
       });
     } catch (error) {
