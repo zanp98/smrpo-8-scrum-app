@@ -24,6 +24,7 @@ services:
     command: bash -c "sh ./src/scripts/wait-for-mongo.sh && npm run dev"
     profiles:
       - all
+      - ''
 
   client-app:
     container_name: client-app
@@ -40,6 +41,7 @@ services:
     command: npm run dev
     profiles:
       - all
+      - ''
 
   mongo:
     container_name: mongo
@@ -55,3 +57,4 @@ services:
     profiles:
       - all
       - db
+      - ''
