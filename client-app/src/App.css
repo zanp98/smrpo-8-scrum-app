@@ -1,7 +1,11 @@
 html, body, #root {
-  height: 100%;
+  height: 100vh;
+  width: 100vw;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .App {
@@ -10,10 +14,25 @@ html, body, #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   font-size: 2vmin;
   color: white;
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full viewport width */
+  overflow: hidden;
+  width: 100%;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.25rem;
+  color: #172b4d;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .App {
+    font-size: 3vmin;
+    padding: 1rem;
+  }
 }

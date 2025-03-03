@@ -4,6 +4,7 @@
   align-items: center;
   height: 100vh;
   background-color: #f5f7fa;
+  padding: 1rem;
 }
 
 .login-form-container {
@@ -11,8 +12,9 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 2rem;
-  width: 100%;
+  width: 90%;
   max-width: 400px;
+  transition: all 0.3s ease-in-out;
 }
 
 .login-form-container h2 {
@@ -62,6 +64,7 @@
   cursor: pointer;
   margin-top: 1rem;
   transition: background-color 0.2s;
+  width: 100%;
 }
 
 .login-button:hover {
@@ -85,6 +88,7 @@
   padding-top: 1rem;
   font-size: 0.875rem;
   color: #5e6c84;
+  text-align: center;
 }
 
 .login-help p {
@@ -93,8 +97,17 @@
 
 .login-help ul {
   padding-left: 1.5rem;
+  text-align: left;
 }
 
 .login-help li {
   margin-bottom: 0.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .login-form-container {
+    width: 100%;
+    padding: 1.5rem;
+  }
 }
