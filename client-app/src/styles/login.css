@@ -53,6 +53,25 @@
   box-shadow: 0 0 0 2px rgba(76, 154, 255, 0.2);
 }
 
+.password-toggle {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.password-toggle input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.password-toggle label {
+  display: inline;
+  margin: 0;
+  font-size: 0.875rem;
+  color: #5e6c84;
+  cursor: pointer;
+}
+
 .login-button {
   background-color: #0052cc;
   color: white;

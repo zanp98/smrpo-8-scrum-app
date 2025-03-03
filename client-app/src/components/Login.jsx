@@ -5,6 +5,7 @@ import '../styles/login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login, error, loading } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
@@ -41,13 +42,26 @@ const Login = () => {
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
+              onCopy={(e) => e.preventDefault()}
+              onCut={(e) => e.preventDefault()}
+              onPaste={(e) => e.preventDefault()}
+              style={{ userSelect: 'none' }}
             />
+            <div className="password-toggle">
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={(e) => setShowPassword(e.target.checked)}
+              />
+              <label htmlFor="showPassword">Show password</label>
+            </div>
           </div>
           
           {error && <div className="error-message">{error}</div>}
