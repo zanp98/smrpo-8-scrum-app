@@ -89,3 +89,68 @@ sprintsRouter.post(
     }
   })
 );
+
+//Delete a sprint
+sprintsRouter.delete(
+  '/deleteSprint/:sprintId',
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const { sprintId } = req.params;
+
+      // Find the sprint
+      const sprint = await Sprint.findById(sprintId);
+      if (!sprint) {
+        return res.status(404).json({ message: 'Sprint not found' });
+      }
+
+      // Delete sprint
+      await Sprint.findByIdAndDelete(sprintId);
+      res.status(200).json({ message: 'Sprint deleted successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  })
+);
+
+//Update a sprint
+sprintsRouter.put(
+  '/updateSprint/:sprintId',
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const { sprintId } = req.params;
+      const { name, startDate, endDate, expectedVelocity, goal, status } = req.body;
+
+      // Find sprint
+      let sprint = await Sprint.findById(sprintId);
+      if (!sprint) {
+        return res.status(404).json({ message: 'Sprint not found' });
+      }
+
+      // Validate dates
+      if (startDate && new Date(startDate) < new Date()) {
+        return res.status(400).json({ message: 'Sprint start date cannot be in the past' });
+      }
+      if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+        return res.status(400).json({ message: 'Sprint end date must be after start date' });
+      }
+
+      // Validate velocity
+      if (expectedVelocity !== undefined && (expectedVelocity < 1 || isNaN(expectedVelocity))) {
+        return res.status(400).json({ message: 'Sprint velocity must be a positive number' });
+      }
+
+      // Update sprint
+      sprint = await Sprint.findByIdAndUpdate(
+        sprintId,
+        { name, startDate, endDate, expectedVelocity, goal, status },
+        { new: true } // Return updated document
+      );
+
+      res.status(200).json(sprint);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  })
+);
