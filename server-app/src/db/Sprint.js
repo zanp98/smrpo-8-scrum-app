@@ -18,6 +18,11 @@ const SprintSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  expectedVelocity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
   goal: {
     type: String,
   },
