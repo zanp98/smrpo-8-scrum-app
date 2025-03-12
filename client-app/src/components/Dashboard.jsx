@@ -71,7 +71,7 @@ const Dashboard = () => {
             {projects.length > 0 ? (
               <ul>
                 {projects.map((project) => (
-                  <Link to="/" key={project._id}>
+                  <Link to={`/project/${project._id}`} key={project._id}>
                     <li
                       key={project._id}
                       className={activeProject?._id === project._id ? 'active' : ''}
@@ -90,6 +90,7 @@ const Dashboard = () => {
 
         <Routes>
           <Route path="/" element={<Projects activeProject={activeProject} />} />
+          <Route path="/project/:projectId" element={<Projects activeProject={activeProject} />} />
           <Route path="/users" element={<UsersList />} />
         </Routes>
       </div>

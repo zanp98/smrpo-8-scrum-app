@@ -7,6 +7,7 @@ services:
     build: ./server-app
     ports:
       - "8000:8000"
+      - "9229:9229"
     links:
       - mongo
     depends_on:
