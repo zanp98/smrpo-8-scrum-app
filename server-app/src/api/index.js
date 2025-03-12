@@ -1,5 +1,5 @@
 import express from 'express';
-import auth from '../middleware/auth.js';
+import { authMiddleware } from '../middleware/auth.js';
 import { authRouter } from './auth/index.js';
 import { projectsRouter } from './projects/index.js';
 import { sprintsRouter } from './sprints/index.js';
@@ -10,10 +10,10 @@ export const apiRouter = express.Router();
 
 apiRouter.use('/auth', authRouter);
 
-apiRouter.use('/projects', auth, projectsRouter);
+apiRouter.use('/projects', authMiddleware, projectsRouter);
 
-apiRouter.use('/projects', auth, sprintsRouter);
+apiRouter.use('/sprints', authMiddleware, sprintsRouter);
 
-apiRouter.use('/sprints', auth, tasksRouter);
+apiRouter.use('/tasks', authMiddleware, tasksRouter);
 
-apiRouter.use('/users', auth, usersRouter);
+apiRouter.use('/users', authMiddleware, usersRouter);
