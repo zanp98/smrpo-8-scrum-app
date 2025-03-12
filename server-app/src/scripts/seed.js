@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { connectMongo } from '../db/connectMongo.js';
-import { User, UserProjectRoles, UserRoles } from '../db/User.js';
+import { User, UserRoles } from '../db/User.js';
 import { Project } from '../db/Project.js';
 import { Sprint } from '../db/Sprint.js';
 import { Task } from '../db/Task.js';
+import { ProjectUserRole, ProjectRole } from '../db/ProjectUserRole.js';
 
 export const seed = async () => {
   try {
@@ -15,6 +16,7 @@ export const seed = async () => {
     await Project.deleteMany({});
     await Sprint.deleteMany({});
     await Task.deleteMany({});
+    await ProjectUserRole.deleteMany({});
 
     console.log('Creating users...');
 
@@ -27,7 +29,7 @@ export const seed = async () => {
         lastName: 'User',
         email: 'admin@scrumapp.com',
         systemRole: UserRoles.ADMIN,
-        role: UserProjectRoles.ADMIN,
+        role: ProjectRole.ADMIN,
       },
       {
         username: 'po_user',
@@ -36,7 +38,7 @@ export const seed = async () => {
         lastName: 'Owner',
         email: 'po@scrumapp.com',
         systemRole: UserRoles.ADMIN,
-        role: UserProjectRoles.PRODUCT_OWNER,
+        role: ProjectRole.PRODUCT_OWNER,
       },
       {
         username: 'sm_user',
@@ -45,7 +47,7 @@ export const seed = async () => {
         lastName: 'Master',
         email: 'sm@scrumapp.com',
         systemRole: UserRoles.ADMIN,
-        role: UserProjectRoles.SCRUM_MASTER,
+        role: ProjectRole.SCRUM_MASTER,
       },
       {
         username: 'dev1',
@@ -54,7 +56,7 @@ export const seed = async () => {
         lastName: 'Developer',
         email: 'john@scrumapp.com',
         systemRole: UserRoles.USER,
-        role: UserProjectRoles.DEVELOPER,
+        role: ProjectRole.DEVELOPER,
       },
       {
         username: 'dev2',
@@ -63,7 +65,7 @@ export const seed = async () => {
         lastName: 'Coder',
         email: 'jane@scrumapp.com',
         systemRole: UserRoles.USER,
-        role: UserProjectRoles.DEVELOPER,
+        role: ProjectRole.DEVELOPER,
       },
     ]);
 
@@ -90,6 +92,22 @@ export const seed = async () => {
     ]);
 
     console.log(`Successfully created ${projects.length} projects!`);
+
+    // Create ProjectUserRoles
+    console.log('Creating project-user roles...');
+
+    const allProjectUserRoles = [];
+    for (const project of projects) {
+      for (const user of users) {
+        allProjectUserRoles.push({
+          project: project._id,
+          user: user._id,
+          role: user.role,
+        });
+      }
+    }
+    const projectUserRoles = await ProjectUserRole.insertMany(allProjectUserRoles);
+    console.log(`Successfully created ${projectUserRoles.length} projects-user roles!`);
 
     // Create sprints
     console.log('Creating sprints...');

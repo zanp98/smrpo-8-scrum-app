@@ -1,8 +1,10 @@
 import { Project } from '../../db/Project.js';
 import express from 'express';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
-import { systemRolesRequired } from '../../middleware/auth.js';
-import { User, UserRoles } from '../../db/User.js';
+import { projectRolesRequired, systemRolesRequired } from '../../middleware/auth.js';
+import { UserRoles } from '../../db/User.js';
+import { CAN_READ_PROJECTS } from '../../configuration/rolesConfiguration.js';
+import { ProjectUserRole } from '../../db/ProjectUserRole.js';
 
 export const projectsRouter = express.Router();
 
@@ -57,9 +59,8 @@ projectsRouter.post(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
-
 
 //Get projects by userID
 projectsRouter.get(
@@ -75,17 +76,17 @@ projectsRouter.get(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
-)
+  }),
+);
 
 //Update a project
 projectsRouter.put(
-  '/:id',
+  '/:projectId',
   systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { name, key, description, members } = req.body;
-      const projectId = req.params.id;
+      const projectId = req.params.projectId;
 
       let project = await Project.findById(projectId);
       if (!project) {
@@ -118,17 +119,16 @@ projectsRouter.put(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
-
 
 //Delete a project
 projectsRouter.delete(
-  '/:id',
+  '/:projectId',
   systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     try {
-      const projectId = req.params.id;
+      const projectId = req.params.projectId;
 
       const project = await Project.findById(projectId);
       if (!project) {
@@ -142,5 +142,25 @@ projectsRouter.delete(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
+);
+
+projectsRouter.get(
+  '/users/:projectId',
+  projectRolesRequired(CAN_READ_PROJECTS),
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const projectId = req.params.projectId;
+
+      const projectUserRoles = await ProjectUserRole.find({ project: projectId }).populate(
+        'user',
+        'username firstName lastName id',
+      );
+
+      return res.status(200).json(projectUserRoles.map((p) => p.user));
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }),
 );

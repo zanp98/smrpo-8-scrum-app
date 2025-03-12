@@ -1,0 +1,140 @@
+.board-container {
+  display: flex;
+  gap: 20px; /* Adds spacing between columns */
+}
+
+.board-column {
+  flex: 1; /* Makes each column take equal space */
+  min-width: 200px; /* Ensures columns don't shrink too much */
+  background: #8a8888;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.tasks-container {
+  display: flex;
+  flex-direction: column; /* Ensures tasks stack vertically */
+  gap: 10px; /* Adds space between tickets */
+}
+
+.task-card {
+  background: #4e4b4b;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.task-card {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 4px solid #007bff; /* Default color, can change based on status */
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-task-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #007bff;
+  padding: 4px;
+  transition: color 0.2s ease-in-out;
+}
+
+.edit-task-btn:hover {
+  color: #0056b3;
+}
+
+.task-id {
+  font-size: 12px;
+  background: #eaeaea;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.task-type {
+  font-size: 16px;
+}
+
+.task-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #222;
+  margin: 5px 0;
+  word-wrap: break-word;
+}
+
+.task-description {
+  font-size: 12px;
+  color: #222;
+  margin: 5px 0;
+  word-wrap: break-word;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #555;
+}
+
+.task-points {
+  font-weight: bold;
+  background: #f4f4f4;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.task-assignee {
+  font-style: italic;
+  color: #007bff;
+}
+
+.task-unassigned {
+  font-style: italic;
+  color: #000000;
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Adds spacing between elements */
+  padding: 8px 12px;
+}
+
+.create-task-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+}
+
+.create-task-btn:hover {
+  background: #0056b3;
+}
