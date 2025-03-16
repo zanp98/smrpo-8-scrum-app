@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/task-form.css';
+import '../styles/user-story-form.css';
 
-export const TaskType = Object.freeze({
+export const UserStoryType = Object.freeze({
   STORY: 'story',
   TASK: 'task',
   BUG: 'bug',
   EPIC: 'epic',
 });
 
-export const TaskStatus = Object.freeze({
+export const UserStoryStatus = Object.freeze({
   BACKLOG: 'backlog',
   TODO: 'todo',
   IN_PROGRESS: 'in_progress',
@@ -18,7 +18,7 @@ export const TaskStatus = Object.freeze({
 
 // These will be mapped on the UI to:
 // 'must have', 'could have', 'should have', 'won't have this time', 'won't do'
-export const TaskPriority = Object.freeze({
+export const UserStoryPriority = Object.freeze({
   HIGHEST: 'highest',
   HIGH: 'high',
   MEDIUM: 'medium',
@@ -26,7 +26,7 @@ export const TaskPriority = Object.freeze({
   LOWEST: 'lowest',
 });
 
-export const TaskForm = ({ onSubmit, projectUsers = [], initialData, onClose }) => {
+export const UserStoryForm = ({ onSubmit, projectUsers = [], initialData, onClose }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -79,12 +79,12 @@ export const TaskForm = ({ onSubmit, projectUsers = [], initialData, onClose }) 
   };
 
   return (
-    <div className="task-form-container">
+    <div className="user-story-form-container">
       <h3 onClick={() => onClose()}>^</h3>
-      <h3>{!!initialData ? 'Edit Task' : 'Create New Task'}</h3>
+      <h3>{!!initialData ? 'Edit UserStory' : 'Create New UserStory'}</h3>
       {error && <div className="error-message">{error}</div>}
 
-      <form onSubmit={handleSubmit} className="task-form">
+      <form onSubmit={handleSubmit} className="user-story-form">
         <div className="form-group">
           <label htmlFor="title">Title</label>
           <input
@@ -101,10 +101,10 @@ export const TaskForm = ({ onSubmit, projectUsers = [], initialData, onClose }) 
         <div className="form-group">
           <label htmlFor="type">Type</label>
           <select id="type" name="type" value={formData.type} onChange={handleChange}>
-            <option value={TaskType.STORY}>Story</option>
-            <option value={TaskType.TASK}>Task</option>
-            <option value={TaskType.BUG}>Bug</option>
-            <option value={TaskType.EPIC}>Epic</option>
+            <option value={UserStoryType.STORY}>Story</option>
+            <option value={UserStoryType.TASK}>UserStory</option>
+            <option value={UserStoryType.BUG}>Bug</option>
+            <option value={UserStoryType.EPIC}>Epic</option>
           </select>
         </div>
 
@@ -121,22 +121,22 @@ export const TaskForm = ({ onSubmit, projectUsers = [], initialData, onClose }) 
         <div className="form-group">
           <label htmlFor="status">Status</label>
           <select id="status" name="status" value={formData.status} onChange={handleChange}>
-            <option value={TaskStatus.BACKLOG}>Backlog</option>
-            <option value={TaskStatus.TODO}>To do</option>
-            <option value={TaskStatus.IN_PROGRESS}>In progress</option>
-            <option value={TaskStatus.REVIEW}>Review</option>
-            <option value={TaskStatus.DONE}>Done</option>
+            <option value={UserStoryStatus.BACKLOG}>Backlog</option>
+            <option value={UserStoryStatus.TODO}>To do</option>
+            <option value={UserStoryStatus.IN_PROGRESS}>In progress</option>
+            <option value={UserStoryStatus.REVIEW}>Review</option>
+            <option value={UserStoryStatus.DONE}>Done</option>
           </select>
         </div>
 
         <div className="form-group">
           <label htmlFor="priority">Priority</label>
           <select id="priority" name="priority" value={formData.priority} onChange={handleChange}>
-            <option value={TaskPriority.HIGHEST}>Must have</option>
-            <option value={TaskPriority.HIGH}>Should have</option>
-            <option value={TaskPriority.MEDIUM}>Could have</option>
-            <option value={TaskPriority.LOW}>Won't have this time</option>
-            <option value={TaskPriority.LOWEST}>Won't do</option>
+            <option value={UserStoryPriority.HIGHEST}>Must have</option>
+            <option value={UserStoryPriority.HIGH}>Should have</option>
+            <option value={UserStoryPriority.MEDIUM}>Could have</option>
+            <option value={UserStoryPriority.LOW}>Won't have this time</option>
+            <option value={UserStoryPriority.LOWEST}>Won't do</option>
           </select>
         </div>
 
@@ -181,7 +181,7 @@ export const TaskForm = ({ onSubmit, projectUsers = [], initialData, onClose }) 
         )}
 
         <button type="submit" className="submit-btn">
-          {!!initialData ? 'Update Task' : 'Create Task'}
+          {!!initialData ? 'Update UserStory' : 'Create UserStory'}
         </button>
       </form>
     </div>

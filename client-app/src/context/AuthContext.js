@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  console.log('currentUser');
   const login = async (username, password) => {
     try {
       setError(null);
@@ -33,6 +34,8 @@ export const AuthProvider = ({ children }) => {
         username,
         password,
       });
+
+      console.log(res);
 
       const { token, user } = res.data;
 

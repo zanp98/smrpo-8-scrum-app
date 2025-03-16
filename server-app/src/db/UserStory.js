@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 
-export const TaskType = Object.freeze({
+export const UserStoryType = Object.freeze({
   STORY: 'story',
   TASK: 'task',
   BUG: 'bug',
   EPIC: 'epic',
 });
 
-export const TaskStatus = Object.freeze({
+export const UserStoryStatus = Object.freeze({
   BACKLOG: 'backlog',
   TODO: 'todo',
   IN_PROGRESS: 'in_progress',
@@ -17,7 +17,7 @@ export const TaskStatus = Object.freeze({
 
 // These will be mapped on the UI to:
 // 'must have', 'could have', 'should have', 'won't have this time', 'won't do'
-export const TaskPriority = Object.freeze({
+export const UserStoryPriority = Object.freeze({
   HIGHEST: 'highest',
   HIGH: 'high',
   MEDIUM: 'medium',
@@ -25,7 +25,7 @@ export const TaskPriority = Object.freeze({
   LOWEST: 'lowest',
 });
 
-const TaskSchema = new mongoose.Schema(
+const UserStorySchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -41,18 +41,18 @@ const TaskSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: Object.values(TaskType),
-      default: TaskType.TASK,
+      enum: Object.values(UserStoryType),
+      default: UserStoryType.TASK,
     },
     status: {
       type: String,
-      enum: Object.values(TaskStatus),
-      default: TaskStatus.BACKLOG,
+      enum: Object.values(UserStoryStatus),
+      default: UserStoryStatus.BACKLOG,
     },
     priority: {
       type: String,
-      enum: Object.values(TaskPriority),
-      default: TaskPriority.MEDIUM,
+      enum: Object.values(UserStoryPriority),
+      default: UserStoryPriority.MEDIUM,
     },
     points: {
       type: Number,
@@ -92,21 +92,21 @@ const TaskSchema = new mongoose.Schema(
   },
 );
 
-TaskSchema.pre('save', async function (next) {
+UserStorySchema.pre('save', async function (next) {
   if (!this.isNew) return next(); // Only run on new documents
 
   try {
     // Find the max ticketNumber in the same project
-    const lastTask = await Task.findOne({ project: this.project })
+    const lastUserStory = await UserStory.findOne({ project: this.project })
       .sort({ number: -1 })
       .select('number')
       .exec();
 
-    this.number = (lastTask?.number ?? 0) + 1;
+    this.number = (lastUserStory?.number ?? 0) + 1;
     next();
   } catch (err) {
     next(err);
   }
 });
 
-export const Task = mongoose.model('Task', TaskSchema);
+export const UserStory = mongoose.model('UserStory', UserStorySchema);

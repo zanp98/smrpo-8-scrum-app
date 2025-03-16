@@ -1,18 +1,18 @@
 /* Copied over from 'user-form.css'. Clean up soon. */
-.task-form-container {
+.user-story-form-container {
   background-color: #f5f5f5;
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
 }
 
-.task-form-container h3 {
+.user-story-form-container h3 {
   color: #09d3ac;
   margin-top: 0;
   margin-bottom: 1rem;
 }
 
-.task-form {
+.user-story-form {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 1rem;

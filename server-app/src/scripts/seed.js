@@ -3,8 +3,8 @@ import { connectMongo } from '../db/connectMongo.js';
 import { User, UserRoles } from '../db/User.js';
 import { Project } from '../db/Project.js';
 import { Sprint } from '../db/Sprint.js';
-import { Task } from '../db/Task.js';
 import { ProjectUserRole, ProjectRole } from '../db/ProjectUserRole.js';
+import { UserStory } from '../db/UserStory.js';
 
 export const seed = async () => {
   try {
@@ -15,7 +15,7 @@ export const seed = async () => {
     await User.deleteMany({});
     await Project.deleteMany({});
     await Sprint.deleteMany({});
-    await Task.deleteMany({});
+    await UserStory.deleteMany({});
     await ProjectUserRole.deleteMany({});
 
     console.log('Creating users...');
@@ -125,6 +125,7 @@ export const seed = async () => {
         endDate: now,
         goal: 'Set up basic project structure',
         status: 'completed',
+        expectedVelocity: 50,
       },
       {
         name: 'Sprint 2',
@@ -133,6 +134,7 @@ export const seed = async () => {
         endDate: twoWeeksFromNow,
         goal: 'Implement core features',
         status: 'active',
+        expectedVelocity: 22,
       },
       {
         name: 'Sprint 3',
@@ -141,15 +143,16 @@ export const seed = async () => {
         endDate: fourWeeksFromNow,
         goal: 'Finalize MVP',
         status: 'planning',
+        expectedVelocity: 30,
       },
     ]);
 
     console.log(`Successfully created ${sprints.length} sprints!`);
 
-    // Create tasks
-    console.log('Creating tasks...');
-    const tasks = await Task.insertMany([
-      // Tasks for completed sprint
+    // Create user stories
+    console.log('Creating user stories...');
+    const user_stories = await UserStory.insertMany([
+      // User stories for completed sprint
       {
         title: 'Set up project repository',
         description: 'Create GitHub repository and set up initial project structure',
@@ -175,7 +178,7 @@ export const seed = async () => {
         sprint: sprints[0]._id,
       },
 
-      // Tasks for active sprint
+      // User stories for active sprint
       {
         title: 'Implement user authentication',
         description: 'Create login, registration and authentication middleware',
@@ -213,10 +216,10 @@ export const seed = async () => {
         sprint: sprints[1]._id,
       },
 
-      // Backlog tasks
+      // Backlog user stories
       {
         title: 'Implement sprint planning feature',
-        description: 'Create interface for planning sprints and assigning tasks',
+        description: 'Create interface for planning sprints and assigning user stories',
         type: 'story',
         status: 'backlog',
         priority: 'medium',
@@ -236,7 +239,7 @@ export const seed = async () => {
       },
     ]);
 
-    console.log(`Successfully created ${tasks.length} tasks!`);
+    console.log(`Successfully created ${user_stories.length} user stories.`);
 
     console.log('Seed completed successfully!');
   } catch (error) {

@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { backendApi } from '../api/backend';
-import { TaskForm } from './TaskForm';
+import { UserStoryForm } from './UserStoryForm';
 import '../styles/projects.css';
 
 export const Projects = ({ activeProject }) => {
-  const [tasks, setTasks] = useState([]);
+  const [userStories, setUserStories] = useState([]);
   const [projectUsers, setProjectUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showCreateTask, setShowCreateTask] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [showCreateUserStory, setShowCreateUserStory] = useState(false);
+  const [selectedUserStory, setSelectedUserStory] = useState(null);
 
   const fetchProjectUsers = async () => {
     if (!activeProject) {
@@ -25,79 +25,81 @@ export const Projects = ({ activeProject }) => {
       setLoading(false);
     }
   };
-  const fetchTasks = async () => {
+  const fetchUserStories = async () => {
     if (!activeProject) {
       return;
     }
 
     try {
       setLoading(true);
-      const res = await backendApi.get(`/tasks/${activeProject._id}`);
-      setTasks(res.data);
+      const res = await backendApi.get(`/userStories/${activeProject._id}`);
+      setUserStories(res.data);
     } catch (err) {
-      setError('Failed to fetch tasks');
+      setError('Failed to fetch user stories');
     } finally {
       setLoading(false);
     }
   };
   useEffect(() => {
-    fetchTasks();
+    fetchUserStories();
     fetchProjectUsers();
   }, [activeProject]);
 
-  const handleCreateTask = async (taskData) => {
+  const handleCreateUserStory = async (userStoryData) => {
     try {
-      if (selectedTask) {
+      if (selectedUserStory) {
         // This is update
-        await backendApi.patch(`/tasks/${activeProject._id}`, taskData);
+        await backendApi.patch(`/userStories/${activeProject._id}`, userStoryData);
       } else {
         // this is add
-        await backendApi.post(`/tasks/${activeProject._id}`, taskData);
+        await backendApi.post(`/userStories/${activeProject._id}`, userStoryData);
       }
-      setShowCreateTask(false);
-      fetchTasks();
+      setShowCreateUserStory(false);
+      fetchUserStories();
     } catch (err) {
       return err.response?.data?.message || 'Failed to create ticket';
     }
   };
 
-  const getStatusColumnTasks = (status) => {
-    return tasks.filter((task) => task.status === status);
+  const getStatusColumnUserStories = (status) => {
+    return userStories.filter((userStory) => userStory.status === status);
   };
 
-  const renderTaskCard = (task) => {
-    const priorityClass = `priority-${task.priority}`;
-    const typeIcon = getTypeIcon(task.type);
+  const renderUserStoryCard = (userStory) => {
+    const priorityClass = `priority-${userStory.priority}`;
+    const typeIcon = getTypeIcon(userStory.type);
 
     return (
-      <div key={task._id} className={`task-card ${priorityClass}`}>
-        <div className="task-header">
-          <span className="task-type">{typeIcon}</span>
-          <div className="task-actions">
+      <div key={userStory._id} className={`user-story-card ${priorityClass}`}>
+        <div className="user-story-header">
+          <span className="user-story-type">{typeIcon}</span>
+          <div className="user-story-actions">
             <button
-              className="edit-task-btn"
+              className="edit-user-story-btn"
               onClick={() => {
-                setSelectedTask(task);
-                setShowCreateTask(true);
+                setSelectedUserStory(userStory);
+                setShowCreateUserStory(true);
               }}
             >
               ✏️
             </button>
-            <span className="task-id">
-              {activeProject?.key}-{task.number}
+            <span className="user-story-id">
+              {activeProject?.key}-{userStory.number}
             </span>
           </div>
         </div>
-        <div className="task-title">{task.title}</div>
-        <div className="task-description">{task.description}</div>
-        <div className="task-footer">
-          <span className="task-points">{task.points > 0 ? `${task.points} pts` : ''}</span>
-          {task.assignee && (
-            <span className="task-assignee">
-              {task.assignee.firstName} {task.assignee.lastName.charAt(0)}.
+        <div className="user-story-title">{userStory.title}</div>
+        <div className="user-story-description">{userStory.description}</div>
+        <div className="user-story-footer">
+          <span className="user-story-points">
+            {userStory.points > 0 ? `${userStory.points} pts` : ''}
+          </span>
+          {userStory.assignee && (
+            <span className="user-story-assignee">
+              {userStory.assignee.firstName} {userStory.assignee.lastName.charAt(0)}.
             </span>
           )}
-          {!task.assignee && <span className="task-unassigned">Unassigned</span>}
+          {!userStory.assignee && <span className="user-story-unassigned">Unassigned</span>}
         </div>
       </div>
     );
@@ -126,24 +128,24 @@ export const Projects = ({ activeProject }) => {
           </div>
           <div className="column-header">
             <button
-              className="create-task-btn"
+              className="create-user-story-btn"
               onClick={() => {
-                setShowCreateTask(true);
-                setSelectedTask(null);
+                setShowCreateUserStory(true);
+                setSelectedUserStory(null);
               }}
             >
-              ➕ New Task
+              ➕ New UserStory
             </button>
           </div>
 
-          {showCreateTask && (
-            <TaskForm
-              onSubmit={handleCreateTask}
+          {showCreateUserStory && (
+            <UserStoryForm
+              onSubmit={handleCreateUserStory}
               projectUsers={projectUsers}
-              initialData={selectedTask}
+              initialData={selectedUserStory}
               onClose={() => {
-                setShowCreateTask(false);
-                setSelectedTask(null);
+                setShowCreateUserStory(false);
+                setSelectedUserStory(null);
               }}
             />
           )}
@@ -151,36 +153,36 @@ export const Projects = ({ activeProject }) => {
           <div className="board-container">
             <div className="board-column">
               <h3>Backlog</h3>
-              <div className="tasks-container">
-                {getStatusColumnTasks('backlog').map(renderTaskCard)}
+              <div className="user-stories-container">
+                {getStatusColumnUserStories('backlog').map(renderUserStoryCard)}
               </div>
             </div>
 
             <div className="board-column">
               <h3>To Do</h3>
-              <div className="tasks-container">
-                {getStatusColumnTasks('todo').map(renderTaskCard)}
+              <div className="user-stories-container">
+                {getStatusColumnUserStories('todo').map(renderUserStoryCard)}
               </div>
             </div>
 
             <div className="board-column">
               <h3>In Progress</h3>
-              <div className="tasks-container">
-                {getStatusColumnTasks('in_progress').map(renderTaskCard)}
+              <div className="user-stories-container">
+                {getStatusColumnUserStories('in_progress').map(renderUserStoryCard)}
               </div>
             </div>
 
             <div className="board-column">
               <h3>Review</h3>
-              <div className="tasks-container">
-                {getStatusColumnTasks('review').map(renderTaskCard)}
+              <div className="user-stories-container">
+                {getStatusColumnUserStories('review').map(renderUserStoryCard)}
               </div>
             </div>
 
             <div className="board-column">
               <h3>Done</h3>
-              <div className="tasks-container">
-                {getStatusColumnTasks('done').map(renderTaskCard)}
+              <div className="user-stories-container">
+                {getStatusColumnUserStories('done').map(renderUserStoryCard)}
               </div>
             </div>
           </div>
