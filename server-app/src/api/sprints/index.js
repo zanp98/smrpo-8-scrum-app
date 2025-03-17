@@ -7,12 +7,12 @@ export const sprintsRouter = express.Router();
 
 // Get all sprints for a project
 sprintsRouter.get(
-  '/:projectId/sprints',
+  '/:projectId',
   errorHandlerWrapped(async (req, res) => {
     try {
       const sprints = await Sprint.find({
         project: req.params.projectId,
-      });
+      }).sort({ endDate: 'desc' });
 
       res.json(sprints);
     } catch (error) {
@@ -78,7 +78,7 @@ sprintsRouter.post(
         endDate,
         expectedVelocity,
         goal,
-        status
+        status,
       });
 
       await sprint.save();
@@ -87,7 +87,7 @@ sprintsRouter.post(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
 
 //Delete a sprint
@@ -110,7 +110,7 @@ sprintsRouter.delete(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
 
 //Update a sprint
@@ -144,7 +144,7 @@ sprintsRouter.put(
       sprint = await Sprint.findByIdAndUpdate(
         sprintId,
         { name, startDate, endDate, expectedVelocity, goal, status },
-        { new: true } // Return updated document
+        { new: true }, // Return updated document
       );
 
       res.status(200).json(sprint);
@@ -152,5 +152,5 @@ sprintsRouter.put(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );

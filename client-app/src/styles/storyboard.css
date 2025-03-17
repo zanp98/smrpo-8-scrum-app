@@ -91,6 +91,14 @@
   word-wrap: break-word;
 }
 
+.user-story-sprint {
+  font-size: 10px;
+  color: #222;
+  margin: 5px 0;
+  word-wrap: break-word;
+  font-weight: bold;
+}
+
 .user-story-footer {
   display: flex;
   justify-content: space-between;
@@ -133,81 +141,8 @@
   font-size: 14px;
   font-weight: bold;
   transition: background 0.2s ease-in-out;
-  width: 240px;
 }
 
 .create-user-story-btn:hover {
   background: #0056b3;
 }
-
-.projects-list {
-  background-color: #f8f9fa;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-}
-
-h3 {
-  font-size: 1.2rem;
-  margin-bottom: 12px;
-}
-
-.project-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.project-item {
-  padding: 10px;
-  background-color: #ffffff;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  color: #333; /* Ensuring text is visible */
-}
-
-.project-item:hover {
-  background-color: #e9ecef;
-}
-
-.project-item.active {
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-}
-
-.sprint-list {
-  list-style-type: disc;
-  padding-left: 20px;
-  margin-top: 5px;
-}
-
-.sprint-item {
-  padding: 6px;
-  border-left: 3px solid #007bff;
-  margin: 4px 0;
-  background-color: #ffffff; /* Fix for visibility */
-  color: #333; /* Ensuring the text is dark */
-}
-
-.sprint-item.active {
-  background-color: #007bff;
-}
-
-.sprint-item.current-sprint {
-
-}
-
-.sprint-name {
-  font-weight: bold;
-  color: #333; /* Ensuring the text is visible */
-}
-
-.sprint-dates {
-  font-size: 0.85rem;
-  color: #6c757d;
-  margin-top: 2px;
-}
-

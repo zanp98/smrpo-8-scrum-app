@@ -22,7 +22,9 @@ userStoriesRouter.get(
       const userStories = await UserStory.find({
         project: projectId,
         ...(!!sprintId ? { sprint: sprintId } : {}),
-      }).populate('assignee', 'username firstName lastName');
+      })
+        .populate('assignee', 'username firstName lastName')
+        .populate('sprint');
 
       res.json(userStories);
     } catch (error) {
@@ -33,7 +35,7 @@ userStoriesRouter.get(
 );
 
 userStoriesRouter.post(
-  '/:projectId/:sprintId?',
+  '/:projectId/:sprintId',
   projectRolesRequired(CAN_CREATE_USER_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { projectId, sprintId } = req.params;
@@ -62,8 +64,17 @@ userStoriesRouter.patch(
   projectRolesRequired(CAN_UPDATE_USER_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { projectId, userStoryId } = req.params;
-    const { title, description, type, status, priority, points, businessValue, assignee } =
-      req.body;
+    const {
+      title,
+      description,
+      type,
+      status,
+      priority,
+      points,
+      businessValue,
+      assignee,
+      sprintId,
+    } = req.body;
     const potentialUpdates = {
       title,
       description,
@@ -79,7 +90,7 @@ userStoriesRouter.patch(
     const nonUndefinedFields = Object.fromEntries(
       Object.entries(potentialUpdates).filter(([_, v]) => v !== undefined),
     );
-    if (!nonUndefinedFields.length) {
+    if (!nonUndefinedFields) {
       throw new ValidationError('No update fields provided');
     }
     const userStory = await UserStory.updateOne({ _id: userStoryId }, nonUndefinedFields);
@@ -94,5 +105,19 @@ userStoriesRouter.delete(
     const { userStoryId } = req.params;
     const userStory = await UserStory.deleteOne({ _id: userStoryId });
     return res.status(202).json(userStory);
+  }),
+);
+
+userStoriesRouter.post(
+  '/:projectId',
+  projectRolesRequired(CAN_UPDATE_USER_STORIES),
+  errorHandlerWrapped(async (req, res) => {
+    const { userStories, sprintId } = req.body;
+
+    if (!userStories?.length || !sprintId) {
+      throw new ValidationError('No stories or sprintId provided');
+    }
+    await UserStory.updateMany({ _id: { $in: userStories } }, { sprint: sprintId });
+    return res.sendStatus(201);
   }),
 );

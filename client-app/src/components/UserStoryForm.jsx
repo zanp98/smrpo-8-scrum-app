@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/user-story-form.css';
 
 export const UserStoryType = Object.freeze({
@@ -26,7 +26,13 @@ export const UserStoryPriority = Object.freeze({
   LOWEST: 'lowest',
 });
 
-export const UserStoryForm = ({ onSubmit, projectUsers = [], initialData, onClose }) => {
+export const UserStoryForm = ({
+  onSubmit,
+  projectUsers = [],
+  initialData,
+  projectSprints = [],
+  onClose,
+}) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -36,7 +42,13 @@ export const UserStoryForm = ({ onSubmit, projectUsers = [], initialData, onClos
     points: 0,
     businessValue: 0,
     assignee: null,
+    sprintId: null,
   });
+
+  const sprintCanBeChanged = useMemo(
+    () => formData?.status !== 'done' && formData?.points > 0,
+    [formData],
+  );
 
   useEffect(() => {
     if (!initialData) {
@@ -50,7 +62,8 @@ export const UserStoryForm = ({ onSubmit, projectUsers = [], initialData, onClos
       priority: initialData.priority,
       points: initialData.points,
       businessValue: initialData.businessValue,
-      assignee: initialData.assignee,
+      assignee: initialData.assignee?._id,
+      sprintId: initialData.sprint?._id,
     });
   }, [initialData]);
 
@@ -172,8 +185,30 @@ export const UserStoryForm = ({ onSubmit, projectUsers = [], initialData, onClos
             <select id="assignee" name="assignee" value={formData.assignee} onChange={handleChange}>
               <option value=""></option>
               {projectUsers.map((pu) => (
-                <option key={pu._id} value={pu._id}>
-                  {pu.firstName} {pu.lastName} ({pu.username})
+                <option key={pu.user._id} value={pu.user._id}>
+                  {pu.user.firstName} {pu.user.lastName} ({pu.user.username})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {projectSprints.length && (
+          <div className="form-group">
+            <label htmlFor="sprintId">
+              Sprint {sprintCanBeChanged ? '' : '(cannot change if no estimate or status done)'}
+            </label>
+            <select
+              id="sprintId"
+              name="sprintId"
+              value={formData.sprintId}
+              onChange={handleChange}
+              disabled={!sprintCanBeChanged}
+            >
+              <option value=""></option>
+              {projectSprints.map((ps) => (
+                <option key={ps._id} value={ps._id}>
+                  {ps.name}
                 </option>
               ))}
             </select>

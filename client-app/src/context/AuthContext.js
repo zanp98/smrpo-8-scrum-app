@@ -24,7 +24,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  console.log('currentUser');
   const login = async (username, password) => {
     try {
       setError(null);

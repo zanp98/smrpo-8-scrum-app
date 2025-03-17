@@ -69,7 +69,9 @@ projectsRouter.get(
     try {
       const projects = await Project.find({
         members: req.user.id, // Find projects where user is a member
-      }).populate('owner', 'username firstName lastName');
+      })
+        .populate('owner', 'username firstName lastName')
+        .populate('sprint');
 
       res.json(projects);
     } catch (error) {
@@ -157,7 +159,7 @@ projectsRouter.get(
         'username firstName lastName id',
       );
 
-      return res.status(200).json(projectUserRoles.map((p) => p.user));
+      return res.status(200).json(projectUserRoles);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });

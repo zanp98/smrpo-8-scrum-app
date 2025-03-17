@@ -8,6 +8,7 @@ export const errorHandlerWrapped = (func) => {
       if (error instanceof SmrpoError) {
         return res.status(error.statusCode).send(error.message);
       }
+      console.error(error);
       return res.status(500).json({ message: error.message });
     }
   };

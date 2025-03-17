@@ -164,6 +164,7 @@ export const seed = async () => {
         reporter: users[2]._id, // Scrum Master
         project: projects[0]._id,
         sprint: sprints[0]._id,
+        number: 1,
       },
       {
         title: 'Design database schema',
@@ -176,6 +177,7 @@ export const seed = async () => {
         reporter: users[2]._id, // Scrum Master
         project: projects[0]._id,
         sprint: sprints[0]._id,
+        number: 2,
       },
 
       // User stories for active sprint
@@ -190,6 +192,7 @@ export const seed = async () => {
         reporter: users[1]._id, // Product Owner
         project: projects[0]._id,
         sprint: sprints[1]._id,
+        number: 3,
       },
       {
         title: 'Create dashboard UI',
@@ -202,6 +205,7 @@ export const seed = async () => {
         reporter: users[1]._id, // Product Owner
         project: projects[0]._id,
         sprint: sprints[1]._id,
+        number: 4,
       },
       {
         title: 'Fix navigation bug',
@@ -214,6 +218,7 @@ export const seed = async () => {
         reporter: users[2]._id, // Scrum Master
         project: projects[0]._id,
         sprint: sprints[1]._id,
+        number: 5,
       },
 
       // Backlog user stories
@@ -226,6 +231,7 @@ export const seed = async () => {
         points: 13,
         reporter: users[1]._id, // Product Owner
         project: projects[0]._id,
+        number: 6,
       },
       {
         title: 'Add reporting capabilities',
@@ -236,6 +242,7 @@ export const seed = async () => {
         points: 8,
         reporter: users[1]._id, // Product Owner
         project: projects[0]._id,
+        number: 7,
       },
     ]);
 
