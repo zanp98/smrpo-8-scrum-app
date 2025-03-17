@@ -12,6 +12,9 @@ const UserForm = ({ onSubmit, initialData = {} }) => {
   });
 
   useEffect(() => {
+    if (!initialData) {
+      return;
+    }
     setFormData({
       username: initialData.username || '',
       password: '',
@@ -122,8 +125,13 @@ const UserForm = ({ onSubmit, initialData = {} }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="role">Role</label>
-          <select id="role" name="role" value={formData.systemRole} onChange={handleChange}>
+          <label htmlFor="systemRole">Role</label>
+          <select
+            id="systemRole"
+            name="systemRole"
+            value={formData.systemRole}
+            onChange={handleChange}
+          >
             <option value="user">User</option>
             <option value="admin">Administrator</option>
           </select>

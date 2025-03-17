@@ -19,7 +19,7 @@ usersRouter.post(
   '/',
   systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
-    const { username, password, firstName, lastName, email, role } = req.body;
+    const { username, password, firstName, lastName, email, systemRole } = req.body;
     const usersCount = await User.find({ $or: [{ username }, { email }] })
       .countDocuments()
       .exec();
@@ -32,7 +32,7 @@ usersRouter.post(
       firstName,
       lastName,
       email,
-      role,
+      systemRole,
     });
     return res.status(201).json({ message: 'Successfully created user' });
   }),
@@ -50,10 +50,11 @@ usersRouter.delete(
 
 usersRouter.patch(
   '/:id',
+  systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     const { id } = req.params;
-    const { username, firstName, lastName } = req.body;
-    await User.updateOne({ _id: id }, { id, username, firstName, lastName });
+    const { username, firstName, lastName, systemRole } = req.body;
+    await User.updateOne({ _id: id }, { id, username, firstName, lastName, systemRole });
     return res.status(202).json({ message: 'Successfully updated user' });
   }),
 );
