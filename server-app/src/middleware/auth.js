@@ -69,20 +69,20 @@ export const projectRolesRequired = (...roles) => {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     const projectId = await getProjectId(req);
-    const assignedRoles = await ProjectUserRole.findOne({
+    const assignedRole = await ProjectUserRole.findOne({
       project: projectId,
       user: requestingUser.id,
     })
       .select('role')
       .exec()
-      .then((t) => t.role);
+      .then((t) => t?.role);
 
     console.log(`User: ${requestingUser.id}`);
     console.log(`projectId: ${projectId}`);
-    console.log(`db roles: ${assignedRoles}`);
+    console.log(`db roles: ${assignedRole}`);
     console.log(`required roles: ${requiredRoles}`);
 
-    if (!(requiredRoles ?? []).includes(assignedRoles)) {
+    if (!(requiredRoles ?? []).includes(assignedRole)) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     next();
