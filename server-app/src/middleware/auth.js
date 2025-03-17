@@ -41,7 +41,7 @@ export const authMiddleware = (req, res, next) => {
 export const systemRolesRequired = (...roles) => {
   return (req, res, next) => {
     const requestingUser = req.user;
-    if (!requestingUser || !(roles ?? []).includes(requestingUser.role)) {
+    if (!requestingUser || !(roles ?? []).includes(requestingUser.systemRole)) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     next();
