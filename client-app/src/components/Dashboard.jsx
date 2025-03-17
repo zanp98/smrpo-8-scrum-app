@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react'; 
 import { Routes, Route } from 'react-router';
 import { Link } from 'react-router';
 import { backendApi } from '../api/backend';
@@ -6,6 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import '../styles/dashboard.css';
 import { Projects } from './Projects';
 import { UsersList } from './UsersList';
+import { SprintForm } from './SprintForm'; // Added SprintForm import
 
 const Dashboard = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -66,6 +67,11 @@ const Dashboard = () => {
               </h3>
             </div>
           )}
+          <div>
+            <h3>
+              <Link to="/sprints">Create Sprint</Link> {/* Added Sprint Management link */}
+            </h3>
+          </div>
           <div className="projects-list">
             <h3>Projects</h3>
             {projects.length > 0 ? (
@@ -92,6 +98,7 @@ const Dashboard = () => {
           <Route path="/" element={<Projects activeProject={activeProject} />} />
           <Route path="/project/:projectId" element={<Projects activeProject={activeProject} />} />
           <Route path="/users" element={<UsersList />} />
+          <Route path="/sprints" element={<SprintForm />} /> {/* Added route for SprintForm */}
         </Routes>
       </div>
     </div>
