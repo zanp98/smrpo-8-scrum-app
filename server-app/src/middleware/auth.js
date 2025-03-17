@@ -77,11 +77,9 @@ export const projectRolesRequired = (...roles) => {
       .exec()
       .then((t) => t?.role);
 
-    console.log(`User: ${requestingUser.id}`);
-    console.log(`projectId: ${projectId}`);
-    console.log(`db roles: ${assignedRole}`);
-    console.log(`required roles: ${requiredRoles}`);
-
+    console.log(
+      `User[${requestingUser.id}]: has project[${projectId}] privilege: ${assignedRole}]`,
+    );
     if (!(requiredRoles ?? []).includes(assignedRole)) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
