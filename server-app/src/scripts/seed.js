@@ -5,6 +5,7 @@ import { Project } from '../db/Project.js';
 import { Sprint } from '../db/Sprint.js';
 import { ProjectUserRole, ProjectRole } from '../db/ProjectUserRole.js';
 import { UserStory } from '../db/UserStory.js';
+import { Task } from '../db/Task.js';
 
 export const seed = async () => {
   try {
@@ -17,6 +18,7 @@ export const seed = async () => {
     await Sprint.deleteMany({});
     await UserStory.deleteMany({});
     await ProjectUserRole.deleteMany({});
+    await Task.deleteMany({});
 
     console.log('Creating users...');
 
@@ -247,6 +249,47 @@ export const seed = async () => {
     ]);
 
     console.log(`Successfully created ${user_stories.length} user stories.`);
+
+    // Create tasks
+    console.log('Creating tasks...');
+    const tasks = await Task.insertMany([
+      {
+        description: 'Set up development environment',
+        timeEstimation: 4,
+        assignedUser: users[3]._id,
+        userStory: user_stories[0]._id,
+        status: 'DONE'
+      },
+      {
+        description: 'Create initial project structure',
+        timeEstimation: 2,
+        assignedUser: users[4]._id,
+        userStory: user_stories[0]._id,
+        status: 'DONE'
+      },
+      {
+        description: 'Implement login form',
+        timeEstimation: 6,
+        assignedUser: users[3]._id,
+        userStory: user_stories[2]._id,
+        status: 'IN_PROGRESS'
+      },
+      {
+        description: 'Set up authentication middleware',
+        timeEstimation: 8,
+        assignedUser: users[4]._id,
+        userStory: user_stories[2]._id,
+        status: 'TODO'
+      }
+    ]);
+
+    // Update user stories with task references
+    await UserStory.updateMany(
+      { _id: { $in: user_stories.map(us => us._id) } },
+      { $set: { tasks: tasks.map(t => t._id) } }
+    );
+
+    console.log(`Successfully created ${tasks.length} tasks!`);
 
     console.log('Seed completed successfully!');
   } catch (error) {

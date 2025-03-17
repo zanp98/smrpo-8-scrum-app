@@ -64,6 +64,10 @@ const UserStorySchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
+    tasks: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Task'
+    }],
     assignee: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
