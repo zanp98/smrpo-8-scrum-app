@@ -5,6 +5,7 @@ import { projectRolesRequired } from '../../middleware/auth.js';
 import {
   CAN_CREATE_USER_STORIES,
   CAN_DELETE_USER_STORIES,
+  CAN_EDIT_SPRINT_OF_USER_STORIES,
   CAN_READ_USER_STORIES,
   CAN_UPDATE_USER_STORIES,
 } from '../../configuration/rolesConfiguration.js';
@@ -110,7 +111,7 @@ userStoriesRouter.delete(
 
 userStoriesRouter.post(
   '/:projectId',
-  projectRolesRequired(CAN_UPDATE_USER_STORIES),
+  projectRolesRequired(CAN_EDIT_SPRINT_OF_USER_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { userStories, sprintId } = req.body;
 
