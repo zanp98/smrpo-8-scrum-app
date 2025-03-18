@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import { connectMongo } from './db/connectMongo.js';
 import { seed } from './scripts/seed.js';
 import { apiRouter } from './api/index.js';
+import { transactionMiddleware } from './middleware/db-transaction.js';
 
 const run = async () => {
   const app = express();
@@ -39,9 +40,6 @@ const run = async () => {
   );
   app.use(bodyParser.json());
 
-  // Mount routes
-  app.use('/api/v1', apiRouter);
-
   app.use((err, _req, res, next) => {
     const statusCode = err?.statusCode ?? err?.status;
     if (statusCode >= 400 && statusCode < 500) {
@@ -54,6 +52,12 @@ const run = async () => {
       next(err);
     }
   });
+
+  // DB Transaction middleware
+  app.use(transactionMiddleware);
+
+  // Mount routes
+  app.use('/api/v1', apiRouter);
 
   app.listen(PORT, () => console.log(`Server listening on port ${PORT}!`));
 };
