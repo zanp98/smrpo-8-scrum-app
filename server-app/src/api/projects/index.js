@@ -37,7 +37,7 @@ projectsRouter.get(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
 
 /* // Get roles for a project
@@ -74,7 +74,7 @@ projectsRouter.post(
       }
 
       // Extract member IDs
-      const memberIds = members ? members.map(m => m.user) : [];
+      const memberIds = (members ?? []).map((m) => m.user);
       const uniqueMembers = [...new Set([...memberIds, owner])]; // Ensure owner is included and no duplicates
 
       // Create the project
@@ -91,21 +91,22 @@ projectsRouter.post(
       // Prepare roles for each member
       const projectUserRoles = [];
 
-      if (members) {
-        members.forEach(({ user, role }) => {
-          projectUserRoles.push({
-            project: newProject._id,
-            user,
-            role: role || ProjectRole.DEVELOPER, // Default to "developer" if no role is provided
-          });
-        });
-      }
-
       // Ensure the project owner is assigned as ADMIN
       projectUserRoles.push({
         project: newProject._id,
         user: owner,
-        role: ProjectUserRole.ADMIN,
+        role: ProjectRole.ADMIN,
+      });
+
+      (members ?? []).forEach(({ user, role }) => {
+        if (projectUserRoles.find((pu) => pu.user === user)) {
+          return;
+        }
+        projectUserRoles.push({
+          project: newProject._id,
+          user,
+          role: role || ProjectRole.DEVELOPER, // Default to "developer" if no role is provided
+        });
       });
 
       // Bulk insert roles into ProjectUserRole collection
@@ -116,7 +117,7 @@ projectsRouter.post(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
 
 //Get projects by userID
@@ -159,7 +160,9 @@ projectsRouter.put(
       const isAdmin = req.user.role === UserRoles.ADMIN;
 
       if (!isScrumMaster && !isAdmin) {
-        return res.status(403).json({ message: 'Only Scrum Masters or System Admins can update this project' });
+        return res
+          .status(403)
+          .json({ message: 'Only Scrum Masters or System Admins can update this project' });
       }
 
       // Check for duplicate project key
@@ -171,12 +174,12 @@ projectsRouter.put(
       }
 
       // Extract member IDs and roles
-      const updatedMemberIds = members.map(m => m.user);
-      const existingMemberIds = project.members.map(m => m.toString());
+      const updatedMemberIds = members.map((m) => m.user);
+      const existingMemberIds = project.members.map((m) => m.toString());
 
       // Find members to add and remove
-      const membersToAdd = updatedMemberIds.filter(id => !existingMemberIds.includes(id));
-      const membersToRemove = existingMemberIds.filter(id => !updatedMemberIds.includes(id));
+      const membersToAdd = updatedMemberIds.filter((id) => !existingMemberIds.includes(id));
+      const membersToRemove = existingMemberIds.filter((id) => !updatedMemberIds.includes(id));
 
       // Update project details
       project.name = name || project.name;
@@ -195,7 +198,7 @@ projectsRouter.put(
         project.members.push(memberId);
 
         // Ensure the member has a role assigned
-        const memberRole = members.find(m => m.user.toString() === memberId).role;
+        const memberRole = members.find((m) => m.user.toString() === memberId).role;
 
         // Create the member's role in the ProjectUserRole table
         await ProjectUserRole.create({
@@ -210,7 +213,7 @@ projectsRouter.put(
         await ProjectUserRole.findOneAndUpdate(
           { project: projectId, user },
           { role },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
       }
 
@@ -219,7 +222,7 @@ projectsRouter.put(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
 
 //Delete a project (also deletes entries for this project in ProjectUserRoles)

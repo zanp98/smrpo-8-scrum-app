@@ -76,23 +76,28 @@ export const projectRolesRequired = (...roles) => {
     if (!requestingUser) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
-    const projectId = await getProjectId(req);
-    const assignedRole = await ProjectUserRole.findOne({
-      project: projectId,
-      user: requestingUser.id,
-    })
-      .select('role')
-      .exec()
-      .then((t) => t?.role);
+    try {
+      const projectId = await getProjectId(req);
+      const assignedRole = await ProjectUserRole.findOne({
+        project: projectId,
+        user: requestingUser.id,
+      })
+        .select('role')
+        .exec()
+        .then((t) => t?.role);
 
-    console.log(
-      `User[${requestingUser.id}]: has project[${projectId}] privilege: ${assignedRole}]`,
-    );
-    if (!(requiredRoles ?? []).includes(assignedRole)) {
-      if (requestingUser.role !== 'admin') {
-        return res.status(403).json({ message: 'Unauthorized' });
+      console.log(
+        `User[${requestingUser.id}]: has project[${projectId}] privilege: ${assignedRole}]`,
+      );
+      if (!(requiredRoles ?? []).includes(assignedRole)) {
+        if (requestingUser.role !== 'admin') {
+          return res.status(403).json({ message: 'Unauthorized' });
+        }
       }
+      next();
+    } catch (err) {
+      console.error(err);
+      return res.status(403).json({ message: 'Unauthorized' });
     }
-    next();
   };
 };

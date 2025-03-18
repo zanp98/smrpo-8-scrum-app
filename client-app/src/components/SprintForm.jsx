@@ -42,7 +42,7 @@ export const SprintForm = ({ onClose, initialData }) => {
     if (initialData) {
       setFormData({
         name: initialData.name || '',
-        project: initialData.project || '',
+        project: initialData.project?._id || '', // Ensure project ID is set
         startDate: initialData.startDate ? initialData.startDate.split('T')[0] : '',
         endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
         expectedVelocity: initialData.expectedVelocity || 1,
@@ -106,7 +106,7 @@ export const SprintForm = ({ onClose, initialData }) => {
             {projects.length > 0 ? (
               projects.map((proj) => (
                 <option key={proj._id} value={proj._id}>
-                  {proj.name} (Owner: {proj.owner.firstName} {proj.owner.lastName})
+                  {proj.name} (Owner: {proj.owner?.firstName || 'Unknown'} {proj.owner?.lastName || ''})
                 </option>
               ))
             ) : (

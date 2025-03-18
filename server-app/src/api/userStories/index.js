@@ -5,7 +5,6 @@ import { projectRolesRequired } from '../../middleware/auth.js';
 import {
   CAN_CREATE_USER_STORIES,
   CAN_DELETE_USER_STORIES,
-  CAN_EDIT_SPRINT_OF_USER_STORIES,
   CAN_READ_USER_STORIES,
   CAN_UPDATE_USER_STORIES,
 } from '../../configuration/rolesConfiguration.js';
@@ -36,7 +35,7 @@ userStoriesRouter.get(
 );
 
 userStoriesRouter.post(
-  '/:projectId/:sprintId',
+  '/:projectId/:sprintId?',
   projectRolesRequired(CAN_CREATE_USER_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { projectId, sprintId } = req.params;
@@ -106,19 +105,5 @@ userStoriesRouter.delete(
     const { userStoryId } = req.params;
     const userStory = await UserStory.deleteOne({ _id: userStoryId });
     return res.status(202).json(userStory);
-  }),
-);
-
-userStoriesRouter.post(
-  '/:projectId',
-  projectRolesRequired(CAN_EDIT_SPRINT_OF_USER_STORIES),
-  errorHandlerWrapped(async (req, res) => {
-    const { userStories, sprintId } = req.body;
-
-    if (!userStories?.length || !sprintId) {
-      throw new ValidationError('No stories or sprintId provided');
-    }
-    await UserStory.updateMany({ _id: { $in: userStories } }, { sprint: sprintId });
-    return res.sendStatus(201);
   }),
 );
