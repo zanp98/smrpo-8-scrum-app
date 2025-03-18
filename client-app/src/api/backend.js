@@ -38,7 +38,10 @@ export const getProjectSprints = async (projectId) => {
 
 export const addStoriesToSprint = async (userStories, sprintId, projectId) => {
   try {
-    return await backendApi.post(`/userStories/${projectId}`, { userStories, sprintId });
+    return await backendApi.post(`/sprints/assignToSprint/${projectId}`, {
+      userStories,
+      sprintId,
+    });
   } catch (err) {
     console.error('Failed to add stories to sprint');
   }

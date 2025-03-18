@@ -13,6 +13,7 @@ export const CAN_CREATE_PROJECT = [ProjectRole.ADMIN];
 export const CAN_UPDATE_PROJECT = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN];
 
 // Sprint CRUD roles
+export const CAN_READ_SPRINT = Object.values(ProjectRole);
 export const CAN_CREATE_SPRINT = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN];
 export const CAN_DELETE_SPRINT = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN];
 export const CAN_UPDATE_SPRINT = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN];

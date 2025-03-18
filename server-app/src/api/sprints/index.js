@@ -5,16 +5,20 @@ import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { projectRolesRequired } from '../../middleware/auth.js';
 import {
   CAN_CREATE_SPRINT,
-  CAN_UPDATE_SPRINT,
   CAN_DELETE_SPRINT,
-
+  CAN_EDIT_SPRINT_OF_USER_STORIES,
+  CAN_READ_SPRINT,
+  CAN_UPDATE_SPRINT,
 } from '../../configuration/rolesConfiguration.js';
+import { ValidationError } from '../../middleware/errors.js';
+import { UserStory } from '../../db/UserStory.js';
 
 export const sprintsRouter = express.Router();
 
 // Get all sprints for a project
 sprintsRouter.get(
   '/:projectId',
+  projectRolesRequired(CAN_READ_SPRINT),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { projectId } = req.params;
@@ -33,12 +37,13 @@ sprintsRouter.get(
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  })
+  }),
 );
 
 //Create a new Sprint
-sprintsRouter.post( //TODO: add systemRolesRequired(CAN_CREATE_SPRINT)
+sprintsRouter.post(
   '/addSprint',
+  projectRolesRequired(CAN_CREATE_SPRINT),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { name, project, startDate, endDate, expectedVelocity, goal, status } = req.body;
@@ -97,8 +102,9 @@ sprintsRouter.post( //TODO: add systemRolesRequired(CAN_CREATE_SPRINT)
 );
 
 //Delete a sprint
-sprintsRouter.delete( //TODO: add systemRolesRequired(CAN_DELETE_SPRINT)
+sprintsRouter.delete(
   '/deleteSprint/:sprintId',
+  projectRolesRequired(CAN_DELETE_SPRINT),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { sprintId } = req.params;
@@ -125,8 +131,9 @@ sprintsRouter.delete( //TODO: add systemRolesRequired(CAN_DELETE_SPRINT)
 );
 
 //Update a sprint
-sprintsRouter.put( //TODO: add systemRolesRequired(CAN_UPDATE_SPRINT)
+sprintsRouter.put(
   '/updateSprint/:sprintId',
+  projectRolesRequired(CAN_UPDATE_SPRINT),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { sprintId } = req.params;
@@ -163,5 +170,19 @@ sprintsRouter.put( //TODO: add systemRolesRequired(CAN_UPDATE_SPRINT)
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
+  }),
+);
+
+sprintsRouter.post(
+  '/assignToSprint/:projectId',
+  projectRolesRequired(CAN_EDIT_SPRINT_OF_USER_STORIES),
+  errorHandlerWrapped(async (req, res) => {
+    const { userStories, sprintId } = req.body;
+
+    if (!userStories?.length || !sprintId) {
+      throw new ValidationError('No stories or sprintId provided');
+    }
+    await UserStory.updateMany({ _id: { $in: userStories } }, { sprint: sprintId });
+    return res.sendStatus(201);
   }),
 );

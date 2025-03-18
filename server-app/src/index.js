@@ -42,6 +42,19 @@ const run = async () => {
   // Mount routes
   app.use('/api/v1', apiRouter);
 
+  app.use((err, _req, res, next) => {
+    const statusCode = err?.statusCode ?? err?.status;
+    if (statusCode >= 400 && statusCode < 500) {
+      console.warn(`Invalid request: ${JSON.stringify(err)}`);
+      res.status(statusCode).send({ message: 'Bad request' });
+    } else if (!statusCode || statusCode >= 500) {
+      console.error('Internal error', err);
+      res.status(statusCode || 500).send({ message: 'Something went wrong' });
+    } else {
+      next(err);
+    }
+  });
+
   app.listen(PORT, () => console.log(`Server listening on port ${PORT}!`));
 };
 
