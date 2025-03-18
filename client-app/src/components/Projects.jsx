@@ -9,7 +9,7 @@ import { AuthContext } from '../context/AuthContext';
 import { isDateInFuture } from '../utils/datetime';
 import { AddStoriesToSprint } from './shared/AddStoriesToSprint';
 
-export const Projects = ({ activeProject, projectSprints, currentSprint }) => {
+export const Projects = ({ activeProject, projectSprints, currentSprint, onCreate }) => {
   const { currentUser } = useContext(AuthContext);
 
   const [userStories, setUserStories] = useState([]);
@@ -150,6 +150,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint }) => {
           {showSprintForm && (
             <SprintForm
               onClose={() => setShowSprintForm(false)}
+              onSprintCreate={() => onCreate?.()}
             />
           )}
 

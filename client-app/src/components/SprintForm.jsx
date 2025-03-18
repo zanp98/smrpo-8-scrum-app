@@ -8,7 +8,7 @@ export const SprintStatus = Object.freeze({
   COMPLETED: 'completed',
 });
 
-export const SprintForm = ({ onClose, initialData }) => {
+export const SprintForm = ({ onClose, initialData, onSprintCreate }) => {
   const [formData, setFormData] = useState({
     name: '',
     project: '',
@@ -70,7 +70,7 @@ export const SprintForm = ({ onClose, initialData }) => {
     }
 
     try {
-      await backendApi.post('/sprints/addSprint', formData);
+      await backendApi.post(`/sprints/addSprint/${formData.project}`, formData);
       setSuccess('Sprint created successfully!');
       setFormData({
         name: '',
@@ -81,6 +81,7 @@ export const SprintForm = ({ onClose, initialData }) => {
         goal: '',
         status: SprintStatus.PLANNING,
       });
+      onSprintCreate?.();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create sprint.');
     }
@@ -96,38 +97,76 @@ export const SprintForm = ({ onClose, initialData }) => {
       <form onSubmit={handleSubmit} className="general-form">
         <div className="form-group">
           <label htmlFor="name">Sprint Name</label>
-          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="project">Project</label>
-          <select id="project" name="project" value={formData.project} onChange={handleChange} required>
+          <select
+            id="project"
+            name="project"
+            value={formData.project}
+            onChange={handleChange}
+            required
+          >
             <option value="">Select a project</option>
             {projects.length > 0 ? (
               projects.map((proj) => (
                 <option key={proj._id} value={proj._id}>
-                  {proj.name} (Owner: {proj.owner?.firstName || 'Unknown'} {proj.owner?.lastName || ''})
+                  {proj.name} (Owner: {proj.owner?.firstName || 'Unknown'}{' '}
+                  {proj.owner?.lastName || ''})
                 </option>
               ))
             ) : (
-              <option value="" disabled>No projects available</option>
+              <option value="" disabled>
+                No projects available
+              </option>
             )}
           </select>
         </div>
 
         <div className="form-group">
           <label htmlFor="startDate">Start Date</label>
-          <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} required />
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="endDate">End Date</label>
-          <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} required />
+          <input
+            type="date"
+            id="endDate"
+            name="endDate"
+            value={formData.endDate}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="expectedVelocity">Expected Velocity</label>
-          <input type="number" id="expectedVelocity" name="expectedVelocity" min="1" value={formData.expectedVelocity} onChange={handleChange} required />
+          <input
+            type="number"
+            id="expectedVelocity"
+            name="expectedVelocity"
+            min="1"
+            value={formData.expectedVelocity}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
@@ -144,7 +183,9 @@ export const SprintForm = ({ onClose, initialData }) => {
           </select>
         </div>
 
-        <button type="submit" className="submit-btn">{initialData ? 'Update Sprint' : 'Create Sprint'}</button>
+        <button type="submit" className="submit-btn">
+          {initialData ? 'Update Sprint' : 'Create Sprint'}
+        </button>
       </form>
     </div>
   );

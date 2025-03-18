@@ -157,6 +157,7 @@ const Dashboard = () => {
                 activeProject={selectedProject}
                 projectSprints={selectedProjectSprints}
                 currentSprint={currentActiveSprint}
+                onCreate={handleProjectCreate}
               />
             }
           />
@@ -167,6 +168,7 @@ const Dashboard = () => {
                 activeProject={selectedProject}
                 projectSprints={selectedProjectSprints}
                 currentSprint={currentActiveSprint}
+                onCreate={handleProjectCreate}
                 setActiveProject={(projectId) => {
                   if (projectId !== selectedProject?._id) {
                     const project = projects.find((p) => p._id === projectId);

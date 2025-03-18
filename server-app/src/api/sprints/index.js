@@ -45,7 +45,7 @@ sprintsRouter.get(
 
 //Create a new Sprint
 sprintsRouter.post(
-  '/addSprint',
+  '/addSprint/:projectId',
   projectRolesRequired(CAN_CREATE_SPRINT),
   errorHandlerWrapped(async (req, res) => {
     try {
@@ -57,15 +57,6 @@ sprintsRouter.post(
       const existingProject = await Project.findById(project);
       if (!existingProject) {
         return res.status(404).json({ message: 'Project not found' });
-      }
-
-      // Check if the user is a Scrum Master for this project
-      const userRole = await ProjectUserRole.findOne({ project: projectId, user: userId });
-      const isScrumMaster = userRole && userRole.role === ProjectRole.SCRUM_MASTER;
-      const isAdmin = req.user.role === UserRoles.ADMIN;
-
-      if (!isScrumMaster && !isAdmin) {
-        return res.status(403).json({ message: 'Only Scrum Masters or System Admins can add sprints' });
       }
 
       //Validate dates
@@ -123,7 +114,6 @@ sprintsRouter.delete(
     try {
       const { sprintId } = req.params;
       const userId = req.user.id; // Authenticated user
-      
 
       // Find the sprint
       const sprint = await Sprint.findById(sprintId);
