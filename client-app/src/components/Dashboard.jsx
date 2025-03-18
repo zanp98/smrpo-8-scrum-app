@@ -24,23 +24,23 @@ const Dashboard = () => {
     [selectedProjectSprints],
   );
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await backendApi.get('/projects');
-        setProjects(res.data);
+  const fetchProjects = async () => {
+    try {
+      const res = await backendApi.get('/projects');
+      setProjects(res.data);
 
-        if (res.data.length > 0) {
-          setSelectedProject(res.data[0]);
-        }
-
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch projects');
-        setLoading(false);
+      if (res.data.length > 0) {
+        setSelectedProject(res.data[0]);
       }
-    };
 
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to fetch projects');
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchProjects();
   }, []);
 
@@ -70,6 +70,11 @@ const Dashboard = () => {
 
   const isCurrentProjectActiveAndHasSprints = (project) =>
     selectedProject?._id === project._id && selectedProjectSprints.length > 0;
+
+  const handleProjectCreate = () => {
+    fetchProjects();
+    fetchProjectSprints();
+  };
 
   return (
     <div className="dashboard-container">
@@ -174,7 +179,11 @@ const Dashboard = () => {
             }
           />
           <Route path="/users" element={<UsersList />} />
-          <Route path="/projects" element={<ProjectForm />} /> {/* Added route for SprintForm */}
+          <Route
+            path="/projects"
+            element={<ProjectForm onProjectCreate={() => handleProjectCreate()} />}
+          />
+          {/* Added route for SprintForm */}
           <Route
             path="/project/:projectId/sprint/:sprintId"
             element={

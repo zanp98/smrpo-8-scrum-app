@@ -9,7 +9,7 @@ export const ProjectRole = Object.freeze({
   DEVELOPER: 'developer',
 });
 
-export const ProjectForm = ({ onClose }) => {
+export const ProjectForm = ({ onClose, onProjectCreate }) => {
   const [formData, setFormData] = useState({
     name: '',
     key: '',
@@ -80,6 +80,7 @@ export const ProjectForm = ({ onClose }) => {
         owner: '',
         members: [],
       });
+      onProjectCreate?.();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create project.');
     }
