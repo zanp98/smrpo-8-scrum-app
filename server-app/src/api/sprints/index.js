@@ -2,7 +2,10 @@ import { Sprint } from '../../db/Sprint.js';
 import { Project } from '../../db/Project.js';
 import express from 'express';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
+import { ProjectRole } from '../../db/ProjectUserRole.js';
 import { projectRolesRequired } from '../../middleware/auth.js';
+import { ProjectUserRole } from '../../db/ProjectUserRole.js';
+import { UserRoles } from '../../db/User.js';
 import {
   CAN_CREATE_SPRINT,
   CAN_DELETE_SPRINT,
@@ -47,11 +50,22 @@ sprintsRouter.post(
   errorHandlerWrapped(async (req, res) => {
     try {
       const { name, project, startDate, endDate, expectedVelocity, goal, status } = req.body;
+      const projectId = req.body.project;
+      const userId = req.user.id; // Authenticated user
 
       // Validate project existence
       const existingProject = await Project.findById(project);
       if (!existingProject) {
         return res.status(404).json({ message: 'Project not found' });
+      }
+
+      // Check if the user is a Scrum Master for this project
+      const userRole = await ProjectUserRole.findOne({ project: projectId, user: userId });
+      const isScrumMaster = userRole && userRole.role === ProjectRole.SCRUM_MASTER;
+      const isAdmin = req.user.role === UserRoles.ADMIN;
+
+      if (!isScrumMaster && !isAdmin) {
+        return res.status(403).json({ message: 'Only Scrum Masters or System Admins can add sprints' });
       }
 
       //Validate dates
@@ -108,6 +122,8 @@ sprintsRouter.delete(
   errorHandlerWrapped(async (req, res) => {
     try {
       const { sprintId } = req.params;
+      const userId = req.user.id; // Authenticated user
+      
 
       // Find the sprint
       const sprint = await Sprint.findById(sprintId);
@@ -118,6 +134,18 @@ sprintsRouter.delete(
       // Check if sprint has already started
       if (new Date(sprint.startDate) <= new Date()) {
         return res.status(400).json({ message: 'Cannot delete a sprint that has already started' });
+      }
+
+      // Get the project associated with the sprint
+      const projectId = sprint.project;
+
+      // Check if the user is the Scrum Master for this project
+      const userRole = await ProjectUserRole.findOne({ project: projectId, user: userId });
+      const isScrumMaster = userRole && userRole.role === ProjectRole.SCRUM_MASTER;
+      const isAdmin = req.user.role === UserRoles.ADMIN;
+
+      if (!isScrumMaster && !isAdmin) {
+        return res.status(403).json({ message: 'Only Scrum Masters can delete this sprint' });
       }
 
       // Delete sprint
@@ -138,11 +166,24 @@ sprintsRouter.put(
     try {
       const { sprintId } = req.params;
       const { name, startDate, endDate, expectedVelocity, goal, status } = req.body;
+      const userId = req.user.id; // Authenticated user
 
       // Find sprint
       let sprint = await Sprint.findById(sprintId);
       if (!sprint) {
         return res.status(404).json({ message: 'Sprint not found' });
+      }
+
+      // Get the project associated with the sprint
+      const projectId = sprint.project;
+
+      // Check if the user is the Scrum Master for this project
+      const userRole = await ProjectUserRole.findOne({ project: projectId, user: userId });
+      const isScrumMaster = userRole && userRole.role === ProjectRole.SCRUM_MASTER;
+      const isAdmin = req.user.role === UserRoles.ADMIN;
+
+      if (!isScrumMaster && !isAdmin) {
+        return res.status(403).json({ message: 'Only Scrum Masters can update this sprint' });
       }
 
       // Validate dates
