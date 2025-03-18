@@ -12,7 +12,7 @@ export const seed = async () => {
     const { MONGO_USER, MONGO_PASS, MONGO_DB, MONGO_HOST = 'mongo', MONGO_PORT } = process.env;
     await connectMongo(MONGO_USER, MONGO_PASS, MONGO_DB, MONGO_HOST, MONGO_PORT);
 
-    // Clear existing data
+    // 1. Clear existing data
     await User.deleteMany({});
     await Project.deleteMany({});
     await Sprint.deleteMany({});
@@ -22,7 +22,7 @@ export const seed = async () => {
 
     console.log('Creating users...');
 
-    // Create users
+    // 2. Create users
     const users = await User.insertMany([
       {
         username: 'admin',
@@ -73,7 +73,7 @@ export const seed = async () => {
 
     console.log(`Successfully created ${users.length} users!`);
 
-    // Create projects
+    // 3. Create projects
     console.log('Creating projects...');
 
     const projects = await Project.insertMany([
@@ -95,7 +95,7 @@ export const seed = async () => {
 
     console.log(`Successfully created ${projects.length} projects!`);
 
-    // Create ProjectUserRoles
+    // 4. Create ProjectUserRoles
     console.log('Creating project-user roles...');
 
     const allProjectUserRoles = [];
@@ -111,7 +111,7 @@ export const seed = async () => {
     const projectUserRoles = await ProjectUserRole.insertMany(allProjectUserRoles);
     console.log(`Successfully created ${projectUserRoles.length} projects-user roles!`);
 
-    // Create sprints
+    // 5. Create sprints
     console.log('Creating sprints...');
 
     const now = new Date();
@@ -151,10 +151,10 @@ export const seed = async () => {
 
     console.log(`Successfully created ${sprints.length} sprints!`);
 
-    // Create user stories
+    // 6. Create user stories
     console.log('Creating user stories...');
     const user_stories = await UserStory.insertMany([
-      // User stories for completed sprint
+      // Sprint 1 (completed)
       {
         title: 'Set up project repository',
         description: 'Create GitHub repository and set up initial project structure',
@@ -182,7 +182,7 @@ export const seed = async () => {
         number: 2,
       },
 
-      // User stories for active sprint
+      // Sprint 2 (active)
       {
         title: 'Implement user authentication',
         description: 'Create login, registration and authentication middleware',
@@ -223,7 +223,7 @@ export const seed = async () => {
         number: 5,
       },
 
-      // Backlog user stories
+      // Backlog (no sprint)
       {
         title: 'Implement sprint planning feature',
         description: 'Create interface for planning sprints and assigning user stories',
@@ -250,46 +250,71 @@ export const seed = async () => {
 
     console.log(`Successfully created ${user_stories.length} user stories.`);
 
-    // Create tasks
+    // 7. Create tasks - ensuring each user story has at least one
     console.log('Creating tasks...');
-    const tasks = await Task.insertMany([
+
+    // We'll seed some existing tasks (as before) plus a new one for every user story
+    const baseTasks = [
       {
         description: 'Set up development environment',
         timeEstimation: 4,
         assignedUser: users[3]._id,
-        userStory: user_stories[0]._id,
-        status: 'DONE'
+        userStory: user_stories[0]._id, // Story #1
+        status: 'DONE',
       },
       {
         description: 'Create initial project structure',
         timeEstimation: 2,
         assignedUser: users[4]._id,
-        userStory: user_stories[0]._id,
-        status: 'DONE'
+        userStory: user_stories[0]._id, // Story #1
+        status: 'DONE',
       },
       {
         description: 'Implement login form',
         timeEstimation: 6,
         assignedUser: users[3]._id,
-        userStory: user_stories[2]._id,
-        status: 'IN_PROGRESS'
+        userStory: user_stories[2]._id, // Story #3
+        status: 'IN_PROGRESS',
       },
       {
         description: 'Set up authentication middleware',
         timeEstimation: 8,
         assignedUser: users[4]._id,
-        userStory: user_stories[2]._id,
-        status: 'TODO'
+        userStory: user_stories[2]._id, // Story #3
+        status: 'TODO',
+      },
+    ];
+
+    const extraTasks = [];
+    user_stories.forEach((us) => {
+      const alreadyHasTask = baseTasks.some((t) => t.userStory.toString() === us._id.toString());
+      if (!alreadyHasTask) {
+        extraTasks.push({
+          description: `Auto-generated task for user story #${us.number}`,
+          timeEstimation: 3,
+          assignedUser: users[3]._id, // dev1, for example
+          userStory: us._id,
+          status: 'TODO',
+        });
       }
-    ]);
+    });
 
-    // Update user stories with task references
-    await UserStory.updateMany(
-      { _id: { $in: user_stories.map(us => us._id) } },
-      { $set: { tasks: tasks.map(t => t._id) } }
-    );
-
+    const allTasksToInsert = [...baseTasks, ...extraTasks];
+    const tasks = await Task.insertMany(allTasksToInsert);
     console.log(`Successfully created ${tasks.length} tasks!`);
+
+    // 8. Update each UserStory with only its own tasks
+    console.log('Linking tasks to their user stories...');
+    for (const us of user_stories) {
+      const tasksForStory = tasks.filter((t) => t.userStory.toString() === us._id.toString());
+      if (tasksForStory.length > 0) {
+        // If your UserStory schema has tasks: [{ type: ObjectId, ref: 'Task' }]
+        // you can store them in the userStory doc. Otherwise, skip this step.
+        await UserStory.findByIdAndUpdate(us._id, {
+          $set: { tasks: tasksForStory.map((t) => t._id) },
+        });
+      }
+    }
 
     console.log('Seed completed successfully!');
   } catch (error) {

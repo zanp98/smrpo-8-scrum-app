@@ -5,6 +5,7 @@ import { projectsRouter } from './projects/index.js';
 import { sprintsRouter } from './sprints/index.js';
 import { userStoriesRouter } from './userStories/index.js';
 import { usersRouter } from './users/index.js';
+import { tasksRouter } from './tasks/index.js';
 
 export const apiRouter = express.Router();
 
@@ -17,3 +18,5 @@ apiRouter.use('/sprints', authMiddleware, sprintsRouter);
 apiRouter.use('/userStories', authMiddleware, userStoriesRouter);
 
 apiRouter.use('/users', authMiddleware, usersRouter);
+
+apiRouter.use(`/tasks`, authMiddleware, tasksRouter);

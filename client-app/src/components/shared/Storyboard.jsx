@@ -1,10 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../../styles/storyboard.css';
+import { backendApi } from '../../api/backend';
+import { TaskList } from '../TaskList';
 
 export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
   const [selectedUserStory, setSelectedUserStory] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [tasks, setTasks] = useState([]);
+
   const getStatusColumnUserStories = (status) => {
     return userStories.filter((userStory) => userStory.status === status);
+  };
+
+  const fetchTasks = async () => {
+    if (!isExpanded) return;
+    try {
+      console.log('selectedUserStory');
+      console.log(selectedUserStory);
+      const response = await backendApi.get(`/tasks/${selectedUserStory._id}`);
+      console.log('response');
+      console.log(response);
+      setTasks(response.data);
+    } catch (error) {
+      console.error('Failed to fetch tasks:', error);
+    } finally {
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, [isExpanded]);
+
+  const handleCardClick = (userStory) => {
+    if (selectedUserStory?._id === userStory._id) {
+      setIsExpanded(!isExpanded);
+    } else {
+      setSelectedUserStory(userStory);
+      setIsExpanded(true);
+    }
   };
 
   const renderUserStoryCard = (userStory) => {
@@ -12,7 +45,11 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
     const typeIcon = getTypeIcon(userStory.type);
 
     return (
-      <div key={userStory._id} className={`user-story-card ${priorityClass}`}>
+      <div
+        key={userStory._id}
+        className={`user-story-card ${priorityClass} ${isExpanded && selectedUserStory?._id === userStory._id ? 'expanded' : ''}`}
+        onClick={() => handleCardClick(userStory)}
+      >
         <div className="user-story-header">
           <span className="user-story-type">{typeIcon}</span>
           <div className="user-story-actions">
@@ -30,6 +67,11 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
             </span>
           </div>
         </div>
+
+        {isExpanded && selectedUserStory?._id === userStory._id && (
+          <TaskList tasks={tasks} userStoryId={userStory._id} onTasksUpdate={fetchTasks} />
+        )}
+
         <div className="user-story-title">{userStory.title}</div>
         <div className="user-story-description">{userStory.description}</div>
         <div className="user-story-sprint">{userStory.sprint ? userStory.sprint.name : ''}</div>

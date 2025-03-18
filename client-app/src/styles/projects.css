@@ -18,13 +18,6 @@
 }
 
 .user-story-card {
-  background: #4e4b4b;
-  padding: 10px;
-  border-radius: 6px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.user-story-card {
   background: white;
   padding: 12px;
   border-radius: 8px;
@@ -33,6 +26,100 @@
   flex-direction: column;
   gap: 8px;
   border-left: 4px solid #007bff; /* Default color, can change based on status */
+}
+
+.user-story-card.expanded {
+  padding-bottom: 20px;
+}
+
+.tasks-container {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.task-details {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.task-details select {
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.add-task-button {
+  width: 100%;
+  padding: 8px;
+  background: #e9ecef;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.add-task-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-task-form input {
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.add-task-form input[type="text"] {
+  flex: 1;
+}
+
+.add-task-form input[type="number"] {
+  width: 80px;
+}
+
+.tasks-loading {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+}
+
+.priority-highest {
+  border-left: 4px solid #ff0000;
+}
+
+.priority-high {
+  border-left: 4px solid #ff9900;
+}
+
+.priority-medium {
+  border-left: 4px solid #ffff00;
+}
+
+.priority-low {
+  border-left: 4px solid #00ff00;
+}
+
+.priority-lowest {
+  border-left: 4px solid #0000ff;
+}
+
+.user-story-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.2s ease-in-out;
 }
 
 .user-story-header {
@@ -121,6 +208,12 @@
   align-items: center;
   gap: 12px; /* Adds spacing between elements */
   padding: 8px 12px;
+}
+
+.board-column h3 {
+  color: #333;
+  margin-bottom: 12px;
+  text-align: center;
 }
 
 .create-user-story-btn {

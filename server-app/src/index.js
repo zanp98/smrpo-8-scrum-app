@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { connectMongo } from './db/connectMongo.js'; // Import the seed script
+import { connectMongo } from './db/connectMongo.js';
 import { seed } from './scripts/seed.js';
 import { apiRouter } from './api/index.js';
 
@@ -13,7 +13,7 @@ const run = async () => {
     MONGO_DB,
     MONGO_HOST = 'mongo',
     MONGO_PORT,
-    PORT = 5000,
+    PORT = 8000,
   } = process.env;
 
   try {

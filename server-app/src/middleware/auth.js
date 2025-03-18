@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Sprint } from '../db/Sprint.js';
 import { ProjectUserRole } from '../db/ProjectUserRole.js';
+import { UserStory } from '../db/UserStory.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -50,15 +51,22 @@ export const systemRolesRequired = (...roles) => {
 
 const getProjectId = async (req) => {
   const projectId = req.params.projectId;
-  if (projectId) {
-    return projectId;
-  }
+  if (projectId) return projectId; // Return projectId if provided
+
   const sprintId = req.params.sprintId;
   if (sprintId) {
-    const project = await Sprint.find({ projectId }).select('project').exec();
-    return project._id;
+    const project = await Sprint.findOne({ _id: sprintId }).select('project').exec();
+    return project?._id;
   }
-  return res.status(403).json({ message: 'Unauthorized' });
+
+  const userStoryId = req.params.userStoryId;
+  if (userStoryId) {
+    const project = await UserStory.findOne({ _id: userStoryId }).select('project').exec();
+    return project?._id;
+  }
+
+  // If we reach here, we have neither projectId nor sprintId
+  return null;
 };
 
 export const projectRolesRequired = (...roles) => {
@@ -81,7 +89,9 @@ export const projectRolesRequired = (...roles) => {
       `User[${requestingUser.id}]: has project[${projectId}] privilege: ${assignedRole}]`,
     );
     if (!(requiredRoles ?? []).includes(assignedRole)) {
-      return res.status(403).json({ message: 'Unauthorized' });
+      if (requestingUser.role !== 'admin') {
+        return res.status(403).json({ message: 'Unauthorized' });
+      }
     }
     next();
   };

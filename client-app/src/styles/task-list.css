@@ -1,0 +1,136 @@
+.tasks-container {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.tasks-container h4 {
+  color: #172b4d;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.task-description {
+  color: #172b4d;
+  font-size: 14px;
+  flex: 1;
+  margin-right: 16px;
+}
+
+.task-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.task-details span {
+  color: #5e6c84;
+  font-size: 13px;
+  background: #f4f5f7;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.task-details select {
+  padding: 6px 10px;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  background: white;
+  color: #172b4d;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.add-task-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.add-task-form input {
+  padding: 8px 12px;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.add-task-form input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+}
+
+.add-task-form input[type="number"] {
+  width: 100px;
+}
+
+.add-task-form button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-task-form button[type="submit"] {
+  background: #0052cc;
+  color: white;
+}
+
+.add-task-form button[type="submit"]:hover {
+  background: #0747a6;
+}
+
+.add-task-form button[type="button"] {
+  background: #ebecf0;
+  color: #172b4d;
+}
+
+.add-task-form button[type="button"]:hover {
+  background: #dfe1e6;
+}
+
+.add-task-button {
+  width: 100%;
+  padding: 10px;
+  background: #ebecf0;
+  border: none;
+  border-radius: 4px;
+  color: #172b4d;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.add-task-button:hover {
+  background: #dfe1e6;
+}
+
+.tasks-loading {
+  text-align: center;
+  padding: 20px;
+  color: #5e6c84;
+  font-size: 14px;
+}
