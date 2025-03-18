@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { backendApi } from "../api/backend"; // API handler
-import "../styles/forms.css";
+import React, { useEffect, useState } from 'react';
+import { backendApi } from '../api/backend'; // API handler
+import '../styles/forms.css';
+
+export const ProjectRole = Object.freeze({
+  ADMIN: 'admin',
+  PRODUCT_OWNER: 'product_owner',
+  SCRUM_MASTER: 'scrum_master',
+  DEVELOPER: 'developer',
+});
 
 export const ProjectForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    key: "",
-    description: "",
-    owner: "",
+    name: '',
+    key: '',
+    description: '',
+    owner: '',
     members: [],
   });
 
@@ -19,11 +26,11 @@ export const ProjectForm = ({ onClose }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await backendApi.get("/users"); // Adjust if your API uses a different endpoint
+        const response = await backendApi.get('/users'); // Adjust if your API uses a different endpoint
         setUsers(response.data);
       } catch (err) {
-        console.error("Error fetching users:", err);
-        setError("Failed to load users.");
+        console.error('Error fetching users:', err);
+        setError('Failed to load users.');
       }
     };
 
@@ -51,22 +58,30 @@ export const ProjectForm = ({ onClose }) => {
     setSuccess(null);
 
     if (!formData.name || !formData.key || !formData.description || !formData.owner) {
-      setError("All required fields must be filled.");
+      setError('All required fields must be filled.');
       return;
     }
 
     try {
-      await backendApi.post("/projects", formData);
-      setSuccess("Project created successfully!");
+      const mappedMembersWithRoles = (formData.members ?? []).map((member) => ({
+        user: member,
+        role: ProjectRole.DEVELOPER,
+      }));
+      const mappedData = {
+        ...formData,
+        members: mappedMembersWithRoles,
+      };
+      await backendApi.post('/projects', mappedData);
+      setSuccess('Project created successfully!');
       setFormData({
-        name: "",
-        key: "",
-        description: "",
-        owner: "",
+        name: '',
+        key: '',
+        description: '',
+        owner: '',
         members: [],
       });
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create project.");
+      setError(err.response?.data?.message || 'Failed to create project.');
     }
   };
 
@@ -80,17 +95,37 @@ export const ProjectForm = ({ onClose }) => {
       <form onSubmit={handleSubmit} className="general-form">
         <div className="form-group">
           <label htmlFor="name">Project Name</label>
-          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="key">Project Key</label>
-          <input type="text" id="key" name="key" value={formData.key} onChange={handleChange} required />
+          <input
+            type="text"
+            id="key"
+            name="key"
+            value={formData.key}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="description">Description</label>
-          <textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
@@ -107,7 +142,13 @@ export const ProjectForm = ({ onClose }) => {
 
         <div className="form-group">
           <label htmlFor="members">Project Members</label>
-          <select id="members" name="members" multiple value={formData.members} onChange={handleMultiSelectChange}>
+          <select
+            id="members"
+            name="members"
+            multiple
+            value={formData.members}
+            onChange={handleMultiSelectChange}
+          >
             {users.map((user) => (
               <option key={user._id} value={user._id}>
                 {user.firstName} {user.lastName} ({user.email})
@@ -117,7 +158,9 @@ export const ProjectForm = ({ onClose }) => {
           <small>Hold Ctrl (Cmd on Mac) to select multiple members</small>
         </div>
 
-        <button type="submit" className="submit-btn">Create Project</button>
+        <button type="submit" className="submit-btn">
+          Create Project
+        </button>
       </form>
     </div>
   );
