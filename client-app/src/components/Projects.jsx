@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet } from 'react-router';
 import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
 import { UserStoryForm } from './UserStoryForm';
+import { SprintForm } from './SprintForm';
 import { Storyboard } from './shared/Storyboard';
 import '../styles/projects.css';
 import { AuthContext } from '../context/AuthContext';
@@ -18,6 +19,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint }) => {
   const [showCreateUserStory, setShowCreateUserStory] = useState(false);
   const [showAddStoriesToSprint, setShowAddStoriesToSprint] = useState(false);
   const [selectedUserStory, setSelectedUserStory] = useState(null);
+  const [showSprintForm, setShowSprintForm] = useState(false);
 
   const currentUserRole = useMemo(() => {
     const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
@@ -111,6 +113,14 @@ export const Projects = ({ activeProject, projectSprints, currentSprint }) => {
               >
                 🗒️ Add stories to sprint
               </button>
+              <button
+                className="create-user-story-btn"
+                onClick={() => {
+                  setShowSprintForm(true);
+                }}
+              >
+                Add a sprint
+              </button>
             </div>
           )}
 
@@ -135,6 +145,11 @@ export const Projects = ({ activeProject, projectSprints, currentSprint }) => {
               onAssign={(selectedUserStories, selectedSprint) =>
                 handleAssignToSprint(selectedUserStories, selectedSprint)
               }
+            />
+          )}
+          {showSprintForm && (
+            <SprintForm
+              onClose={() => setShowSprintForm(false)}
             />
           )}
 

@@ -6,9 +6,9 @@ import { AuthContext } from '../context/AuthContext';
 import '../styles/dashboard.css';
 import { Projects } from './Projects';
 import { UsersList } from './UsersList';
-import { SprintForm } from './SprintForm';
 import { formatDate, isNowBetween } from '../utils/datetime';
 import { Sprint } from './sprint/Sprint'; // Added SprintForm import
+import { ProjectForm } from './ProjectForm';
 
 const Dashboard = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -97,7 +97,7 @@ const Dashboard = () => {
           )}
           <div>
             <h3>
-              <Link to="/sprints">Create Sprint</Link> {/* Added Sprint Management link */}
+              <Link to="/projects">Create a Project</Link> {/* Added Sprint Management link */}
             </h3>
           </div>
           <div className="projects-list">
@@ -174,7 +174,7 @@ const Dashboard = () => {
             }
           />
           <Route path="/users" element={<UsersList />} />
-          <Route path="/sprints" element={<SprintForm />} /> {/* Added route for SprintForm */}
+          <Route path="/projects" element={<ProjectForm />} /> {/* Added route for SprintForm */}
           <Route
             path="/project/:projectId/sprint/:sprintId"
             element={
