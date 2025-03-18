@@ -1,4 +1,5 @@
 import { Project } from '../../db/Project.js';
+import { ProjectRole } from '../../db/ProjectUserRole.js';
 import express from 'express';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { projectRolesRequired, systemRolesRequired } from '../../middleware/auth.js';
@@ -25,41 +26,97 @@ projectsRouter.get(
   }),
 );
 
+// Get all roles
+projectsRouter.get(
+  '/projectUserRoles',
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const projectUserRoles = await ProjectUserRole.find().populate('project user');
+      res.status(200).json(projectUserRoles);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  })
+);
+
+/* // Get roles for a project
+projectsRouter.get(
+  '/projectUserRoles',
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const projectUserRoles = await ProjectUserRole.find().populate('project user');
+      res.status(200).json(projectUserRoles);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  })
+); */
+
 // Add a new project
 projectsRouter.post(
-  '/', //add auth check if current member is admin
-  systemRolesRequired(UserRoles.ADMIN),
+  '/',
+  systemRolesRequired(UserRoles.ADMIN), // Ensure only admins can create a project
   errorHandlerWrapped(async (req, res) => {
     try {
       const { name, key, description, members } = req.body;
-      const owner = req.user.id; // Get the authenticated user as the owner
+      const owner = req.user.id; // Authenticated user as the project owner
 
       if (!name || !key || !description) {
         return res.status(400).json({ message: 'All fields are required' });
       }
 
-      //Check for duplicate project key
+      // Check for duplicate project key
       const existingProject = await Project.findOne({ key });
       if (existingProject) {
-        return res.status(400).json({ message: 'Project key already exists' });
+        return res.status(400).json({ message: 'Project name already exists' });
       }
 
+      // Extract member IDs
+      const memberIds = members ? members.map(m => m.user) : [];
+      const uniqueMembers = [...new Set([...memberIds, owner])]; // Ensure owner is included and no duplicates
+
+      // Create the project
       const newProject = new Project({
         name,
         key,
         description,
         owner,
-        members: members ? [...members, owner] : [owner], // Ensure owner is part of members
+        members: uniqueMembers, // Ensure all members (including owner) are part of the project
       });
 
       await newProject.save();
 
-      res.status(201).json(newProject);
+      // Prepare roles for each member
+      const projectUserRoles = [];
+
+      if (members) {
+        members.forEach(({ user, role }) => {
+          projectUserRoles.push({
+            project: newProject._id,
+            user,
+            role: role || ProjectRole.DEVELOPER, // Default to "developer" if no role is provided
+          });
+        });
+      }
+
+      // Ensure the project owner is assigned as ADMIN
+      projectUserRoles.push({
+        project: newProject._id,
+        user: owner,
+        role: ProjectUserRole.ADMIN,
+      });
+
+      // Bulk insert roles into ProjectUserRole collection
+      await ProjectUserRole.insertMany(projectUserRoles);
+
+      res.status(201).json({ message: 'Project created successfully', project: newProject });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  }),
+  })
 );
 
 //Get projects by userID
@@ -84,47 +141,88 @@ projectsRouter.get(
 //Update a project
 projectsRouter.put(
   '/:projectId',
-  systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { name, key, description, members } = req.body;
       const projectId = req.params.projectId;
+      const userId = req.user.id; // Authenticated user
 
       let project = await Project.findById(projectId);
       if (!project) {
         return res.status(404).json({ message: 'Project not found' });
       }
 
-      // Ensure only the owner can update the project
-      if (project.owner.toString() !== req.user.id) {
-        return res.status(403).json({ message: 'Unauthorized' });
+      // Check if the user is a Scrum Master for this project
+      const userRole = await ProjectUserRole.findOne({ project: projectId, user: userId });
+
+      const isScrumMaster = userRole && userRole.role === ProjectRole.SCRUM_MASTER;
+      const isAdmin = req.user.role === UserRoles.ADMIN;
+
+      if (!isScrumMaster && !isAdmin) {
+        return res.status(403).json({ message: 'Only Scrum Masters or System Admins can update this project' });
       }
 
       // Check for duplicate project key
       if (key && key !== project.key) {
         const existingProject = await Project.findOne({ key });
         if (existingProject) {
-          return res.status(400).json({ message: 'Project key already exists' });
+          return res.status(400).json({ message: 'Project name already exists' });
         }
       }
 
-      // Update project fields
+      // Extract member IDs and roles
+      const updatedMemberIds = members.map(m => m.user);
+      const existingMemberIds = project.members.map(m => m.toString());
+
+      // Find members to add and remove
+      const membersToAdd = updatedMemberIds.filter(id => !existingMemberIds.includes(id));
+      const membersToRemove = existingMemberIds.filter(id => !updatedMemberIds.includes(id));
+
+      // Update project details
       project.name = name || project.name;
       project.key = key || project.key;
       project.description = description || project.description;
-      project.members = members || project.members;
+      project.members = updatedMemberIds; // Ensure correct member list
 
       await project.save();
 
-      res.json(project);
+      // Remove roles for deleted members
+      await ProjectUserRole.deleteMany({ project: projectId, user: { $in: membersToRemove } });
+
+      // Add new members to the project and set their roles in the ProjectUserRole table
+      for (const memberId of membersToAdd) {
+        // Add the new member to the project members array
+        project.members.push(memberId);
+
+        // Ensure the member has a role assigned
+        const memberRole = members.find(m => m.user.toString() === memberId).role;
+
+        // Create the member's role in the ProjectUserRole table
+        await ProjectUserRole.create({
+          project: projectId,
+          user: memberId,
+          role: memberRole,
+        });
+      }
+
+      // Update or add roles for existing members
+      for (const { user, role } of members) {
+        await ProjectUserRole.findOneAndUpdate(
+          { project: projectId, user },
+          { role },
+          { upsert: true, new: true }
+        );
+      }
+
+      res.json({ message: 'Project updated successfully', project });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  }),
+  })
 );
 
-//Delete a project
+//Delete a project (also deletes entries for this project in ProjectUserRoles)
 projectsRouter.delete(
   '/:projectId',
   systemRolesRequired(UserRoles.ADMIN),
@@ -137,9 +235,13 @@ projectsRouter.delete(
         return res.status(404).json({ message: 'Project not found' });
       }
 
+      // Delete all related ProjectUserRole entries
+      await ProjectUserRole.deleteMany({ project: projectId });
+
+      //Delete the project itself
       await Project.findByIdAndDelete(projectId);
 
-      res.json({ message: 'Project deleted successfully' });
+      res.json({ message: 'Project and related roles deleted successfully' });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });

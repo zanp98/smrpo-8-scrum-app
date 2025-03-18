@@ -2,6 +2,13 @@ import { Sprint } from '../../db/Sprint.js';
 import { Project } from '../../db/Project.js';
 import express from 'express';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
+import { projectRolesRequired } from '../../middleware/auth.js';
+import {
+  CAN_CREATE_SPRINT,
+  CAN_UPDATE_SPRINT,
+  CAN_DELETE_SPRINT,
+
+} from '../../configuration/rolesConfiguration.js';
 
 export const sprintsRouter = express.Router();
 
@@ -10,20 +17,27 @@ sprintsRouter.get(
   '/:projectId',
   errorHandlerWrapped(async (req, res) => {
     try {
-      const sprints = await Sprint.find({
-        project: req.params.projectId,
-      }).sort({ endDate: 'desc' });
+      const { projectId } = req.params;
+
+      // Check if the project exists
+      const projectExists = await Project.exists({ _id: projectId });
+      if (!projectExists) {
+        return res.status(404).json({ message: 'Project not found' });
+      }
+
+      // Fetch sprints for the project
+      const sprints = await Sprint.find({ project: projectId }).sort({ endDate: 'desc' });
 
       res.json(sprints);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
-  }),
+  })
 );
 
 //Create a new Sprint
-sprintsRouter.post(
+sprintsRouter.post( //TODO: add systemRolesRequired(CAN_CREATE_SPRINT)
   '/addSprint',
   errorHandlerWrapped(async (req, res) => {
     try {
@@ -34,14 +48,6 @@ sprintsRouter.post(
       if (!existingProject) {
         return res.status(404).json({ message: 'Project not found' });
       }
-
-      // Validate that user has permission (Scrum Master role required) : AP TODO when ProjectRoles implemented
-      //const userRole = existingProject.userRoles.find(
-      //   (ur) => ur.user.toString() === req.user.id
-      // );
-      // if (!userRole || userRole.role !== 'scrum_master') {
-      //   return res.status(403).json({ message: 'Only Scrum Masters can create Sprints' });
-      // }
 
       //Validate dates
       const now = new Date();
@@ -91,7 +97,7 @@ sprintsRouter.post(
 );
 
 //Delete a sprint
-sprintsRouter.delete(
+sprintsRouter.delete( //TODO: add systemRolesRequired(CAN_DELETE_SPRINT)
   '/deleteSprint/:sprintId',
   errorHandlerWrapped(async (req, res) => {
     try {
@@ -101,6 +107,11 @@ sprintsRouter.delete(
       const sprint = await Sprint.findById(sprintId);
       if (!sprint) {
         return res.status(404).json({ message: 'Sprint not found' });
+      }
+
+      // Check if sprint has already started
+      if (new Date(sprint.startDate) <= new Date()) {
+        return res.status(400).json({ message: 'Cannot delete a sprint that has already started' });
       }
 
       // Delete sprint
@@ -114,7 +125,7 @@ sprintsRouter.delete(
 );
 
 //Update a sprint
-sprintsRouter.put(
+sprintsRouter.put( //TODO: add systemRolesRequired(CAN_UPDATE_SPRINT)
   '/updateSprint/:sprintId',
   errorHandlerWrapped(async (req, res) => {
     try {
