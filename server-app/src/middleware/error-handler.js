@@ -6,7 +6,7 @@ export const errorHandlerWrapped = (func) => {
       return await func(req, res, next);
     } catch (error) {
       if (error instanceof SmrpoError) {
-        return res.status(error.statusCode).send(error.message);
+        return res.status(error.statusCode).send({ message: error.message });
       }
       console.error(error);
       return res.status(500).json({ message: error.message });

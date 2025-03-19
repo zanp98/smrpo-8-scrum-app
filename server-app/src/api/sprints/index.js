@@ -50,7 +50,6 @@ sprintsRouter.post(
   errorHandlerWrapped(async (req, res) => {
     try {
       const { name, project, startDate, endDate, expectedVelocity, goal, status } = req.body;
-      const projectId = req.body.project;
       const userId = req.user.id; // Authenticated user
 
       // Validate project existence
@@ -60,8 +59,8 @@ sprintsRouter.post(
       }
 
       //Validate dates
-      const now = new Date();
-      if (new Date(startDate) < now) {
+      const todayStartOfDay = new Date().setHours(0, 0, 0);
+      if (new Date(startDate) < todayStartOfDay) {
         return res.status(400).json({ message: 'Sprint start date cannot be in the past' });
       }
       if (new Date(endDate) <= new Date(startDate)) {

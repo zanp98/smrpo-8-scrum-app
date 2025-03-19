@@ -6,6 +6,7 @@ import { projectRolesRequired, systemRolesRequired } from '../../middleware/auth
 import { UserRoles } from '../../db/User.js';
 import { CAN_READ_PROJECTS } from '../../configuration/rolesConfiguration.js';
 import { ProjectUserRole } from '../../db/ProjectUserRole.js';
+import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 export const projectsRouter = express.Router();
 
@@ -68,7 +69,12 @@ projectsRouter.post(
       }
 
       // Check for duplicate project key
-      const existingProject = await Project.findOne({ key });
+      const existingProject = await Project.findOne({
+        $or: [
+          { name: { $regex: getCaseInsensitiveRegex(name) } },
+          { key: { $regex: getCaseInsensitiveRegex(key) } },
+        ],
+      });
       if (existingProject) {
         return res.status(400).json({ message: 'Project name already exists' });
       }

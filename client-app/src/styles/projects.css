@@ -151,58 +151,6 @@
   color: #0056b3;
 }
 
-.user-story-id {
-  font-size: 12px;
-  background: #eaeaea;
-  padding: 3px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-}
-
-.user-story-type {
-  font-size: 16px;
-}
-
-.user-story-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #222;
-  margin: 5px 0;
-  word-wrap: break-word;
-}
-
-.user-story-description {
-  font-size: 12px;
-  color: #222;
-  margin: 5px 0;
-  word-wrap: break-word;
-}
-
-.user-story-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  color: #555;
-}
-
-.user-story-points {
-  font-weight: bold;
-  background: #f4f4f4;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.user-story-assignee {
-  font-style: italic;
-  color: #007bff;
-}
-
-.user-story-unassigned {
-  font-style: italic;
-  color: #000000;
-}
-
 .column-header {
   display: flex;
   align-items: center;

@@ -9,6 +9,8 @@ import {
   CAN_UPDATE_USER_STORIES,
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
+import { User } from '../../db/User.js';
+import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 export const userStoriesRouter = express.Router();
 
@@ -39,15 +41,34 @@ userStoriesRouter.post(
   projectRolesRequired(CAN_CREATE_USER_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { projectId, sprintId } = req.params;
-    const { title, description, type, status, priority, points, businessValue, assignee } =
-      req.body;
+    const {
+      title,
+      description,
+      acceptanceTests,
+      type,
+      status,
+      priority,
+      points,
+      businessValue,
+      assignee,
+    } = req.body;
     const reporter = req.user.id;
     if (!title || points === undefined) {
       throw new ValidationError('Title and story points are required');
     }
+    const existingStory = await UserStory.find({
+      title: { $regex: getCaseInsensitiveRegex(title) },
+    })
+      .countDocuments()
+      .exec();
+
+    if (existingStory) {
+      throw new ValidationError('User story with the same title already exists');
+    }
     const userStory = await UserStory.create({
       title,
       description,
+      acceptanceTests,
       type,
       status,
       priority,

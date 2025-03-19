@@ -36,6 +36,7 @@ export const UserStoryForm = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    acceptanceTests: '',
     type: 'task',
     status: 'backlog',
     priority: 'medium',
@@ -44,6 +45,8 @@ export const UserStoryForm = ({
     assignee: null,
     sprintId: null,
   });
+
+  const isEditMode = !!initialData;
 
   const sprintCanBeChanged = useMemo(
     () => formData?.status !== 'done' && formData?.points > 0,
@@ -57,6 +60,7 @@ export const UserStoryForm = ({
     setFormData({
       title: initialData.title,
       description: initialData.description || '',
+      acceptanceTests: initialData.acceptanceTests || '',
       type: initialData.type,
       status: initialData.status,
       priority: initialData.priority,
@@ -132,6 +136,16 @@ export const UserStoryForm = ({
         </div>
 
         <div className="form-group">
+          <label htmlFor="acceptanceTests">Acceptance tests</label>
+          <textarea
+            id="acceptanceTests"
+            name="acceptanceTests"
+            value={formData.acceptanceTests}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
           <label htmlFor="status">Status</label>
           <select id="status" name="status" value={formData.status} onChange={handleChange}>
             <option value={UserStoryStatus.BACKLOG}>Backlog</option>
@@ -149,7 +163,6 @@ export const UserStoryForm = ({
             <option value={UserStoryPriority.HIGH}>Should have</option>
             <option value={UserStoryPriority.MEDIUM}>Could have</option>
             <option value={UserStoryPriority.LOW}>Won't have this time</option>
-            <option value={UserStoryPriority.LOWEST}>Won't do</option>
           </select>
         </div>
 
@@ -172,51 +185,51 @@ export const UserStoryForm = ({
             type="number"
             id="businessValue"
             name="businessValue"
-            min="0"
-            max="100"
+            min="1"
+            max="10"
             value={formData.businessValue}
             onChange={handleChange}
           />
         </div>
 
-        {projectUsers.length && (
-          <div className="form-group">
-            <label htmlFor="assignee">Assignee</label>
-            <select id="assignee" name="assignee" value={formData.assignee} onChange={handleChange}>
-              <option value=""></option>
-              {projectUsers.map((pu) => (
-                <option key={pu.user._id} value={pu.user._id}>
-                  {pu.user.firstName} {pu.user.lastName} ({pu.user.username})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {/*{projectUsers.length && isEditMode && (*/}
+        {/*  <div className="form-group">*/}
+        {/*    <label htmlFor="assignee">Assignee</label>*/}
+        {/*    <select id="assignee" name="assignee" value={formData.assignee} onChange={handleChange}>*/}
+        {/*      <option value=""></option>*/}
+        {/*      {projectUsers.map((pu) => (*/}
+        {/*        <option key={pu.user._id} value={pu.user._id}>*/}
+        {/*          {pu.user.firstName} {pu.user.lastName} ({pu.user.username})*/}
+        {/*        </option>*/}
+        {/*      ))}*/}
+        {/*    </select>*/}
+        {/*  </div>*/}
+        {/*)}*/}
 
-        {projectSprints.length && (
-          <div className="form-group">
-            <label htmlFor="sprintId">
-              Sprint {sprintCanBeChanged ? '' : '(cannot change if no estimate or status done)'}
-            </label>
-            <select
-              id="sprintId"
-              name="sprintId"
-              value={formData.sprintId}
-              onChange={handleChange}
-              disabled={!sprintCanBeChanged}
-            >
-              <option value=""></option>
-              {projectSprints.map((ps) => (
-                <option key={ps._id} value={ps._id}>
-                  {ps.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {/*{projectSprints.length && isEditMode && (*/}
+        {/*  <div className="form-group">*/}
+        {/*    <label htmlFor="sprintId">*/}
+        {/*      Sprint {sprintCanBeChanged ? '' : '(cannot change if no estimate or status done)'}*/}
+        {/*    </label>*/}
+        {/*    <select*/}
+        {/*      id="sprintId"*/}
+        {/*      name="sprintId"*/}
+        {/*      value={formData.sprintId}*/}
+        {/*      onChange={handleChange}*/}
+        {/*      disabled={!sprintCanBeChanged}*/}
+        {/*    >*/}
+        {/*      <option value=""></option>*/}
+        {/*      {projectSprints.map((ps) => (*/}
+        {/*        <option key={ps._id} value={ps._id}>*/}
+        {/*          {ps.name}*/}
+        {/*        </option>*/}
+        {/*      ))}*/}
+        {/*    </select>*/}
+        {/*  </div>*/}
+        {/*)}*/}
 
         <button type="submit" className="submit-btn">
-          {!!initialData ? 'Update UserStory' : 'Create UserStory'}
+          {isEditMode ? 'Update UserStory' : 'Create UserStory'}
         </button>
       </form>
     </div>

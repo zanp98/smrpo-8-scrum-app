@@ -74,6 +74,7 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
 
         <div className="user-story-title">{userStory.title}</div>
         <div className="user-story-description">{userStory.description}</div>
+        <div className="user-story-description">{userStory.acceptanceTests ?? ''}</div>
         <div className="user-story-sprint">{userStory.sprint ? userStory.sprint.name : ''}</div>
         <div className="user-story-footer">
           <span className="user-story-points">

@@ -22,7 +22,6 @@ export const UserStoryPriority = Object.freeze({
   HIGH: 'high',
   MEDIUM: 'medium',
   LOW: 'low',
-  LOWEST: 'lowest',
 });
 
 const UserStorySchema = new mongoose.Schema(
@@ -37,6 +36,9 @@ const UserStorySchema = new mongoose.Schema(
       default: 1,
     },
     description: {
+      type: String,
+    },
+    acceptanceTests: {
       type: String,
     },
     type: {
@@ -60,14 +62,16 @@ const UserStorySchema = new mongoose.Schema(
     },
     businessValue: {
       type: Number,
-      default: 0,
-      min: 0,
-      max: 100,
+      default: 1,
+      min: 1,
+      max: 10,
     },
-    tasks: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Task'
-    }],
+    tasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task',
+      },
+    ],
     assignee: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

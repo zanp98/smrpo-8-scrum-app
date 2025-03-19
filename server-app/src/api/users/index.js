@@ -2,6 +2,7 @@ import { User, UserRoles } from '../../db/User.js';
 import express from 'express';
 import { systemRolesRequired } from '../../middleware/auth.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
+import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 export const usersRouter = express.Router();
 
@@ -20,7 +21,16 @@ usersRouter.post(
   systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     const { username, password, firstName, lastName, email, systemRole } = req.body;
-    const usersCount = await User.find({ $or: [{ username }, { email }] })
+    const usersCount = await User.find({
+      $or: [
+        {
+          username: { $regex: getCaseInsensitiveRegex(username) },
+        },
+        {
+          email: { $regex: getCaseInsensitiveRegex(email) },
+        },
+      ],
+    })
       .countDocuments()
       .exec();
     if (usersCount) {

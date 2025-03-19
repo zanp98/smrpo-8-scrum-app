@@ -89,6 +89,7 @@
   color: #222;
   margin: 5px 0;
   word-wrap: break-word;
+  white-space: pre-line;
 }
 
 .user-story-sprint {

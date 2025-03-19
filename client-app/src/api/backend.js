@@ -1,8 +1,20 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export const backendApi = axios.create({
   baseURL: 'http://localhost:8000/api/v1',
 });
+
+backendApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status >= 400 && error.response?.status < 500) {
+      // This is a validation issue, we should pop a toast to the user
+      toast.error(error.response.data?.message);
+    }
+    return Promise.reject(error);
+  },
+);
 
 export const getSprintUserStories = async ({ projectId, sprintId }) => {
   try {
