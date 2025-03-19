@@ -42,6 +42,9 @@ userStoriesRouter.post(
     const { title, description, type, status, priority, points, businessValue, assignee } =
       req.body;
     const reporter = req.user.id;
+    if (!title || points === undefined) {
+      throw new ValidationError('Title and story points are required');
+    }
     const userStory = await UserStory.create({
       title,
       description,
