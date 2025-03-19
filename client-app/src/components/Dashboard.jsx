@@ -157,7 +157,7 @@ const Dashboard = () => {
                 activeProject={selectedProject}
                 projectSprints={selectedProjectSprints}
                 currentSprint={currentActiveSprint}
-                onCreate={handleProjectCreate}
+                onCreate={() => handleProjectCreate()}
               />
             }
           />

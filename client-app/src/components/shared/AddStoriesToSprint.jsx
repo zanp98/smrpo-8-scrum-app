@@ -8,11 +8,18 @@ export const AddStoriesToSprint = ({
   onAssign,
   onCloseClick,
 }) => {
+  const hasSprintAndIsCurrent = (userStory) => {
+    if (userStory.sprint && currentSprint) {
+      return userStory.sprint?._id !== currentSprint?._id;
+    }
+    return true;
+  };
+
   const isStoryEditable = (userStory) =>
     userStory.status !== 'done' &&
     userStory.points !== undefined &&
     userStory.businessValue !== undefined &&
-    userStory.sprint?.id !== currentSprint._id;
+    hasSprintAndIsCurrent(userStory);
 
   const assignableUserStories = userStories.filter(isStoryEditable);
 
@@ -64,7 +71,7 @@ export const AddStoriesToSprint = ({
           <option value="">Select a sprint</option>
           {projectSprints.map((sprint) => (
             <option key={sprint._id} value={sprint._id}>
-              {sprint.name} {sprint._id === currentSprint._id ? ' (current)' : ''}
+              {sprint.name} {sprint._id === currentSprint?._id ? ' (current)' : ''}
             </option>
           ))}
         </select>
