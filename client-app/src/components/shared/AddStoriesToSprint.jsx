@@ -2,7 +2,7 @@ import '../../styles/addStoriesToSprint.css';
 import { useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { negate } from '../../utils/object';
-import { calculateTotalStoryPoints } from '../../utils/sprint';
+import { calculateTotalStoryPoints } from '../../utils/stories';
 
 export const AddStoriesToSprint = ({ userStories = [], currentSprint, onAssign, onCloseClick }) => {
   const hasSprintAndIsNotCurrent = (userStory) => {

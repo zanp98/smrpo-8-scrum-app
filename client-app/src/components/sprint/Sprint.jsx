@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Storyboard } from '../shared/Storyboard';
 import { getSprintUserStories } from '../../api/backend';
 import { useParams } from 'react-router';
-import { calculateTotalStoryPoints } from '../../utils/sprint';
+import { calculateTotalStoryPoints } from '../../utils/stories';
 
 export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) => {
   const [userStories, setUserStories] = useState([]);
