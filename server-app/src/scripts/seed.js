@@ -6,6 +6,7 @@ import { Sprint } from '../db/Sprint.js';
 import { ProjectUserRole, ProjectRole } from '../db/ProjectUserRole.js';
 import { UserStory } from '../db/UserStory.js';
 import { Task } from '../db/Task.js';
+import { LoginAttempt } from '../db/LoginAttempt.js';
 
 export const seed = async () => {
   try {
@@ -19,6 +20,7 @@ export const seed = async () => {
     await UserStory.deleteMany({});
     await ProjectUserRole.deleteMany({});
     await Task.deleteMany({});
+    await LoginAttempt.deleteMany({});
 
     console.log('Creating users...');
 
