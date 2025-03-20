@@ -15,6 +15,8 @@ import {
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
 import { UserStory } from '../../db/UserStory.js';
+import { isWeekend } from '../../utils/date-util.js';
+import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 export const sprintsRouter = express.Router();
 
@@ -50,7 +52,6 @@ sprintsRouter.post(
   errorHandlerWrapped(async (req, res) => {
     try {
       const { name, project, startDate, endDate, expectedVelocity, goal, status } = req.body;
-      const userId = req.user.id; // Authenticated user
 
       // Validate project existence
       const existingProject = await Project.findById(project);
@@ -58,7 +59,7 @@ sprintsRouter.post(
         return res.status(404).json({ message: 'Project not found' });
       }
 
-      //Validate dates
+      // Validate dates
       const todayStartOfDay = new Date().setHours(0, 0, 0);
       if (new Date(startDate) < todayStartOfDay) {
         return res.status(400).json({ message: 'Sprint start date cannot be in the past' });
@@ -67,12 +68,20 @@ sprintsRouter.post(
         return res.status(400).json({ message: 'Sprint end date must be after start date' });
       }
 
-      //Validate velocity
+      // Check for weekends
+      if (isWeekend(startDate)) {
+        return res.status(400).json({ message: 'Sprint start date cannot be weekend' });
+      }
+      if (isWeekend(endDate)) {
+        return res.status(400).json({ message: 'Sprint end date cannot be weekend' });
+      }
+
+      // Validate velocity
       if (expectedVelocity < 1 || isNaN(expectedVelocity)) {
         return res.status(400).json({ message: 'Sprint velocity must be a positive number' });
       }
 
-      //Check for overlapping sprints
+      // Check for overlapping sprints
       const overlappingSprint = await Sprint.findOne({
         project,
         $or: [
@@ -85,7 +94,15 @@ sprintsRouter.post(
         return res.status(400).json({ message: 'Sprint overlaps with an existing sprint' });
       }
 
-      //Create and save sprint
+      const sprintWithSameName = await Sprint.findOne({
+        name: { name: { $regex: getCaseInsensitiveRegex(name) } },
+      });
+
+      if (sprintWithSameName) {
+        return res.status(400).json({ message: 'Sprint with same name already exists' });
+      }
+
+      // Create and save sprint
       const sprint = new Sprint({
         name,
         project,
