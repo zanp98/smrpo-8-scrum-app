@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { backendApi } from '../api/backend'; // API handler
 import '../styles/forms.css';
 
@@ -15,6 +15,7 @@ export const ProjectForm = ({ onClose, onProjectCreate }) => {
     key: '',
     description: '',
     owner: '',
+    scrumMaster: '',
     members: [],
   });
 
@@ -67,6 +68,12 @@ export const ProjectForm = ({ onClose, onProjectCreate }) => {
         user: member,
         role: ProjectRole.DEVELOPER,
       }));
+      if (formData.scrumMaster) {
+        mappedMembersWithRoles.push({
+          user: formData.scrumMaster,
+          role: ProjectRole.SCRUM_MASTER,
+        });
+      }
       const mappedData = {
         ...formData,
         members: mappedMembersWithRoles,
@@ -78,6 +85,7 @@ export const ProjectForm = ({ onClose, onProjectCreate }) => {
         key: '',
         description: '',
         owner: '',
+        scrumMaster: '',
         members: [],
       });
       onProjectCreate?.();
@@ -85,6 +93,16 @@ export const ProjectForm = ({ onClose, onProjectCreate }) => {
       setError(err.response?.data?.message || 'Failed to create project.');
     }
   };
+
+  const availableProductOwners = useMemo(
+    () => users.filter((user) => !formData.members.includes(user._id)),
+    [users, formData.members],
+  );
+
+  const availableUsers = useMemo(
+    () => users.filter((user) => user._id !== formData.owner && user._id !== formData.scrumMaster),
+    [users, formData.owner, formData.scrumMaster],
+  );
 
   return (
     <div className="general-form-container">
@@ -133,6 +151,22 @@ export const ProjectForm = ({ onClose, onProjectCreate }) => {
           <label htmlFor="owner">Project Owner</label>
           <select id="owner" name="owner" value={formData.owner} onChange={handleChange} required>
             <option value="">Select an owner</option>
+            {availableProductOwners.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.firstName} {user.lastName} ({user.email})
+              </option>
+            ))}
+          </select>
+
+          <label htmlFor="owner">Scrum master</label>
+          <select
+            id="scrumMaster"
+            name="scrumMaster"
+            value={formData.scrumMaster}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select an owner</option>
             {users.map((user) => (
               <option key={user._id} value={user._id}>
                 {user.firstName} {user.lastName} ({user.email})
@@ -150,7 +184,7 @@ export const ProjectForm = ({ onClose, onProjectCreate }) => {
             value={formData.members}
             onChange={handleMultiSelectChange}
           >
-            {users.map((user) => (
+            {availableUsers.map((user) => (
               <option key={user._id} value={user._id}>
                 {user.firstName} {user.lastName} ({user.email})
               </option>

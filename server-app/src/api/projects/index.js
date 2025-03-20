@@ -70,10 +70,7 @@ projectsRouter.post(
 
       // Check for duplicate project key
       const existingProject = await Project.findOne({
-        $or: [
-          { name: { $regex: getCaseInsensitiveRegex(name) } },
-          { key: { $regex: getCaseInsensitiveRegex(key) } },
-        ],
+        $or: [{ name: { $regex: getCaseInsensitiveRegex(name) } }],
       });
       if (existingProject) {
         return res.status(400).json({ message: 'Project name already exists' });

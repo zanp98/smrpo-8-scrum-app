@@ -15,7 +15,6 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
   const [userStories, setUserStories] = useState([]);
   const [projectUsers, setProjectUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showCreateUserStory, setShowCreateUserStory] = useState(false);
   const [showAddStoriesToSprint, setShowAddStoriesToSprint] = useState(false);
   const [selectedUserStory, setSelectedUserStory] = useState(null);
@@ -138,7 +137,6 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
           )}
           {showAddStoriesToSprint && (
             <AddStoriesToSprint
-              projectSprints={projectSprints}
               userStories={userStories}
               currentSprint={currentSprint}
               onCloseClick={() => setShowAddStoriesToSprint(false)}

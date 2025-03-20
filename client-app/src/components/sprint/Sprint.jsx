@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Storyboard } from '../shared/Storyboard';
 import { getSprintUserStories } from '../../api/backend';
 import { useParams } from 'react-router';
+import { calculateTotalStoryPoints } from '../../utils/sprint';
 
 export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) => {
   const [userStories, setUserStories] = useState([]);
@@ -17,6 +18,9 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
     const stories = await getSprintUserStories({ projectId, sprintId });
     setUserStories(stories);
   };
+
+  const totalStoryPoints = useMemo(() => calculateTotalStoryPoints(userStories), [userStories]);
+
   useEffect(() => {
     if (!project || !sprint) {
       return;
@@ -30,6 +34,11 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
   return (
     <div className="main-content">
       <div>{sprint.name}</div>
+      <div>Number of user stories: {userStories?.length ?? 0}</div>
+      <div className={totalStoryPoints > sprint.expectedVelocity ? 'label-overbooked' : ''}>
+        Velocity: {totalStoryPoints}/{sprint.expectedVelocity}
+      </div>
+      <br />
       <Storyboard project={project} userStories={userStories} />
     </div>
   );

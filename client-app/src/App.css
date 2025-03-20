@@ -29,6 +29,11 @@ html, body, #root {
   color: #172b4d;
 }
 
+
+.label-overbooked {
+  color: darkred;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .App {
