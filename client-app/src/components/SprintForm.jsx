@@ -157,7 +157,7 @@ export const SprintForm = ({ onClose, initialData, onSprintCreate }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="expectedVelocity">Expected Velocity</label>
+          <label htmlFor="expectedVelocity">Expected Velocity (in story points)</label>
           <input
             type="number"
             id="expectedVelocity"

@@ -15,7 +15,7 @@ import {
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
 import { UserStory } from '../../db/UserStory.js';
-import { isWeekend } from '../../utils/date-util.js';
+import { isHoliday, isWeekend } from '../../utils/date-util.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 export const sprintsRouter = express.Router();
@@ -74,6 +74,15 @@ sprintsRouter.post(
       }
       if (isWeekend(endDate)) {
         return res.status(400).json({ message: 'Sprint end date cannot be weekend' });
+      }
+
+      // Check for holidays
+      if (isHoliday(startDate)) {
+        return res.status(400).json({ message: 'Sprint start date cannot be a holiday' });
+      }
+
+      if (isHoliday(endDate)) {
+        return res.status(400).json({ message: 'Sprint end date cannot be a holiday' });
       }
 
       // Validate velocity
