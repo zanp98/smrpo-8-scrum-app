@@ -1,4 +1,5 @@
-const Holidays = require('date-holidays');
+import dayjs from 'dayjs';
+import Holidays from 'date-holidays';
 
 const hd = new Holidays();
 hd.init('SI');
