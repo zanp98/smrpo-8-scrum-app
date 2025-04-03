@@ -1,0 +1,72 @@
+version: "3"
+
+services:
+  server-app:
+    container_name: smrpo-server-app
+    restart: always
+    build: ./server-app
+    networks:
+      - caddy
+    ports:
+      - "8000:8000"
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    volumes:
+      - "./server-app/:/app/"
+      - "/app/node_modules"
+    environment:
+      MONGO_PASS: example
+      MONGO_USER: root
+      MONGO_DB: "scrum-app"
+      MONGO_PORT: 27017
+      PORT: 8000
+      JWT_SECRET: your-secret-key
+    command: bash -c "sh ./src/scripts/wait-for-mongo.sh && npm run dev"
+    profiles:
+      - all
+      - be
+      - ''
+
+  client-app:
+    container_name: smrpo-client-app
+    build: ./client-app
+    networks:
+      - caddy
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server-app
+    volumes:
+      - "./client-app:/app"
+      - "/app/node_modules"
+    environment:
+      PORT: 3000
+    command: npm run dev
+    profiles:
+      - all
+      - ''
+
+  mongo:
+    container_name: mongo
+    image: mongo:4.4.0
+    volumes:
+      - ./data:/data/db
+    networks:
+      - caddy
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: "scrum-app"
+    profiles:
+      - all
+      - db
+      - be
+      - ''
+
+networks:
+  caddy:
+    external: true
