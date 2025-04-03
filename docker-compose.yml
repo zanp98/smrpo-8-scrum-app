@@ -2,7 +2,7 @@ version: "3"
 
 services:
   server-app:
-    container_name: server-app
+    container_name: smrpo-server-app
     restart: always
     build: ./server-app
     ports:
@@ -30,7 +30,7 @@ services:
       - ''
 
   client-app:
-    container_name: client-app
+    container_name: smrpo-client-app
     build: ./client-app
     ports:
       - "3000:3000"
@@ -48,7 +48,7 @@ services:
 
   mongo:
     container_name: mongo
-    image: mongo
+    image: mongo:4.4.29
     volumes:
       - ./data:/data/db
     ports:
