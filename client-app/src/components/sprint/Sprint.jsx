@@ -39,7 +39,7 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
         Velocity: {totalStoryPoints}/{sprint.expectedVelocity}
       </div>
       <br />
-      <Storyboard project={project} userStories={userStories} />
+      <Storyboard project={project} userStories={userStories} currentSprint={sprint} />
     </div>
   );
 };

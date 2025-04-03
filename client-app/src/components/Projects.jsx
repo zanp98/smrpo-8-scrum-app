@@ -155,6 +155,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
           <Storyboard
             project={activeProject}
             userStories={userStories}
+            currentSprint={currentSprint}
             onEditStoryClick={(userStory) => {
               setSelectedUserStory(userStory);
               setShowCreateUserStory(true);

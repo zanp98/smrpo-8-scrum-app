@@ -1,22 +1,37 @@
-import React, { useState } from 'react';
-import { backendApi } from '../api/backend';
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
+import { backendApi, getProjectUsers } from '../api/backend';
 import '../styles/task-list.css';
+import TaskForm from './TaskForm';
 
-export const TaskList = ({ tasks, loading, userStoryId, onTasksUpdate }) => {
-  const [newTask, setNewTask] = useState({ description: '', timeEstimation: 0 });
+export const TaskList = ({
+  tasks,
+  loading,
+  userStoryId,
+  onTasksUpdate,
+  userStorySprintId,
+  currentSprintId,
+  projectId,
+}) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [users, setUsers] = useState([]);
 
-  const handleAddTask = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  useEffect(() => {
+    getProjectUsers(projectId)
+      .then((result) => {
+        setUsers(result);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
+  const handleAddTask = async (task) => {
     try {
-      await backendApi.post(`/tasks/${userStoryId}`, newTask);
-      setNewTask({ description: '', timeEstimation: 0 });
-      setIsAddingTask(false);
-      onTasksUpdate();
+      await backendApi.post(`/tasks/${userStoryId}`, task);
+      onTasksUpdate(); // refresh tasks
     } catch (error) {
       console.error('Failed to add task:', error);
+    } finally {
+      setIsAddingTask(false);
     }
   };
 
@@ -36,12 +51,23 @@ export const TaskList = ({ tasks, loading, userStoryId, onTasksUpdate }) => {
   return (
     <div className="tasks-container" onClick={(e) => e.stopPropagation()}>
       <h4>Tasks</h4>
-
       {tasks.map((task) => (
         <div key={task._id} className="task-item">
           <div className="task-description">{task.description}</div>
           <div className="task-details">
+            {/* Time */}
             <span>{task.timeEstimation}h</span>
+
+            {/* Assigned User */}
+            {task.assignedUser ? (
+              <div className="task-assigned-user">
+                {task.assignedUser.firstName} {task.assignedUser.lastName}
+              </div>
+            ) : (
+              <div className="task-unassigned">Unassigned</div>
+            )}
+
+            {/* Status */}
             <select
               value={task.status}
               onChange={(e) => handleStatusChange(task._id, e.target.value)}
@@ -53,34 +79,26 @@ export const TaskList = ({ tasks, loading, userStoryId, onTasksUpdate }) => {
           </div>
         </div>
       ))}
-
-      {isAddingTask ? (
-        <form onSubmit={handleAddTask} className="add-task-form">
-          <input
-            type="text"
-            value={newTask.description}
-            onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-            placeholder="Task description"
-            required
-          />
-          <input
-            type="number"
-            value={newTask.timeEstimation}
-            onChange={(e) => setNewTask({ ...newTask, timeEstimation: Number(e.target.value) })}
-            placeholder="Time (hours)"
-            required
-            min="0"
-          />
-          <button type="submit">Add</button>
-          <button type="button" onClick={() => setIsAddingTask(false)}>
-            Cancel
-          </button>
-        </form>
-      ) : (
+      {userStorySprintId === currentSprintId && (
         <button className="add-task-button" onClick={() => setIsAddingTask(true)}>
           + Add Task
         </button>
       )}
+
+      {/* Render the modal via a Portal when isAddingTask is true */}
+      {isAddingTask &&
+        ReactDOM.createPortal(
+          <div className="task-modal-overlay" onClick={() => setIsAddingTask(false)}>
+            <div className="task-modal-content" onClick={(e) => e.stopPropagation()}>
+              <TaskForm
+                onSubmit={handleAddTask}
+                onCancel={() => setIsAddingTask(false)}
+                users={users}
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import '../../styles/storyboard.css';
 import { backendApi } from '../../api/backend';
 import { TaskList } from '../TaskList';
 
-export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
+export const Storyboard = ({ project, userStories = [], onEditStoryClick, currentSprint }) => {
   const [selectedUserStory, setSelectedUserStory] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [tasks, setTasks] = useState([]);
@@ -26,6 +26,9 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
     } finally {
     }
   };
+
+  const calculateTotalHours = (tasks) =>
+    tasks.reduce((total, task) => total + task.timeEstimation, 0);
 
   useEffect(() => {
     fetchTasks();
@@ -67,11 +70,16 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
             </span>
           </div>
         </div>
-
         {isExpanded && selectedUserStory?._id === userStory._id && (
-          <TaskList tasks={tasks} userStoryId={userStory._id} onTasksUpdate={fetchTasks} />
+          <TaskList
+            tasks={tasks}
+            userStoryId={userStory._id}
+            onTasksUpdate={fetchTasks}
+            userStorySprintId={userStory.sprint?._id}
+            currentSprintId={currentSprint._id}
+            projectId={project._id}
+          />
         )}
-
         <div className="user-story-title">{userStory.title}</div>
         <div className="user-story-description">{userStory.description}</div>
         <div className="user-story-description">{userStory.acceptanceTests ?? ''}</div>
@@ -80,6 +88,7 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick }) => {
           <span className="user-story-points">
             {userStory.points > 0 ? `${userStory.points} pts` : ''}
           </span>
+          <span className="user-story-hours">{calculateTotalHours(tasks)}h</span>
           {userStory.assignee && (
             <span className="user-story-assignee">
               {userStory.assignee.firstName} {userStory.assignee.lastName.charAt(0)}.
