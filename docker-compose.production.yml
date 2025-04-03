@@ -43,6 +43,7 @@ services:
       - "/app/node_modules"
     environment:
       PORT: 3000
+      HTTPS: true
     command: npm run dev
     profiles:
       - all
