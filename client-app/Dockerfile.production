@@ -11,4 +11,3 @@ RUN npm install -g serve --silent
 
 COPY . .
 ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN serve -s build -l 3000
