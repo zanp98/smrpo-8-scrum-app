@@ -31,18 +31,20 @@ services:
 
   client-app:
     container_name: smrpo-client-app
-    build: ./client-app
+    build:
+      context: client-app
+      dockerfile: ./client-app/Dockerfile.production
     networks:
       - caddy
     ports:
-      - "3000:3000"
+      - "80:80"
     depends_on:
       - server-app
     volumes:
       - "./client-app:/app"
       - "/app/node_modules"
     environment:
-      PORT: 3000
+      PORT: 80
       HTTPS: true
     command: npm run dev
     profiles:
