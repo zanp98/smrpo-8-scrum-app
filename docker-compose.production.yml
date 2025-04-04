@@ -23,7 +23,7 @@ services:
       MONGO_PORT: 27017
       PORT: 8000
       JWT_SECRET: your-secret-key
-    command: bash -c "sh ./src/scripts/wait-for-mongo.sh && npm run dev"
+    command: bash -c "sh ./src/scripts/wait-for-mongo.sh && npm run start"
     profiles:
       - all
       - be
@@ -46,7 +46,6 @@ services:
     environment:
       PORT: 80
       HTTPS: true
-    command: npm run dev
     profiles:
       - all
       - ''
