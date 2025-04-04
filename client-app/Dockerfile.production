@@ -7,14 +7,8 @@ WORKDIR /app
 COPY package.json /app/package.json
 RUN npm install --silent
 RUN npm install react-scripts@3.0.1 -g --silent
+RUN npm install -g serve --silent
 
 COPY . .
-RUN npm run build
-
 ENV NODE_OPTIONS=--openssl-legacy-provider
-
-# Production Stage
-FROM nginx:stable-alpine AS production
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+RUN serve -s build -l 3000
