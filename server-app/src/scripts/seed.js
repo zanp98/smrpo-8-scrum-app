@@ -326,3 +326,7 @@ export const seed = async () => {
 
   process.exit(0);
 };
+
+seed()
+  .then(() => console.log('Seed running successfully!'))
+  .catch((error) => console.error(error));
