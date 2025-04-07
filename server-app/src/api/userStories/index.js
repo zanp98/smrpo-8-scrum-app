@@ -7,6 +7,7 @@ import {
   CAN_DELETE_USER_STORIES,
   CAN_READ_USER_STORIES,
   CAN_UPDATE_USER_STORIES,
+  CAN_UPDATE_USER_STORIES_POINTS
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
 import { User } from '../../db/User.js';
@@ -129,5 +130,37 @@ userStoriesRouter.delete(
     const { userStoryId } = req.params;
     const userStory = await UserStory.deleteOne({ _id: userStoryId });
     return res.status(202).json(userStory);
+  }),
+);
+
+//Scrum master can update time on un-assigned user story
+userStoriesRouter.patch(
+  '/:projectId/:userStoryId/points',
+  projectRolesRequired(CAN_UPDATE_USER_STORIES_POINTS), 
+  errorHandlerWrapped(async (req, res) => {
+    const { projectId, userStoryId } = req.params;
+    const { points } = req.body;
+
+    if (typeof points !== 'number' || points < 0) {
+      return res.status(400).json({ message: 'Points must be a non-negative number' });
+    }
+
+    const userStory = await UserStory.findOne({ _id: userStoryId, project: projectId });
+
+    if (!userStory) {
+      return res.status(404).json({ message: 'User story not found' });
+    }
+
+    if (userStory.sprint) {
+      return res.status(400).json({
+        message: 'Cannot edit points of a user story that is already assigned to a sprint',
+      });
+    }
+
+    // Update points
+    userStory.points = points;
+    await userStory.save();
+
+    return res.status(200).json(userStory);
   }),
 );
