@@ -35,13 +35,12 @@ export const AddStoriesToSprint = ({ userStories = [], currentSprint, onAssign, 
     );
   };
 
-  const selectedStoryPoints = useMemo(
-    () =>
-      calculateTotalStoryPoints(
-        selectedUserStories.map((s) => assignableUserStories.find((t) => t._id === s)),
-      ) + currentSprintStoryPoints,
-    [selectedUserStories, currentSprintStoryPoints],
-  );
+  const selectedStoryPoints = useMemo(() => {
+    const stories = selectedUserStories
+      .map((s) => assignableUserStories.find((t) => t._id === s))
+      .filter(Boolean);
+    return calculateTotalStoryPoints(stories) + currentSprintStoryPoints;
+  }, [selectedUserStories, currentSprintStoryPoints]);
 
   const handleAssign = () => {
     if (selectedStoryPoints > currentSprint.expectedVelocity) {
