@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/user-form.css';
+import { PasswordStrengthMeter } from './shared/PasswordStrength';
 
 const UserForm = ({ onSubmit, initialData = {} }) => {
   const [formData, setFormData] = useState({
@@ -83,6 +84,7 @@ const UserForm = ({ onSubmit, initialData = {} }) => {
             onChange={handleChange}
             required={!initialData}
           />
+          <PasswordStrengthMeter password={formData.password} />
         </div>
 
         <div className="form-group">

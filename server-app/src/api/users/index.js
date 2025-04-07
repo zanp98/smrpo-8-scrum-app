@@ -71,13 +71,15 @@ usersRouter.patch(
     if (!isMatch) {
       throw new ValidationError('Password is incorrect');
     }
-    const updateData = { username, firstName, lastName };
+    user.username = username;
+    user.firstName = firstName;
+    user.lastName = lastName;
     if (password?.length) {
       validateNewPassword(password);
-      updateData.password = password;
+      user.password = password;
     }
     await validateUsername(username, id);
-    await User.updateOne({ _id: id }, updateData);
+    await user.save();
 
     return res.status(202).json({ message: 'Successfully updated user' });
   }),
@@ -98,13 +100,17 @@ usersRouter.patch(
   errorHandlerWrapped(async (req, res) => {
     const { id } = req.params;
     const { username, firstName, lastName, systemRole, password } = req.body;
-    const updateData = { username, firstName, lastName, systemRole };
+    const user = await User.findOne({ _id: id });
     if (password?.length) {
       validateNewPassword(password);
-      updateData.password = password;
+      user.password = password;
     }
     await validateUsername(username, id);
-    await User.updateOne({ _id: id }, { id, username, firstName, lastName, systemRole });
+    user.username = username;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.systemRole = systemRole;
+    await user.save();
     return res.status(202).json({ message: 'Successfully updated user' });
   }),
 );

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import '../../styles/user/user-settings.css';
 import { AuthContext } from '../../context/AuthContext';
 import { updateCurrentUser } from '../../api/backend';
+import { PasswordStrengthMeter } from '../shared/PasswordStrength';
 
 const UserSettings = ({ onSubmit }) => {
   const { currentUser, refreshToken, loading } = useContext(AuthContext);
@@ -20,7 +21,9 @@ const UserSettings = ({ onSubmit }) => {
     }
     setFormData({
       username: currentUser.username,
+      currentPassword: '',
       password: '',
+      password2: '',
       firstName: currentUser.firstName || '',
       lastName: currentUser.lastName || '',
     });
@@ -43,7 +46,7 @@ const UserSettings = ({ onSubmit }) => {
       return;
     }
 
-    if (!formData.password === '' && formData.password !== formData.password2) {
+    if (formData.password && formData.password !== formData.password2) {
       setError("Passwords don't match");
       return;
     }
@@ -132,10 +135,11 @@ const UserSettings = ({ onSubmit }) => {
             value={formData.password}
             onChange={handleChange}
           />
+          <PasswordStrengthMeter password={formData.password} />
         </div>
 
         <div className="form-group-user-settings">
-          <label htmlFor="password">Confirm new password</label>
+          <label htmlFor="password2">Confirm new password</label>
           <input
             type="password"
             id="password2"
