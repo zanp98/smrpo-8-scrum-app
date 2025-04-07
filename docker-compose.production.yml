@@ -51,7 +51,6 @@ services:
       PORT: 3000
       HTTPS: true
     working_dir: "/app"
-    command: bash -c "serve -s build -l 3000"
     profiles:
       - all
       - ''
