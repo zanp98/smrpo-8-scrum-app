@@ -1,6 +1,11 @@
 import { ValidationError } from '../../middleware/errors.js';
 import { User } from '../../db/User.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
+import passwordDictionary from './dict.json' with { type: 'json' };
+
+const isInDictionary = (password) => {
+  return passwordDictionary.find((p) => p.Password === password);
+};
 
 /**
  * Main backend password validation function, always update here.
@@ -21,6 +26,13 @@ export const validateNewPassword = (password) => {
 
   if (length >= 64 && length <= 128) {
     throw new ValidationError('New password should not be between 64 and 128 characters long'); // too short
+  }
+
+  const dictRecord = isInDictionary(password);
+  if (dictRecord) {
+    throw new ValidationError(
+      `Password is #${dictRecord.Rank} in a dictionary and is not safe to use`,
+    );
   }
 
   // Check for repeated spaces that may be accidentally truncated
