@@ -17,6 +17,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  passwordHint: {
+    type: String,
+    required: false,
+    default: '',
+  },
   firstName: {
     type: String,
     required: true,
@@ -63,6 +68,12 @@ UserSchema.pre('save', async function (next) {
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    let passwordHint = '';
+    for (let i = 0; i < this.password.length - 1; i++) {
+      passwordHint += '*';
+    }
+    passwordHint += this.password.charAt(this.password.length - 1);
+    this.passwordHint = passwordHint;
     next();
   } catch (e) {
     console.error('Error saving user', e);

@@ -8,7 +8,13 @@ export const backendApi = axios.create({
 });
 
 backendApi.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.status >= 200 && response.status < 300 && response.data?.message) {
+      // This is a success message, we should pop a toast to the user
+      toast.success(response.data.message);
+    }
+    return response;
+  },
   (error) => {
     if (error.response?.status >= 400 && error.response?.status < 500) {
       // This is a validation issue, we should pop a toast to the user
@@ -58,5 +64,14 @@ export const addStoriesToSprint = async (userStories, sprintId, projectId) => {
     });
   } catch (err) {
     console.error('Failed to add stories to sprint');
+  }
+};
+
+// Users
+export const updateCurrentUser = async (userData) => {
+  try {
+    return await backendApi.patch(`/users/current-user`, userData);
+  } catch (err) {
+    console.error('Failed to update user', err);
   }
 };

@@ -9,6 +9,7 @@ import { UsersList } from './UsersList';
 import { formatDate, isNowBetween } from '../utils/datetime';
 import { Sprint } from './sprint/Sprint'; // Added SprintForm import
 import { ProjectForm } from './ProjectForm';
+import UserSettings from './user/UserSettings';
 
 const Dashboard = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -22,6 +23,11 @@ const Dashboard = () => {
   const currentActiveSprint = useMemo(
     () => selectedProjectSprints?.find((ps) => isNowBetween(ps.startDate, ps.endDate)),
     [selectedProjectSprints],
+  );
+
+  const lastUserLogin = useMemo(
+    () => (currentUser ? formatDate(currentUser.lastLogin) : ''),
+    [currentUser],
   );
 
   const fetchProjects = async () => {
@@ -81,10 +87,18 @@ const Dashboard = () => {
       <header className="dashboard-header">
         <div className="logo">Scrum Management</div>
         <div className="user-info">
-          <span>
-            {currentUser?.firstName} {currentUser?.lastName}
-          </span>
+          <div className="user-info-text">
+            <div className="user-info-name">
+              {currentUser?.firstName} {currentUser?.lastName}
+            </div>
+            {lastUserLogin !== '' && (
+              <div className="last-login-attempt">Last login: {lastUserLogin}</div>
+            )}
+          </div>
           <span className="user-role">{currentUser?.systemRole?.replace('_', ' ')}</span>
+          <Link to={`/user-settings`}>
+            <button className="logout-button">User settings</button>
+          </Link>
           <button onClick={logout} className="logout-button">
             Logout
           </button>
@@ -211,6 +225,7 @@ const Dashboard = () => {
               />
             }
           />
+          <Route path="/user-settings" element={<UserSettings />} />
         </Routes>
       </div>
     </div>

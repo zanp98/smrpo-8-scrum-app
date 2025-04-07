@@ -27,6 +27,24 @@
   gap: 1rem;
 }
 
+.user-info-text {
+  display: flex;
+  flex-direction: column;
+  min-width: fit-content;
+}
+
+.user-info-name {
+  font-weight: 500;
+  white-space: normal; /* Let it wrap */
+}
+
+.last-login-attempt {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #e0e0e0;
+  margin-top: 0.25rem;
+}
+
 .user-role {
   background-color: rgba(255, 255, 255, 0.2);
   padding: 0.25rem 0.5rem;

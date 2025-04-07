@@ -70,6 +70,28 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
+  const refreshToken = async () => {
+    setError(null);
+    setLoading(true);
+
+    const res = await backendApi.get('/auth/refresh-token');
+
+    const { token, user } = res.data;
+
+    // Save to localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    // Set axios default header
+    backendApi.defaults.headers.common['x-auth-token'] = token;
+    axios.defaults.headers.common['x-auth-token'] = token;
+
+    setCurrentUser(user);
+    setLoading(false);
+
+    return user;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -78,6 +100,7 @@ export const AuthProvider = ({ children }) => {
         error,
         login,
         logout,
+        refreshToken,
       }}
     >
       {children}

@@ -3,6 +3,8 @@ import express from 'express';
 import { systemRolesRequired } from '../../middleware/auth.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
+import { ValidationError } from '../../middleware/errors.js';
+import { validateNewPassword } from './user-validator.js';
 
 export const usersRouter = express.Router();
 
@@ -55,6 +57,28 @@ usersRouter.delete(
     const { id } = req.params;
     const result = await User.updateOne({ _id: id }, { deletedAt: new Date() }).exec();
     return res.status(202).json({ message: 'Successfully deleted user' });
+  }),
+);
+
+usersRouter.patch(
+  '/current-user',
+  systemRolesRequired(UserRoles.ADMIN),
+  errorHandlerWrapped(async (req, res) => {
+    const { id } = req.user;
+    const { currentPassword, firstName, lastName, password } = req.body;
+    const user = await User.findOne({ _id: id });
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      throw new ValidationError('Password is incorrect');
+    }
+    const updateData = { firstName, lastName };
+    if (password?.length) {
+      validateNewPassword(password);
+      updateData.password = password;
+    }
+    await User.updateOne({ _id: id }, updateData);
+
+    return res.status(202).json({ message: 'Successfully updated user' });
   }),
 );
 

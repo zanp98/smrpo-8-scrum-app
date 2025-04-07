@@ -1,0 +1,65 @@
+.user-settings-form-container {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  /*margin-bottom: 2rem;*/
+  width: 300px;
+  /*margin: 2rem auto;*/
+}
+
+.user-settings-form-container h3 {
+  color: #09d3ac;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.user-settings-form {
+  display: grid;
+  grid-template-columns: 1fr; /* changed from 2 columns to 1 */
+  grid-gap: 1rem;
+}
+
+.form-group-user-settings {
+  margin-bottom: 1rem;
+  padding-right: 1.25rem;
+}
+
+.form-group-user-settings label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.form-group-user-settings input,
+.form-group-user-settings select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.submit-btn-user-settings {
+  background-color: #09d3ac;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  /* remove grid-column span for single column layout */
+}
+
+.submit-btn-user-settings:hover {
+  background-color: #07b393;
+}
+
+.error-message-user-settings {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  /* remove grid-column span for single column layout */
+}

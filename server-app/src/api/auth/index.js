@@ -3,6 +3,7 @@ import express from 'express';
 import { User } from '../../db/User.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { LoginAttempt } from '../../db/LoginAttempt.js';
+import { authMiddleware } from '../../middleware/auth.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -57,6 +58,55 @@ authRouter.post(
         },
       });
       await LoginAttempt.create({ user, success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }),
+);
+
+authRouter.get(
+  '/refresh-token',
+  authMiddleware,
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const { id } = req.user;
+
+      // Find user by username
+      const user = await User.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ message: 'User does not exist' });
+      }
+
+      // Create JWT token
+      const token = jwt.sign(
+        {
+          id: user.id,
+          username: user.username,
+          systemRole: user.systemRole,
+          role: user.role,
+        },
+        JWT_SECRET,
+        { expiresIn: '1d' },
+      );
+
+      const lastSuccessfulLogin = await LoginAttempt.findOne({ user, success: true }).sort({
+        createdAt: 'desc',
+      });
+
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          systemRole: user.systemRole,
+          lastLogin: lastSuccessfulLogin?.createdAt,
+        },
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
