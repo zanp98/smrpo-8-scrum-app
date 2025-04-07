@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import '../styles/dashboard.css';
 import { Projects } from './Projects';
 import { UsersList } from './UsersList';
-import { formatDate, isNowBetween } from '../utils/datetime';
+import { formatDate, formatDateTime, isNowBetween } from '../utils/datetime';
 import { Sprint } from './sprint/Sprint'; // Added SprintForm import
 import { ProjectForm } from './ProjectForm';
 import UserSettings from './user/UserSettings';
@@ -26,7 +26,7 @@ const Dashboard = () => {
   );
 
   const lastUserLogin = useMemo(
-    () => (currentUser ? formatDate(currentUser.lastLogin) : ''),
+    () => (currentUser?.lastLogin ? formatDateTime(currentUser.lastLogin) : 'never'),
     [currentUser],
   );
 

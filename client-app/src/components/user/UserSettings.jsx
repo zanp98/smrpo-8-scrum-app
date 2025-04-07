@@ -6,6 +6,7 @@ import { updateCurrentUser } from '../../api/backend';
 const UserSettings = ({ onSubmit }) => {
   const { currentUser, refreshToken, loading } = useContext(AuthContext);
   const [formData, setFormData] = useState({
+    username: '',
     currentPassword: '',
     password: '',
     password2: '',
@@ -18,6 +19,7 @@ const UserSettings = ({ onSubmit }) => {
       return;
     }
     setFormData({
+      username: currentUser.username,
       password: '',
       firstName: currentUser.firstName || '',
       lastName: currentUser.lastName || '',
@@ -71,8 +73,8 @@ const UserSettings = ({ onSubmit }) => {
             type="text"
             id="username"
             name="username"
-            value={currentUser.username}
-            disabled={true}
+            value={formData.username}
+            onChange={handleChange}
             required
           />
         </div>

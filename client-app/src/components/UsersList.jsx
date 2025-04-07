@@ -74,7 +74,13 @@ export const UsersList = () => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="users-controls">
-        <button className="add-user-btn" onClick={() => setShowAddForm(!showAddForm)}>
+        <button
+          className="add-user-btn"
+          onClick={() => {
+            setSelectedUser(null);
+            setShowAddForm(!showAddForm);
+          }}
+        >
           {showAddForm ? 'Cancel' : 'Add New User'}
         </button>
       </div>

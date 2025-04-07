@@ -69,24 +69,21 @@ const UserForm = ({ onSubmit, initialData = {} }) => {
             name="username"
             value={formData.username}
             onChange={handleChange}
-            disabled={!!initialData}
             required
           />
         </div>
 
-        {!initialData && (
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        )}
+        <div className="form-group">
+          <label htmlFor="password">{initialData ? 'Edit password' : 'Password'}</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required={!initialData}
+          />
+        </div>
 
         <div className="form-group">
           <label htmlFor="firstName">First Name</label>

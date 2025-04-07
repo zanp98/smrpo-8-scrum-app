@@ -1,4 +1,6 @@
 import { ValidationError } from '../../middleware/errors.js';
+import { User } from '../../db/User.js';
+import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 /**
  * Main backend password validation function, always update here.
@@ -27,5 +29,23 @@ export const validateNewPassword = (password) => {
   const normalized = password.replace(/\s+/g, ' ');
   if (normalized !== password) {
     throw new ValidationError('New password contains multiple spaces'); // too short
+  }
+};
+
+/**
+ * Validates the username counting if another user with the same username exists.
+ *
+ * @param username the new username
+ * @param userId id of the user to update
+ */
+export const validateUsername = async (username, userId) => {
+  const usernameAlreadyExists = await User.find({
+    username: { $regex: getCaseInsensitiveRegex(username) },
+    _id: { $ne: userId },
+  })
+    .countDocuments()
+    .exec();
+  if (usernameAlreadyExists) {
+    throw new ValidationError('Username already taken');
   }
 };
