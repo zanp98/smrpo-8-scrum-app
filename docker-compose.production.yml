@@ -3,6 +3,7 @@ version: "3"
 services:
   server-app:
     container_name: smrpo-server-app
+    hostname: smrpo-server-app
     restart: always
     build: ./server-app
     networks:
@@ -31,6 +32,7 @@ services:
 
   client-app:
     container_name: smrpo-client-app
+    hostname: smrpo-client-app
     build:
       context: client-app
       dockerfile: ./Dockerfile.production
