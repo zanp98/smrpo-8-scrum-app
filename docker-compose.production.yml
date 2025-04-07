@@ -45,6 +45,8 @@ services:
     volumes:
       - "./client-app:/app"
       - "/app/node_modules"
+      - "/app/build"
+      - "/app/public"
     environment:
       PORT: 3000
       HTTPS: true
