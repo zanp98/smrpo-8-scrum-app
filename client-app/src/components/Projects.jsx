@@ -95,7 +95,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
           {canCreateUserStories && (
             <div className="column-header">
               <button
-                className="create-user-story-btn"
+                className="btn-general"
                 onClick={() => {
                   setShowCreateUserStory(true);
                   setSelectedUserStory(null);
@@ -104,7 +104,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
                 ➕ New UserStory
               </button>
               <button
-                className="create-user-story-btn"
+                className="btn-general"
                 onClick={() => {
                   setShowAddStoriesToSprint(true);
                   setSelectedUserStory(null);
@@ -113,12 +113,12 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
                 🗒️ Add stories to sprint
               </button>
               <button
-                className="create-user-story-btn"
+                className="btn-general"
                 onClick={() => {
                   setShowSprintForm(true);
                 }}
               >
-                Add a sprint
+                🏃 Add a sprint
               </button>
             </div>
           )}

@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/login.css';
+import LogoSvg from './assets/Logo-White.svg';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -25,7 +26,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-form-container">
-        <h2>Scrum Management App</h2>
+        <div className="login-logo"><img src={LogoSvg} alt="team8" /></div>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="username">Username</label>

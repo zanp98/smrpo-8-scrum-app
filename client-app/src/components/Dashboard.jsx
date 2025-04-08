@@ -85,7 +85,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <div className="logo">Scrum Management</div>
+        <div className="logo"><img src={LogoSvg} alt="team8" /></div>
         <div className="user-info">
           <div className="user-info-text">
             <div className="user-info-name">

@@ -3,12 +3,14 @@
   gap: 20px; /* Adds spacing between columns */
 }
 
-.board-column {
+.kanban-column {
   flex: 1; /* Makes each column take equal space */
   min-width: 200px; /* Ensures columns don't shrink too much */
-  background: #8a8888;
+  background: var(--board-column-color);
   padding: 10px;
   border-radius: 8px;
+  border: white solid 1px;
+  color: white;
 }
 
 .user-stories-container {

@@ -214,7 +214,7 @@ h3 {
 }
 
 .project-item.active {
-  background-color: #007bff;
+  background-color: var(--project-active-color);
   color: white;
   font-weight: bold;
 }
@@ -234,7 +234,7 @@ h3 {
 }
 
 .sprint-item.active {
-  background-color: #007bff;
+  background-color: var(--sprint-active-color);
 }
 
 .sprint-item.current-sprint {

@@ -10,7 +10,7 @@ html, body, #root {
 
 .App {
   text-align: center;
-  background-color: #282c34;
+  background-color: var(--background-color);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -29,12 +29,6 @@ html, body, #root {
   color: #172b4d;
 }
 
-
-.label-overbooked {
-  color: darkred;
-}
-
-/* Responsive Adjustments */
 @media (max-width: 768px) {
   .App {
     font-size: 3vmin;

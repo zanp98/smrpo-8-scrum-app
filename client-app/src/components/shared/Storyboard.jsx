@@ -115,35 +115,35 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick, curren
 
   return (
     <div className="board-container">
-      <div className="board-column">
+      <div className="kanban-column">
         <h3>Backlog</h3>
         <div className="user-stories-container">
           {getStatusColumnUserStories('backlog').map(renderUserStoryCard)}
         </div>
       </div>
 
-      <div className="board-column">
+      <div className="kanban-column">
         <h3>To Do</h3>
         <div className="user-stories-container">
           {getStatusColumnUserStories('todo').map(renderUserStoryCard)}
         </div>
       </div>
 
-      <div className="board-column">
+      <div className="kanban-column">
         <h3>In Progress</h3>
         <div className="user-stories-container">
           {getStatusColumnUserStories('in_progress').map(renderUserStoryCard)}
         </div>
       </div>
 
-      <div className="board-column">
+      <div className="kanban-column">
         <h3>Review</h3>
         <div className="user-stories-container">
           {getStatusColumnUserStories('review').map(renderUserStoryCard)}
         </div>
       </div>
 
-      <div className="board-column">
+      <div className="kanban-column">
         <h3>Done</h3>
         <div className="user-stories-container">
           {getStatusColumnUserStories('done').map(renderUserStoryCard)}

@@ -17,8 +17,7 @@
 }
 
 .logo {
-  font-size: 1.25rem;
-  font-weight: bold;
+  width: 6rem;
 }
 
 .user-info {
@@ -54,7 +53,7 @@
 }
 
 .logout-button {
-  background-color: transparent;
+  background-color: var(--blue-action-color);
   border: 1px solid white;
   color: white;
   padding: 0.25rem 0.75rem;
@@ -64,7 +63,7 @@
 }
 
 .logout-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--blue-action-hover-color);
 }
 
 .dashboard-content {
@@ -120,6 +119,7 @@
   height: 100%;
   width: calc(100% - 240px);
   overflow-y: auto;
+  background-color: var(--background-color);
 }
 
 @media (max-width: 768px) {

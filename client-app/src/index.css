@@ -1,5 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
+:root {
+  --blue-general-color: #0052cc;
+  --blue-general-hover-color: #0747a6;
+  --blue-general-disbled-color: #97a0af;
+
+  --blue-action-color: #0052cc;
+  --blue-action-hover-color: #0747a6;
+  --blue-action-disbled-color: #97a0af;
+  --background-color: #102540;
+  --spectial-action: #f2b90f;
+
+  --project-active-color: #0052cc;
+  --sprint-active-color: #0052cc;
+
+  --btn-general-color: #0052cc;
+  
+  --btn-general-hover-color: #0747a6;
+  --board-column-color: #0747a6;
+}
 
 body {
   margin: 0;
@@ -14,4 +33,20 @@ body {
 
 code {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.btn-general{
+  background: var(--btn-general-color);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-general:hover {
+  background: var(--btn-general-hover-color);
 }
