@@ -3,6 +3,7 @@ import { Outlet } from 'react-router';
 import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
 import { UserStoryForm } from './UserStoryForm';
 import { SprintForm } from './SprintForm';
+import { RolesEditForm } from './RolesEditForm';
 import { Storyboard } from './shared/Storyboard';
 import '../styles/projects.css';
 import { AuthContext } from '../context/AuthContext';
@@ -19,6 +20,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
   const [showAddStoriesToSprint, setShowAddStoriesToSprint] = useState(false);
   const [selectedUserStory, setSelectedUserStory] = useState(null);
   const [showSprintForm, setShowSprintForm] = useState(false);
+  const [showRolesEditForm, setShowRolesEditForm] = useState(false);
 
   const currentUserRole = useMemo(() => {
     const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
@@ -106,6 +108,14 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
               <button
                 className="btn-general"
                 onClick={() => {
+                  setShowRolesEditForm(true);
+                }}
+              >
+                🔧 Edit users
+              </button>
+              <button
+                className="btn-general"
+                onClick={() => {
                   setShowAddStoriesToSprint(true);
                   setSelectedUserStory(null);
                 }}
@@ -148,6 +158,13 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
           {showSprintForm && (
             <SprintForm
               onClose={() => setShowSprintForm(false)}
+              onSprintCreate={() => onCreate?.()}
+            />
+          )}
+          {showRolesEditForm && (
+            <RolesEditForm
+              projectId={activeProject._id} 
+              onClose={() => setShowRolesEditForm(false)}
               onSprintCreate={() => onCreate?.()}
             />
           )}

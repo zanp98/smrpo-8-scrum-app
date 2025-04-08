@@ -10,6 +10,7 @@ import { formatDate, formatDateTime, isNowBetween } from '../utils/datetime';
 import { Sprint } from './sprint/Sprint'; // Added SprintForm import
 import { ProjectForm } from './ProjectForm';
 import UserSettings from './user/UserSettings';
+import LogoSvg from './assets/Logo-White.svg';
 
 const Dashboard = () => {
   const { currentUser, logout } = useContext(AuthContext);

@@ -75,3 +75,11 @@ export const updateCurrentUser = async (userData) => {
     console.error('Failed to update user', err);
   }
 };
+
+export const getAllProjects = async () => {
+  try {
+    return await backendApi.get('/projects').then((res) => res.data);  // Updated to fetch all projects
+  } catch (err) {
+    console.error('Failed to fetch projects', err);
+  }
+};

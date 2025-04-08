@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 :root {
+  --white: white;
+  --off-white: #f0f0f0;
+
   --blue-general-color: #0052cc;
   --blue-general-hover-color: #0747a6;
   --blue-general-disbled-color: #97a0af;

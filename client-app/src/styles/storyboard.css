@@ -6,11 +6,10 @@
 .kanban-column {
   flex: 1; /* Makes each column take equal space */
   min-width: 200px; /* Ensures columns don't shrink too much */
-  background: var(--board-column-color);
+  background: var(--off-white);
   padding: 10px;
   border-radius: 8px;
-  border: white solid 1px;
-  color: white;
+  color:  black;
 }
 
 .user-stories-container {
@@ -27,14 +26,14 @@
 }
 
 .user-story-card {
-  background: white;
+  background: var(--white);
   padding: 12px;
   border-radius: 8px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border-left: 4px solid #007bff; /* Default color, can change based on status */
+  border-left: 4px solid var(--blue-general-color); /* Default color, can change based on status */
 }
 
 .user-story-header {
@@ -57,7 +56,7 @@
   border: none;
   font-size: 16px;
   cursor: pointer;
-  color: #007bff;
+  color: var(--blue-general-color);
   padding: 4px;
   transition: color 0.2s ease-in-out;
 }
@@ -119,7 +118,7 @@
 
 .user-story-assignee {
   font-style: italic;
-  color: #007bff;
+  color: var(--blue-general-color);
 }
 
 .user-story-unassigned {
@@ -135,8 +134,8 @@
 }
 
 .create-user-story-btn {
-  background: #007bff;
-  color: white;
+  background: var(--blue-general-color);
+  color: var(--white);
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
@@ -147,5 +146,5 @@
 }
 
 .create-user-story-btn:hover {
-  background: #0056b3;
+  background: var( --blue-general-hover-color);
 }
