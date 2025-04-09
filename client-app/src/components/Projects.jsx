@@ -111,7 +111,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
                   setShowRolesEditForm(true);
                 }}
               >
-                🔧 Edit users
+                🔧 Edit project
               </button>
               <button
                 className="btn-general"
@@ -163,7 +163,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
           )}
           {showRolesEditForm && (
             <RolesEditForm
-              projectId={activeProject._id} 
+              activeProjectId={activeProject._id} 
               onClose={() => setShowRolesEditForm(false)}
               onSprintCreate={() => onCreate?.()}
             />

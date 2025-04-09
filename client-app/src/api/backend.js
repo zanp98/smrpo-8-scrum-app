@@ -83,3 +83,34 @@ export const getAllProjects = async () => {
     console.error('Failed to fetch projects', err);
   }
 };
+
+export const updateCurrentProject = async (projectId, updatedProjectData) => {
+  try {
+    const response = await backendApi.put(`/projects/${projectId}`, updatedProjectData);
+    return response.data;
+  } catch (err) {
+    console.error('Failed to update project', err);
+    throw err;
+  }
+};
+
+export const getAllUserRoles = async () => {
+  try {
+    const response = await backendApi.get('/projects/projectUserRoles');
+    return response.data;
+  } catch (err) {
+    console.error('Failed to fetch project user roles', err);
+    throw err;
+  }
+};
+
+export const getAllUsers = async () => {
+  try {
+    // Sending GET request to the backend route that returns all users
+    const response = await backendApi.get('/users');
+    return response.data; // Assuming the response is in the `data` field
+  } catch (error) {
+    console.error('Failed to fetch all users:', error);
+    throw error; // Optionally rethrow the error if you want it handled elsewhere
+  }
+};
