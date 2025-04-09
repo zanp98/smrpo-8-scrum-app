@@ -18,7 +18,7 @@ tasksRouter.get(
     const { userStoryId } = req.params;
     console.log('userStoryId:', userStoryId);
     const tasks = await Task.find({ userStory: userStoryId })
-      .populate('assignedUser', 'description timeEstimation userStory')
+      .populate('assignedUser', 'description timeEstimation userStory firstName lastName')
       .exec();
 
     res.json(tasks);
