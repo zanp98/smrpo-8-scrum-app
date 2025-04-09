@@ -72,3 +72,33 @@ tasksRouter.delete(
     res.status(204).send();
   }),
 );
+
+//Mark task as ended
+tasksRouter.patch(
+  '/:taskId/complete',
+  projectRolesRequired(CAN_UPDATE_USER_STORIES),
+  errorHandlerWrapped(async (req, res) => {
+    const { taskId } = req.params;
+    const currentUserId = req.user.id;
+
+    // Fetch the task
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    // Check if the task is assigned to the current user
+    if (!task.assignedUser || task.assignedUser.toString() !== currentUserId) {
+      return res
+        .status(403)
+        .json({ message: 'You are not authorized to complete this task' });
+    }
+
+    // Update the task status to DONE
+    task.status = 'DONE';
+    await task.save();
+
+    return res.status(200).json(task);
+  }),
+)
