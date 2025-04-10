@@ -16,7 +16,7 @@ export const OfferTfa = ({ onDone }) => {
     } catch (error) {
       console.error(error);
     }
-  }, [tfaCode]);
+  }, [tfaCode, enableTfa, onDone]);
 
   if (step === 0) {
     return (
