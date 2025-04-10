@@ -5,9 +5,10 @@ import { updateCurrentUser } from '../../api/backend';
 import { PasswordStrengthMeter } from '../shared/PasswordStrength';
 
 const UserSettings = ({ onSubmit }) => {
-  const { currentUser, refreshToken, loading } = useContext(AuthContext);
+  const { currentUser, refreshToken } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     currentPassword: '',
     password: '',
     password2: '',
@@ -21,6 +22,7 @@ const UserSettings = ({ onSubmit }) => {
     }
     setFormData({
       username: currentUser.username,
+      email: currentUser.email,
       currentPassword: '',
       password: '',
       password2: '',
@@ -112,8 +114,8 @@ const UserSettings = ({ onSubmit }) => {
             type="email"
             id="email"
             name="email"
-            value={currentUser.email}
-            disabled={true}
+            value={formData.email}
+            onChange={handleChange}
             required
           />
         </div>

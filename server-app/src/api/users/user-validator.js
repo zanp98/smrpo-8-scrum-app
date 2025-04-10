@@ -61,3 +61,22 @@ export const validateUsername = async (username, userId) => {
     throw new ValidationError('Username already taken');
   }
 };
+
+/**
+ * Same as {@link validateUsername} but for email
+ *
+ * @param email the new email
+ * @param userId id of the user to update
+ * @returns {Promise<void>}
+ */
+export const validateEmail = async (email, userId) => {
+  const emailAlreadyExists = await User.find({
+    email: { $regex: getCaseInsensitiveRegex(email) },
+    _id: { $ne: userId },
+  })
+    .countDocuments()
+    .exec();
+  if (emailAlreadyExists) {
+    throw new ValidationError('Username already taken');
+  }
+};

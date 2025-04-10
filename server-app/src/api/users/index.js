@@ -4,7 +4,7 @@ import { authMiddleware, systemRolesRequired } from '../../middleware/auth.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 import { ValidationError } from '../../middleware/errors.js';
-import { validateNewPassword, validateUsername } from './user-validator.js';
+import { validateEmail, validateNewPassword, validateUsername } from './user-validator.js';
 
 export const usersRouter = express.Router();
 
@@ -65,7 +65,7 @@ usersRouter.patch(
   authMiddleware,
   errorHandlerWrapped(async (req, res) => {
     const { id } = req.user;
-    const { username, currentPassword, firstName, lastName, password } = req.body;
+    const { username, currentPassword, firstName, lastName, password, email } = req.body;
     const user = await User.findOne({ _id: id });
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
@@ -77,6 +77,10 @@ usersRouter.patch(
     if (password?.length) {
       validateNewPassword(password);
       user.password = password;
+    }
+    if (email?.length) {
+      await validateEmail(email, id);
+      user.email = email;
     }
     await validateUsername(username, id);
     await user.save();
@@ -99,11 +103,15 @@ usersRouter.patch(
   systemRolesRequired(UserRoles.ADMIN),
   errorHandlerWrapped(async (req, res) => {
     const { id } = req.params;
-    const { username, firstName, lastName, systemRole, password } = req.body;
+    const { username, firstName, lastName, systemRole, password, email } = req.body;
     const user = await User.findOne({ _id: id });
     if (password?.length) {
       validateNewPassword(password);
       user.password = password;
+    }
+    if (email?.length) {
+      await validateEmail(email, id);
+      user.email = email;
     }
     await validateUsername(username, id);
     user.username = username;
