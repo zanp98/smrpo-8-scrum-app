@@ -5,18 +5,31 @@ import './App.css';
 import './styles/overrides.css';
 import 'react-toastify/dist/ReactToastify.css';
 import Dashboard from './components/Dashboard';
-import Login from './components/Login';
+import Login from './components/auth/Login';
 import { AuthProvider, AuthContext } from './context/AuthContext';
+import { OfferTfa } from './components/auth/OfferTfa';
 
 // Main app component that checks authentication
 const AppContent = () => {
-  const { currentUser, loading } = useContext(AuthContext);
+  const { currentUser, refreshToken } = useContext(AuthContext);
 
-  if (loading) {
-    return <div className="loading">Loading...</div>;
+  const onDone = async () => {
+    sessionStorage.setItem('isTfaOffered', 'true');
+    await refreshToken();
+  };
+
+  if (!currentUser) {
+    return (
+      <div className="App">
+        <Login />
+      </div>
+    );
   }
-
-  return <div className="App">{currentUser ? <Dashboard /> : <Login />}</div>;
+  const isTfaOffered = sessionStorage.getItem('isTfaOffered');
+  if (currentUser && !currentUser.twoFactorAuthenticationEnabled && !isTfaOffered) {
+    return <OfferTfa onDone={onDone} />;
+  }
+  return <div className="App">{<Dashboard />}</div>;
 };
 
 const App = () => {

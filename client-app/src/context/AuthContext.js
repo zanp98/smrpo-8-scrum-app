@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isTfaRequired, setIsTfaRequired] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in (token in localStorage)
@@ -24,15 +25,19 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (username, password, tfaCode) => {
     try {
       setError(null);
       setLoading(true);
 
-      const res = await backendApi.post('/auth/login', {
-        username,
-        password,
-      });
+      const res = await backendApi.post(
+        '/auth/login',
+        {
+          username,
+          password,
+        },
+        { headers: { tfa: tfaCode } },
+      );
 
       console.log(res);
 
@@ -48,10 +53,15 @@ export const AuthProvider = ({ children }) => {
 
       setCurrentUser(user);
       setLoading(false);
+      setIsTfaRequired(false);
 
       return user;
     } catch (err) {
       setLoading(false);
+      if (err.status === 418) {
+        setIsTfaRequired(true);
+        return;
+      }
       const errorMessage = err.response?.data?.message || 'Login failed';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -101,6 +111,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         refreshToken,
+        isTfaRequired,
+        setIsTfaRequired,
       }}
     >
       {children}

@@ -16,6 +16,9 @@ backendApi.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status === 418) {
+      return Promise.reject(error);
+    }
     if (error.response?.status >= 400 && error.response?.status < 500) {
       // This is a validation issue, we should pop a toast to the user
       toast.error(error.response.data?.message);
@@ -23,6 +26,22 @@ backendApi.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+export const getUserQRCode = async () => {
+  try {
+    return backendApi.get(`/auth/get-qr-code`);
+  } catch (e) {
+    console.error('Error while fetching QR code', e);
+  }
+};
+
+export const enableUserTfa = async (code) => {
+  try {
+    return backendApi.post(`/auth/enable-tfa`, { code });
+  } catch (e) {
+    console.error('Error while fetching QR code', e);
+  }
+};
 
 export const getSprintUserStories = async ({ projectId, sprintId }) => {
   try {
@@ -78,7 +97,7 @@ export const updateCurrentUser = async (userData) => {
 
 export const getAllProjects = async () => {
   try {
-    return await backendApi.get('/projects').then((res) => res.data);  // Updated to fetch all projects
+    return await backendApi.get('/projects').then((res) => res.data); // Updated to fetch all projects
   } catch (err) {
     console.error('Failed to fetch projects', err);
   }

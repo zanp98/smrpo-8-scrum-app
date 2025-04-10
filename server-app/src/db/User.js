@@ -46,6 +46,18 @@ const UserSchema = new mongoose.Schema({
     enum: Object.values(ProjectRole),
     default: ProjectRole.DEVELOPER,
   },
+  twoFactorAuthenticationEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  secretKey: {
+    type: String,
+    default: null,
+  },
+  qrCode: {
+    type: String,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

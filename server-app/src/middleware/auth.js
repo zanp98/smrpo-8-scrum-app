@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
+import { totp } from 'speakeasy';
 import { Sprint } from '../db/Sprint.js';
 import { ProjectUserRole } from '../db/ProjectUserRole.js';
 import { UserStory } from '../db/UserStory.js';
+import { User } from '../db/User.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -37,6 +39,37 @@ export const authMiddleware = (req, res, next) => {
   } catch (err) {
     res.status(401).json({ message: 'Token is not valid' });
   }
+};
+
+/**
+ * Added in case we need to use 2fa along any operation, such as user edit.
+ *
+ * @param req the request
+ * @param res the response
+ * @param next next function
+ */
+export const tfaMiddleware = async (req, res, next) => {
+  const { id } = req.user;
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    return res.status(401).json({ message: 'No user found' });
+  }
+  if (!user.twoFactorAuthenticationEnabled) {
+    return next();
+  }
+  const tfaCode = req.header('tfa');
+  if (!tfaCode) {
+    return res.sendStatus(418);
+  }
+  const verified = totp.verify({
+    secret: key,
+    encoding: 'base32',
+    token: otp,
+  });
+  if (!verified) {
+    return res.status(403).json({ message: 'Unauthorized' });
+  }
+  return next();
 };
 
 export const systemRolesRequired = (...roles) => {
