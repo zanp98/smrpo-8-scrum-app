@@ -4,6 +4,7 @@ import { Sprint } from '../db/Sprint.js';
 import { ProjectUserRole } from '../db/ProjectUserRole.js';
 import { UserStory } from '../db/UserStory.js';
 import { User } from '../db/User.js';
+import { Task } from '../db/Task.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -92,10 +93,20 @@ const getProjectId = async (req) => {
     return project?._id;
   }
 
-  const userStoryId = req.params.userStoryId;
+  let userStoryId = req.params.userStoryId;
+  const taskId = req.params.taskId;
+
+  if (taskId) {
+    const task = await Task.findOne({ _id: taskId });
+
+    userStoryId = task.userStory._id;
+  }
+
   if (userStoryId) {
-    const project = await UserStory.findOne({ _id: userStoryId }).select('project').exec();
-    return project?._id;
+    const userStory = await UserStory.findOne({ _id: userStoryId })
+      .populate('project', '_id name owner')
+      .exec();
+    return userStory.project._id;
   }
 
   // If we reach here, we have neither projectId nor sprintId
