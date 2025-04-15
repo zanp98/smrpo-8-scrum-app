@@ -47,7 +47,7 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
         return err.response?.data?.message || 'Failed to create ticket';
       }
     },
-    [selectedUserStory],
+    [selectedUserStory, project],
   );
 
   const fetchProjectUsers = async (projectId) => {
