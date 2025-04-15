@@ -1,8 +1,8 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useParams } from 'react-router';
 import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
-import { UserStoryForm } from './UserStoryForm';
-import { SprintForm } from './SprintForm';
+import { UserStoryForm } from './project/UserStoryForm';
+import { SprintForm } from './sprint/SprintForm';
 import { RolesEditForm } from './project/RolesEditForm';
 import { Storyboard } from './shared/Storyboard';
 import '../styles/projects.css';

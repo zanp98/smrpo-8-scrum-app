@@ -14,6 +14,7 @@
       <env name="MONGO_USER" value="root" />
       <env name="NODE_ENV" value="development1" />
       <env name="PORT" value="8000" />
+      <env name="TZ" value="Europe/Ljubljana" />
     </envs>
     <method v="2" />
   </configuration>

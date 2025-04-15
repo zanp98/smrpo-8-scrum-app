@@ -60,11 +60,11 @@ sprintsRouter.post(
       }
 
       // Validate dates
-      const today = new Date().toISOString().split("T")[0]; // Get today's date as 'YYYY-MM-DD'
-      const sprintStart = new Date(startDate).toISOString().split("T")[0]; // Get sprint start date as 'YYYY-MM-DD'
+      const today = new Date().toISOString().split('T')[0]; // Get today's date as 'YYYY-MM-DD'
+      const sprintStart = new Date(startDate).toISOString().split('T')[0]; // Get sprint start date as 'YYYY-MM-DD'
 
-      console.log("Today (date only):", today);
-      console.log("Sprint Start Date (date only):", sprintStart);
+      console.log('Today (date only):', today);
+      console.log('Sprint Start Date (date only):', sprintStart);
 
       if (sprintStart < today) {
         return res.status(400).json({ message: 'Sprint start date cannot be in the past' });
@@ -109,6 +109,7 @@ sprintsRouter.post(
       }
 
       const sprintWithSameName = await Sprint.findOne({
+        project,
         name: { $regex: getCaseInsensitiveRegex(name) },
       });
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import '../../styles/storyboard.css';
 import { backendApi } from '../../api/backend';
 import { TaskList } from '../TaskList';
+import { ProjectRole } from '../project/ProjectForm';
 
 const defaultColumnConfiguration = [
   {
@@ -32,6 +33,7 @@ export const Storyboard = ({
   onEditStoryClick,
   currentSprint,
   columnConfiguration = defaultColumnConfiguration,
+  currentUserRole,
 }) => {
   const [selectedUserStory, setSelectedUserStory] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -111,6 +113,9 @@ export const Storyboard = ({
             userStorySprintId={userStory.sprint?._id}
             currentSprintId={currentSprint?._id}
             projectId={project._id}
+            canStartTimer={
+              userStory.status === 'in_progress' && currentUserRole === ProjectRole.DEVELOPER
+            }
           />
         )}
         <div className="user-story-title">{userStory.title}</div>

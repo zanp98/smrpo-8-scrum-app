@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { backendApi } from '../api/backend'; // Import API handler
-import '../styles/forms.css';
+import { backendApi } from '../../api/backend'; // Import API handler
+import '../../styles/forms.css';
 
 export const SprintStatus = Object.freeze({
   PLANNING: 'planning',

@@ -128,6 +128,18 @@
   background: #dfe1e6;
 }
 
+.timer-button {
+  width: 12%;
+  padding: 4px;
+  background: #ebecf0;
+  border: none;
+  border-radius: 8px;
+  color: #172b4d;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
 .tasks-loading {
   text-align: center;
   padding: 20px;

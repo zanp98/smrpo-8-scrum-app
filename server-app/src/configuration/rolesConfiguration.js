@@ -22,3 +22,6 @@ export const CAN_READ_SPRINT = Object.values(ProjectRole);
 export const CAN_CREATE_SPRINT = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN];
 export const CAN_DELETE_SPRINT = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN];
 export const CAN_UPDATE_SPRINT = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN];
+
+// Time log roles
+export const CAN_LOG_TIME = [ProjectRole.DEVELOPER];

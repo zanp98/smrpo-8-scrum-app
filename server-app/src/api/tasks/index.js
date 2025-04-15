@@ -7,6 +7,7 @@ import {
   CAN_READ_USER_STORIES,
   CAN_UPDATE_USER_STORIES,
 } from '../../configuration/rolesConfiguration.js';
+import { TimeLog } from '../../db/TimeLog.js';
 
 export const tasksRouter = express.Router();
 
@@ -16,9 +17,22 @@ tasksRouter.get(
   projectRolesRequired(CAN_READ_USER_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { userStoryId } = req.params;
+    const userId = req.user.id;
     const tasks = await Task.find({ userStory: userStoryId })
       .populate('assignedUser', 'description timeEstimation userStory firstName lastName')
       .exec();
+
+    const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
+      'task',
+      '_id',
+    );
+    if (activeTask) {
+      tasks.forEach((task) => {
+        if (task._id === activeTask.task._id) {
+          task.isActive = true;
+        }
+      });
+    }
 
     res.json(tasks);
   }),

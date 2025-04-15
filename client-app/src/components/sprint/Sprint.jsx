@@ -1,11 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Storyboard } from '../shared/Storyboard';
-import { getSprintUserStories } from '../../api/backend';
+import { backendApi, getProjectUsers, getSprintUserStories } from '../../api/backend';
 import { useParams } from 'react-router';
 import { calculateTotalStoryPoints } from '../../utils/stories';
+import { SprintUserStoryForm } from './SprintUserStoryForm';
+import { AuthContext } from '../../context/AuthContext';
 
 export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) => {
+  const { currentUser } = useContext(AuthContext);
   const [userStories, setUserStories] = useState([]);
+  const [counter, setCounter] = useState(0);
   const { projectId, sprintId } = useParams();
   if (project?._id !== projectId) {
     setActiveProject?.(projectId);
@@ -13,6 +17,15 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
   if (sprint?._id !== sprintId) {
     setActiveSprint?.(sprintId);
   }
+  const [projectUsers, setProjectUsers] = useState([]);
+
+  const currentUserRole = useMemo(() => {
+    const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
+    return projectUserRole?.role;
+  }, [currentUser, projectUsers]);
+
+  const [showEditUserStory, setShowEditUserStory] = useState(false);
+  const [selectedUserStory, setSelectedUserStory] = useState(null);
 
   const getUserStories = async (projectId, sprintId) => {
     const stories = await getSprintUserStories({ projectId, sprintId });
@@ -21,12 +34,34 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
 
   const totalStoryPoints = useMemo(() => calculateTotalStoryPoints(userStories), [userStories]);
 
+  const handleEditUserStory = useCallback(
+    async (userStoryData) => {
+      try {
+        await backendApi.patch(
+          `/userStories/${project._id}/${selectedUserStory._id}`,
+          userStoryData,
+        );
+        setShowEditUserStory(false);
+        setCounter((c) => c + 1);
+      } catch (err) {
+        return err.response?.data?.message || 'Failed to create ticket';
+      }
+    },
+    [selectedUserStory],
+  );
+
+  const fetchProjectUsers = async (projectId) => {
+    const projectUsers = await getProjectUsers(projectId);
+    setProjectUsers(projectUsers);
+  };
+
   useEffect(() => {
     if (!project || !sprint) {
       return;
     }
     getUserStories(project._id, sprint._id);
-  }, [project, sprint]);
+    fetchProjectUsers(project._id);
+  }, [project, sprint, counter]);
 
   if (!project || !sprint) {
     return;
@@ -39,7 +74,25 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
         Velocity: {totalStoryPoints}/{sprint.expectedVelocity}
       </div>
       <br />
-      <Storyboard project={project} userStories={userStories} currentSprint={sprint} />
+      {showEditUserStory && (
+        <SprintUserStoryForm
+          onSubmit={handleEditUserStory}
+          initialData={selectedUserStory}
+          onClose={() => {
+            setShowEditUserStory(false);
+          }}
+        />
+      )}
+      <Storyboard
+        project={project}
+        userStories={userStories}
+        currentSprint={sprint}
+        onEditStoryClick={(userStory) => {
+          setSelectedUserStory(userStory);
+          setShowEditUserStory(true);
+        }}
+        currentUserRole={currentUserRole}
+      />
     </div>
   );
 };

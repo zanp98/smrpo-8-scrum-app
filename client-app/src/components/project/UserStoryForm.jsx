@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import '../styles/forms.css';
-import '../styles/user-story-form.css';
+import '../../styles/forms.css';
+import '../../styles/user-story-form.css';
 
 export const UserStoryType = Object.freeze({
   STORY: 'story',

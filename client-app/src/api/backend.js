@@ -133,3 +133,34 @@ export const getAllUsers = async () => {
     throw error; // Optionally rethrow the error if you want it handled elsewhere
   }
 };
+
+// Time logs
+export const startTimer = async (taskId) => {
+  try {
+    const response = await backendApi.post(`/time-log/start/${taskId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch all users:', error);
+    throw error;
+  }
+};
+
+export const stopTimer = async (taskId) => {
+  try {
+    const response = await backendApi.post(`/time-log/stop/${taskId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch all users:', error);
+    throw error;
+  }
+};
+
+export const addManualTimer = async (taskId, time) => {
+  try {
+    const response = await backendApi.post(`/time-log/manual/${taskId}`, { time });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch all users:', error);
+    throw error;
+  }
+};

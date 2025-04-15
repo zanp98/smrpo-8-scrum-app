@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { backendApi, getProjectUsers } from '../api/backend';
+import { backendApi, getProjectUsers, startTimer, stopTimer } from '../api/backend';
 import '../styles/task-list.css';
 import TaskForm from './TaskForm';
 import { AuthContext } from '../context/AuthContext';
@@ -13,11 +13,13 @@ export const TaskList = ({
   userStorySprintId,
   currentSprintId,
   projectId,
+  canStartTimer,
 }) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const hasActiveTask = useMemo(() => tasks?.find((t) => t.isActive), [tasks]);
 
   // Fetch project users once
   useEffect(() => {
@@ -183,6 +185,28 @@ export const TaskList = ({
           onClick={() => setSelectedTask(task)}
           style={{ cursor: 'pointer' }}
         >
+          {canStartTimer && false && !hasActiveTask && (
+            <button
+              className="timer-button"
+              onClick={async (e) => {
+                e.stopPropagation();
+                await startTimer(task._id);
+              }}
+            >
+              ▶️
+            </button>
+          )}
+          {canStartTimer && false && task.isActive && (
+            <button
+              className="timer-button"
+              onClick={async (e) => {
+                e.stopPropagation();
+                await stopTimer(task._id);
+              }}
+            >
+              ⏹️
+            </button>
+          )}
           <div className="task-description">{task.description}</div>
           <div className="task-details">
             <span>{task.timeEstimation}h</span>
