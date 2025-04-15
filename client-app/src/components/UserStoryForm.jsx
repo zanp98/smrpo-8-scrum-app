@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/forms.css';
+import '../styles/user-story-form.css';
 
 export const UserStoryType = Object.freeze({
   STORY: 'story',
@@ -149,6 +150,7 @@ export const UserStoryForm = ({
           <label htmlFor="status">Status</label>
           <select id="status" name="status" value={formData.status} onChange={handleChange}>
             <option value={UserStoryStatus.BACKLOG}>Backlog</option>
+            <option value={UserStoryStatus.SPRINT_BACKLOG}>Sprint backlog</option>
             <option value={UserStoryStatus.TODO}>To do</option>
             <option value={UserStoryStatus.IN_PROGRESS}>In progress</option>
             <option value={UserStoryStatus.REVIEW}>Review</option>
@@ -191,42 +193,6 @@ export const UserStoryForm = ({
             onChange={handleChange}
           />
         </div>
-
-        {/*{projectUsers.length && isEditMode && (*/}
-        {/*  <div className="form-group">*/}
-        {/*    <label htmlFor="assignee">Assignee</label>*/}
-        {/*    <select id="assignee" name="assignee" value={formData.assignee} onChange={handleChange}>*/}
-        {/*      <option value=""></option>*/}
-        {/*      {projectUsers.map((pu) => (*/}
-        {/*        <option key={pu.user._id} value={pu.user._id}>*/}
-        {/*          {pu.user.firstName} {pu.user.lastName} ({pu.user.username})*/}
-        {/*        </option>*/}
-        {/*      ))}*/}
-        {/*    </select>*/}
-        {/*  </div>*/}
-        {/*)}*/}
-
-        {/*{projectSprints.length && isEditMode && (*/}
-        {/*  <div className="form-group">*/}
-        {/*    <label htmlFor="sprintId">*/}
-        {/*      Sprint {sprintCanBeChanged ? '' : '(cannot change if no estimate or status done)'}*/}
-        {/*    </label>*/}
-        {/*    <select*/}
-        {/*      id="sprintId"*/}
-        {/*      name="sprintId"*/}
-        {/*      value={formData.sprintId}*/}
-        {/*      onChange={handleChange}*/}
-        {/*      disabled={!sprintCanBeChanged}*/}
-        {/*    >*/}
-        {/*      <option value=""></option>*/}
-        {/*      {projectSprints.map((ps) => (*/}
-        {/*        <option key={ps._id} value={ps._id}>*/}
-        {/*          {ps.name}*/}
-        {/*        </option>*/}
-        {/*      ))}*/}
-        {/*    </select>*/}
-        {/*  </div>*/}
-        {/*)}*/}
 
         <button type="submit" className="submit-btn">
           {isEditMode ? 'Update UserStory' : 'Create UserStory'}

@@ -195,7 +195,7 @@ export const TaskList = ({
         </div>
       ))}
 
-      {userStorySprintId === currentSprintId && (
+      {currentSprintId && userStorySprintId === currentSprintId && (
         <button className="add-task-button" onClick={() => setIsAddingTask(true)}>
           + Add Task
         </button>

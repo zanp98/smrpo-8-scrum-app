@@ -3,7 +3,36 @@ import '../../styles/storyboard.css';
 import { backendApi } from '../../api/backend';
 import { TaskList } from '../TaskList';
 
-export const Storyboard = ({ project, userStories = [], onEditStoryClick, currentSprint }) => {
+const defaultColumnConfiguration = [
+  {
+    name: 'Backlog',
+    status: 'backlog',
+  },
+  {
+    name: 'To Do',
+    status: 'todo',
+  },
+  {
+    name: 'In Progress',
+    status: 'in_progress',
+  },
+  {
+    name: 'Review',
+    status: 'review',
+  },
+  {
+    name: 'Done',
+    status: 'done',
+  },
+];
+
+export const Storyboard = ({
+  project,
+  userStories = [],
+  onEditStoryClick,
+  currentSprint,
+  columnConfiguration = defaultColumnConfiguration,
+}) => {
   const [selectedUserStory, setSelectedUserStory] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [tasks, setTasks] = useState([]);
@@ -28,7 +57,7 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick, curren
 
   useEffect(() => {
     fetchTasks();
-  }, [isExpanded]);
+  }, [isExpanded, selectedUserStory]);
 
   const handleCardClick = (userStory) => {
     if (selectedUserStory?._id === userStory._id) {
@@ -55,11 +84,18 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick, curren
             <button
               className="edit-user-story-btn"
               onClick={() => {
-                setSelectedUserStory(userStory);
                 onEditStoryClick?.(userStory);
               }}
             >
               ✏️
+            </button>
+            <button
+              className="edit-user-story-btn"
+              onClick={() => {
+                setSelectedUserStory(userStory);
+              }}
+            >
+              📋
             </button>
             <span className="user-story-id">
               {project?.key}-{userStory.number}
@@ -72,7 +108,7 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick, curren
             userStoryId={userStory._id}
             onTasksUpdate={fetchTasks}
             userStorySprintId={userStory.sprint?._id}
-            currentSprintId={currentSprint._id}
+            currentSprintId={currentSprint?._id}
             projectId={project._id}
           />
         )}
@@ -111,40 +147,14 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick, curren
 
   return (
     <div className="board-container">
-      <div className="kanban-column">
-        <h3>Backlog</h3>
-        <div className="user-stories-container">
-          {getStatusColumnUserStories('backlog').map(renderUserStoryCard)}
+      {columnConfiguration.map((cc) => (
+        <div className="kanban-column" key={cc.status}>
+          <h3>{cc.name}</h3>
+          <div className="user-stories-container">
+            {getStatusColumnUserStories(cc.status).map(renderUserStoryCard)}
+          </div>
         </div>
-      </div>
-
-      <div className="kanban-column">
-        <h3>To Do</h3>
-        <div className="user-stories-container">
-          {getStatusColumnUserStories('todo').map(renderUserStoryCard)}
-        </div>
-      </div>
-
-      <div className="kanban-column">
-        <h3>In Progress</h3>
-        <div className="user-stories-container">
-          {getStatusColumnUserStories('in_progress').map(renderUserStoryCard)}
-        </div>
-      </div>
-
-      <div className="kanban-column">
-        <h3>Review</h3>
-        <div className="user-stories-container">
-          {getStatusColumnUserStories('review').map(renderUserStoryCard)}
-        </div>
-      </div>
-
-      <div className="kanban-column">
-        <h3>Done</h3>
-        <div className="user-stories-container">
-          {getStatusColumnUserStories('done').map(renderUserStoryCard)}
-        </div>
-      </div>
+      ))}
     </div>
   );
 };

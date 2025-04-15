@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useParams } from 'react-router';
 import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
 import { UserStoryForm } from './UserStoryForm';
 import { SprintForm } from './SprintForm';
@@ -10,8 +10,33 @@ import { AuthContext } from '../context/AuthContext';
 import { isDateInFuture } from '../utils/datetime';
 import { AddStoriesToSprint } from './shared/AddStoriesToSprint';
 
-export const Projects = ({ activeProject, projectSprints, currentSprint, onCreate }) => {
+const projectColumnConfiguration = [
+  {
+    name: 'Backlog',
+    status: 'backlog',
+  },
+  {
+    name: 'In Progress',
+    status: 'in_progress',
+  },
+  {
+    name: 'Done',
+    status: 'done',
+  },
+];
+
+export const Projects = ({
+  activeProject,
+  projectSprints,
+  currentSprint,
+  onCreate,
+  setSelectedProject,
+}) => {
   const { currentUser } = useContext(AuthContext);
+  const { projectId } = useParams();
+  if (projectId) {
+    setSelectedProject?.(projectId);
+  }
 
   const [userStories, setUserStories] = useState([]);
   const [projectUsers, setProjectUsers] = useState([]);
@@ -26,7 +51,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState('');
   const [editingPost, setEditingPost] = useState(null);
-  
+
   const currentUserRole = useMemo(() => {
     const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
     return projectUserRole?.role;
@@ -70,7 +95,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (editingPost) {
         await backendApi.patch(`/posts/${editingPost._id}`, {
@@ -82,7 +107,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
           project: activeProject._id,
         });
       }
-  
+
       setNewPostContent('');
       setEditingPost(null);
       fetchPosts();
@@ -122,18 +147,18 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
   };
 
   const handleEditPost = (post) => {
-    setEditingPost(post); 
+    setEditingPost(post);
     setNewPostContent(post.content);
   };
-  
+
   const handleDeletePost = async (postId) => {
     try {
       await backendApi.delete(`/posts/${postId}`);
-      fetchPosts(); 
+      fetchPosts();
     } catch (error) {
       console.error('Failed to delete post:', error);
     }
-  }
+  };
 
   return (
     <main className="main-content">
@@ -179,7 +204,6 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
               >
                 🏃 Add a sprint
               </button>
-              
             </div>
           )}
 
@@ -227,55 +251,60 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
               setSelectedUserStory(userStory);
               setShowCreateUserStory(true);
             }}
+            columnConfiguration={projectColumnConfiguration}
           />
 
-        <div className="project-wall-section">
-          <button
-                 className="btn-general"
-                 style={{ width: '30vw' }}
-                 onClick={() => setShowProjectWall(!showProjectWall)}
-                 >
-                  🧱 Project Wall
-              </button>
+          <div className="project-wall-section">
+            <button
+              className="btn-general"
+              style={{ width: '30vw' }}
+              onClick={() => setShowProjectWall(!showProjectWall)}
+            >
+              🧱 Project Wall
+            </button>
 
-          {showProjectWall && (
-            <section className="project-wall-container">
-              <h3>📌 Project Wall</h3>
-              
-              <ul className="post-list">
-                {posts && posts.length > 0 ? (posts.map((post) => {
-                    const isAuthor = post.author?._id === currentUser.id;
+            {showProjectWall && (
+              <section className="project-wall-container">
+                <h3>📌 Project Wall</h3>
 
-                    return (
-                      <div key={post._id} className="post-item">
-                        <div className="post-header">
-                          <strong>{post.author?.email || 'Unknown Author'}</strong>
-                          <span className="post-date"> {new Date(post.createdAt).toLocaleString()}</span>
-                          {isAuthor && (
-                            <div className="post-actions">
-                            <button className="edit-btn" onClick={() => handleEditPost(post)}>
-                            ✏️
-                            </button>
-                            <button className="delete-btn" onClick={() => handleDeletePost(post._id)}>
-                            🗑️
-                            </button>
+                <ul className="post-list">
+                  {posts && posts.length > 0 ? (
+                    posts.map((post) => {
+                      const isAuthor = post.author?._id === currentUser.id;
+
+                      return (
+                        <div key={post._id} className="post-item">
+                          <div className="post-header">
+                            <strong>{post.author?.email || 'Unknown Author'}</strong>
+                            <span className="post-date">
+                              {' '}
+                              {new Date(post.createdAt).toLocaleString()}
+                            </span>
+                            {isAuthor && (
+                              <div className="post-actions">
+                                <button className="edit-btn" onClick={() => handleEditPost(post)}>
+                                  ✏️
+                                </button>
+                                <button
+                                  className="delete-btn"
+                                  onClick={() => handleDeletePost(post._id)}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            )}
                           </div>
-
-                          )}
-                          
+                          <p className="post-content">{post.content}</p>
                         </div>
-                        <p className="post-content">{post.content}</p>
+                      );
+                    })
+                  ) : (
+                    <p>No posts yet for this project. Be the first to post!</p>
+                  )}
+                </ul>
 
-                  
-                      </div>
-                    );
-                  })) : (
-                  <p>No posts yet for this project. Be the first to post!</p>
-                )}
-              </ul>
-
-              <h3>Add a post</h3>
-              <form className="post-form" onSubmit={handleCreatePost}>
+                <h3>Add a post</h3>
+                <form className="post-form" onSubmit={handleCreatePost}>
                   <textarea
                     rows={10}
                     cols={60}
@@ -299,13 +328,10 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
                     </button>
                   )}
                 </form>
-
-            </section>
-          )}
+              </section>
+            )}
           </div>
           <Outlet />
-
-
         </>
       ) : (
         <div className="no-project">

@@ -4,6 +4,7 @@
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
+  max-width: 700px;
 }
 
 .user-story-form-container h3 {

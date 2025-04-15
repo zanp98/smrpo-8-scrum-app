@@ -1,4 +1,4 @@
-import { UserStory } from '../../db/UserStory.js';
+import { UserStory, UserStoryStatus } from '../../db/UserStory.js';
 import express from 'express';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { projectRolesRequired } from '../../middleware/auth.js';
@@ -7,11 +7,11 @@ import {
   CAN_DELETE_USER_STORIES,
   CAN_READ_USER_STORIES,
   CAN_UPDATE_USER_STORIES,
-  CAN_UPDATE_USER_STORIES_POINTS
+  CAN_UPDATE_USER_STORIES_POINTS,
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
-import { User } from '../../db/User.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
+import { Sprint } from '../../db/Sprint.js';
 
 export const userStoriesRouter = express.Router();
 
@@ -22,13 +22,42 @@ userStoriesRouter.get(
   errorHandlerWrapped(async (req, res) => {
     try {
       const { projectId, sprintId } = req.params;
+      // If there is sprintId we should fetch as usual:
+      if (!!sprintId) {
+        const userStories = await UserStory.find({
+          project: projectId,
+          ...{ sprint: sprintId },
+        })
+          .populate('assignee', 'username firstName lastName')
+          .populate('sprint');
+
+        return res.json(userStories);
+      }
+      // If there is no sprint id we need to fetch all stories and group
+      const now = new Date();
+      const currentSprintId = await Sprint.find({
+        project: projectId,
+        $and: [{ startDate: { $lte: now } }, { endDate: { $gt: now } }],
+      }).then((s) => s._id);
+
+      if (!currentSprintId) {
+        const userStories = await UserStory.find({
+          project: projectId,
+          $or: [{ status: [UserStoryStatus.BACKLOG, UserStoryStatus.DONE] }],
+        })
+          .populate('assignee', 'username firstName lastName')
+          .populate('sprint');
+        return res.json(userStories);
+      }
       const userStories = await UserStory.find({
         project: projectId,
-        ...(!!sprintId ? { sprint: sprintId } : {}),
+        $or: [
+          { status: [UserStoryStatus.BACKLOG, UserStoryStatus.DONE] },
+          { sprint: currentSprintId, status: UserStoryStatus.IN_PROGRESS },
+        ],
       })
         .populate('assignee', 'username firstName lastName')
         .populate('sprint');
-
       res.json(userStories);
     } catch (error) {
       console.error(error);
@@ -136,7 +165,7 @@ userStoriesRouter.delete(
 //Scrum master can update time on un-assigned user story
 userStoriesRouter.patch(
   '/:projectId/:userStoryId/points',
-  projectRolesRequired(CAN_UPDATE_USER_STORIES_POINTS), 
+  projectRolesRequired(CAN_UPDATE_USER_STORIES_POINTS),
   errorHandlerWrapped(async (req, res) => {
     const { projectId, userStoryId } = req.params;
     const { points } = req.body;

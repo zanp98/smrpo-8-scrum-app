@@ -6,6 +6,7 @@
 .kanban-column {
   flex: 1; /* Makes each column take equal space */
   min-width: 200px; /* Ensures columns don't shrink too much */
+  max-width: 500px;
   background: var(--off-white);
   padding: 10px;
   border-radius: 8px;
