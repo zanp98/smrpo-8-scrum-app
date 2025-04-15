@@ -34,7 +34,7 @@ const TaskForm = ({ onSubmit, onCancel, users }) => {
         required
         min="0"
       />
-      <select name="assignedUser" value={task.assignedUser} onChange={handleChange} required>
+      <select name="assignedUser" value={task.assignedUser} onChange={handleChange}>
         <option value="">-- Select User --</option>
         {users.map((user) => (
           <option key={user.user._id} value={user.user._id}>

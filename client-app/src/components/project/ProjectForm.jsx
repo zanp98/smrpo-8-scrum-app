@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { backendApi } from '../api/backend'; // API handler
-import '../styles/forms.css';
+import { backendApi } from '../../api/backend'; // API handler
+import '../../styles/forms.css';
 
 export const ProjectRole = Object.freeze({
   ADMIN: 'admin',
@@ -72,6 +72,12 @@ export const ProjectForm = ({ onClose, onProjectCreate }) => {
         mappedMembersWithRoles.push({
           user: formData.scrumMaster,
           role: ProjectRole.SCRUM_MASTER,
+        });
+      }
+      if (formData.owner) {
+        mappedMembersWithRoles.push({
+          user: formData.owner,
+          role: ProjectRole.PRODUCT_OWNER,
         });
       }
       const mappedData = {

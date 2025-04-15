@@ -16,7 +16,6 @@ tasksRouter.get(
   projectRolesRequired(CAN_READ_USER_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { userStoryId } = req.params;
-    console.log('userStoryId:', userStoryId);
     const tasks = await Task.find({ userStory: userStoryId })
       .populate('assignedUser', 'description timeEstimation userStory firstName lastName')
       .exec();
@@ -90,9 +89,7 @@ tasksRouter.patch(
 
     // Check if the task is assigned to the current user
     if (!task.assignedUser || task.assignedUser.toString() !== currentUserId) {
-      return res
-        .status(403)
-        .json({ message: 'You are not authorized to complete this task' });
+      return res.status(403).json({ message: 'You are not authorized to complete this task' });
     }
 
     // Update the task status to DONE
@@ -101,4 +98,4 @@ tasksRouter.patch(
 
     return res.status(200).json(task);
   }),
-)
+);

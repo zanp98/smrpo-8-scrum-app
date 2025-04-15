@@ -8,7 +8,7 @@ import { Projects } from './Projects';
 import { UsersList } from './UsersList';
 import { formatDate, formatDateTime, isNowBetween } from '../utils/datetime';
 import { Sprint } from './sprint/Sprint'; // Added SprintForm import
-import { ProjectForm } from './ProjectForm';
+import { ProjectForm } from './project/ProjectForm';
 import UserSettings from './user/UserSettings';
 import LogoSvg from './assets/Logo-White.svg';
 
@@ -86,7 +86,9 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <div className="logo"><img src={LogoSvg} alt="team8" /></div>
+        <div className="logo">
+          <img src={LogoSvg} alt="team8" />
+        </div>
         <div className="user-info">
           <div className="user-info-text">
             <div className="user-info-name">

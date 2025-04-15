@@ -15,11 +15,7 @@ export const Storyboard = ({ project, userStories = [], onEditStoryClick, curren
   const fetchTasks = async () => {
     if (!isExpanded) return;
     try {
-      console.log('selectedUserStory');
-      console.log(selectedUserStory);
       const response = await backendApi.get(`/tasks/${selectedUserStory._id}`);
-      console.log('response');
-      console.log(response);
       setTasks(response.data);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
