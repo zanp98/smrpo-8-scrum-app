@@ -291,3 +291,9 @@ h3 {
   justify-content: center;
   align-items: center;
 }
+
+.post-actions {
+  gap: 1rem; 
+  justify-content: center;
+  align-items: center;
+}
