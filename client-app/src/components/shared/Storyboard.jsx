@@ -83,7 +83,8 @@ export const Storyboard = ({
           <div className="user-story-actions">
             <button
               className="edit-user-story-btn"
-              onClick={() => {
+              onClick={(event) => {
+                event.stopPropagation();
                 onEditStoryClick?.(userStory);
               }}
             >
