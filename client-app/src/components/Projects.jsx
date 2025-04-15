@@ -64,7 +64,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
   const fetchPosts = async () => {
     if (!activeProject) return;
     const { data } = await backendApi.get(`/posts/${activeProject._id}`);
-    setPosts(data);
+    setPosts(Array.isArray(data) ? data : []);
   };
 
   const handleCreatePost = async () => {
@@ -212,7 +212,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
               <h3>📌 Project Wall</h3>
               
               <ul className="post-list">
-                {posts.map((post) => (
+                {posts && posts.length > 0 ? (posts.map((post) => (
                       <div key={post._id} className="post-item">
                       <div className="post-header">
                       <strong>{post.author?.email || 'Unknown Author'}</strong>
@@ -222,7 +222,9 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
                     </div>
                     <p className="post-content">{post.content}</p>
                   </div>
-                ))}
+                ))) : (
+                  <p>No posts yet for this project. Be the first to post!</p>
+                )}
               </ul>
 
               <h3>Add a post</h3>
