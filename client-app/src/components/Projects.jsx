@@ -3,7 +3,7 @@ import { Outlet } from 'react-router';
 import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
 import { UserStoryForm } from './UserStoryForm';
 import { SprintForm } from './SprintForm';
-import { RolesEditForm } from './RolesEditForm';
+import { RolesEditForm } from './project/RolesEditForm';
 import { Storyboard } from './shared/Storyboard';
 import '../styles/projects.css';
 import { AuthContext } from '../context/AuthContext';
@@ -163,7 +163,7 @@ export const Projects = ({ activeProject, projectSprints, currentSprint, onCreat
           )}
           {showRolesEditForm && (
             <RolesEditForm
-              activeProjectId={activeProject._id} 
+              activeProjectId={activeProject._id}
               onClose={() => setShowRolesEditForm(false)}
               onSprintCreate={() => onCreate?.()}
             />

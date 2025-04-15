@@ -61,8 +61,7 @@ projectsRouter.post(
   systemRolesRequired(UserRoles.ADMIN), // Ensure only admins can create a project
   errorHandlerWrapped(async (req, res) => {
     try {
-      const { name, key, description, members } = req.body;
-      const owner = req.user.id; // Authenticated user as the project owner
+      const { name, key, description, members, owner } = req.body;
 
       if (!name || !key || !description) {
         return res.status(400).json({ message: 'All fields are required' });
@@ -98,7 +97,7 @@ projectsRouter.post(
       projectUserRoles.push({
         project: newProject._id,
         user: owner,
-        role: ProjectRole.ADMIN,
+        role: ProjectRole.PRODUCT_OWNER,
       });
 
       (members ?? []).forEach(({ user, role }) => {
@@ -153,7 +152,7 @@ projectsRouter.put(
 
       let project = await Project.findById(projectId);
       if (!project) {
-        return res.status(404).json({ message: 'Project not found' });
+        return res.status(404).json({ message: 'Project not found' }).populate('members', '_id');
       }
 
       // Check if the user is a Scrum Master for this project
@@ -178,7 +177,7 @@ projectsRouter.put(
 
       // Extract member IDs and roles
       const updatedMemberIds = members.map((m) => m.user);
-      const existingMemberIds = project.members.map((m) => m.toString());
+      const existingMemberIds = project.members.filter(Boolean).map((m) => m.toString());
 
       // Find members to add and remove
       const membersToAdd = updatedMemberIds.filter((id) => !existingMemberIds.includes(id));
