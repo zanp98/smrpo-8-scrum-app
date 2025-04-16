@@ -8,25 +8,34 @@ import { UserStoryStatus } from '../project/UserStoryForm';
 const defaultColumnConfiguration = [
   {
     name: 'Backlog',
-    status: [UserStoryStatus.BACKLOG],
+    filters: { status: [UserStoryStatus.BACKLOG] },
   },
   {
     name: 'To Do',
-    status: [UserStoryStatus.TODO],
+    filters: { status: [UserStoryStatus.TODO] },
   },
   {
     name: 'In Progress',
-    status: [UserStoryStatus.IN_PROGRESS],
+    filters: { status: [UserStoryStatus.IN_PROGRESS] },
   },
   {
     name: 'Review',
-    status: [UserStoryStatus.REVIEW],
+    filters: { status: [UserStoryStatus.REVIEW] },
   },
   {
     name: 'Done',
-    status: [UserStoryStatus.DONE],
+    filters: { status: [UserStoryStatus.DONE] },
   },
 ];
+
+const getStoryPredicates = (filters) => {
+  const predicates = Object.entries(filters).map(
+    ([k, v]) =>
+      (userStory) =>
+        v.includes(userStory?.[k]),
+  );
+  return (userStory) => predicates.every((predicate) => predicate(userStory));
+};
 
 export const Storyboard = ({
   project,
@@ -40,8 +49,9 @@ export const Storyboard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [tasks, setTasks] = useState([]);
 
-  const getStatusColumnUserStories = (status) => {
-    return userStories.filter((userStory) => status.includes(userStory.status));
+  const getStatusColumnUserStories = (filters) => {
+    const chainPredicates = getStoryPredicates(filters);
+    return userStories.filter(chainPredicates);
   };
 
   const fetchTasks = async () => {
@@ -155,10 +165,10 @@ export const Storyboard = ({
   return (
     <div className="board-container">
       {columnConfiguration.map((cc) => (
-        <div className="kanban-column" key={cc.status}>
+        <div className="kanban-column" key={cc.name}>
           <h3>{cc.name}</h3>
           <div className="user-stories-container">
-            {getStatusColumnUserStories(cc.status).map(renderUserStoryCard)}
+            {getStatusColumnUserStories(cc.filters).map(renderUserStoryCard)}
           </div>
         </div>
       ))}

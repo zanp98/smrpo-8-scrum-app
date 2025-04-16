@@ -59,9 +59,10 @@ authRouter.post(
       { expiresIn: '1d' },
     );
 
-    const lastSuccessfulLogin = await LoginAttempt.findOne({ user, success: true }).sort({
+    const lastSuccessfulLogins = await LoginAttempt.find({ user, success: true }).sort({
       createdAt: 'desc',
     });
+    const lastSuccessfulLogin = lastSuccessfulLogins?.[1];
 
     if (user.twoFactorAuthenticationEnabled) {
       await verifyTfaCode(req, user.secretKey);
