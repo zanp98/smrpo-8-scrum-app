@@ -4,6 +4,7 @@ import { backendApi, getProjectUsers, getSprintUserStories } from '../../api/bac
 import { useParams } from 'react-router';
 import { calculateTotalStoryPoints } from '../../utils/stories';
 import { SprintUserStoryForm } from './SprintUserStoryForm';
+import { SprintEditForm } from './SprintEditForm';
 import { AuthContext } from '../../context/AuthContext';
 
 export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) => {
@@ -83,6 +84,13 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
       >
         🛠 Edit a Sprint
       </button>
+      {showSprintEditForm && (
+        <SprintEditForm
+          sprintId={sprintId}
+          activeProjectId={projectId}
+          onClose={() => setShowSprintEditForm(false)}
+        />
+      )}
       <br />
       {showEditUserStory && (
         <SprintUserStoryForm
