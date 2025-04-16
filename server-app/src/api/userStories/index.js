@@ -53,7 +53,10 @@ userStoriesRouter.get(
         project: projectId,
         $or: [
           { status: [UserStoryStatus.BACKLOG, UserStoryStatus.DONE] },
-          { sprint: currentSprintId, status: UserStoryStatus.IN_PROGRESS },
+          {
+            sprint: currentSprintId,
+            status: [UserStoryStatus.TODO, UserStoryStatus.REVIEW, UserStoryStatus.IN_PROGRESS],
+          },
         ],
       })
         .populate('assignee', 'username firstName lastName')
