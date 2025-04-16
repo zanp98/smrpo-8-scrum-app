@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useParams } from 'react-router';
 import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
-import { UserStoryForm } from './project/UserStoryForm';
+import { UserStoryForm, UserStoryStatus } from './project/UserStoryForm';
 import { SprintForm } from './sprint/SprintForm';
 import { RolesEditForm } from './project/RolesEditForm';
 import { Storyboard } from './shared/Storyboard';
@@ -13,15 +13,15 @@ import { AddStoriesToSprint } from './shared/AddStoriesToSprint';
 const projectColumnConfiguration = [
   {
     name: 'Backlog',
-    status: 'backlog',
+    status: [UserStoryStatus.BACKLOG],
   },
   {
     name: 'In Progress',
-    status: 'in_progress',
+    status: [UserStoryStatus.TODO, UserStoryStatus.IN_PROGRESS, UserStoryStatus.REVIEW],
   },
   {
     name: 'Done',
-    status: 'done',
+    status: [UserStoryStatus.DONE],
   },
 ];
 
@@ -204,7 +204,6 @@ export const Projects = ({
               >
                 🗒️ Asign User Stories
               </button>
-
             </div>
           )}
 

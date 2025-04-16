@@ -3,27 +3,28 @@ import '../../styles/storyboard.css';
 import { backendApi } from '../../api/backend';
 import { TaskList } from '../TaskList';
 import { ProjectRole } from '../project/ProjectForm';
+import { UserStoryStatus } from '../project/UserStoryForm';
 
 const defaultColumnConfiguration = [
   {
     name: 'Backlog',
-    status: 'backlog',
+    status: [UserStoryStatus.BACKLOG],
   },
   {
     name: 'To Do',
-    status: 'todo',
+    status: [UserStoryStatus.TODO],
   },
   {
     name: 'In Progress',
-    status: 'in_progress',
+    status: [UserStoryStatus.IN_PROGRESS],
   },
   {
     name: 'Review',
-    status: 'review',
+    status: [UserStoryStatus.REVIEW],
   },
   {
     name: 'Done',
-    status: 'done',
+    status: [UserStoryStatus.DONE],
   },
 ];
 
@@ -40,7 +41,7 @@ export const Storyboard = ({
   const [tasks, setTasks] = useState([]);
 
   const getStatusColumnUserStories = (status) => {
-    return userStories.filter((userStory) => userStory.status === status);
+    return userStories.filter((userStory) => status.includes(userStory.status));
   };
 
   const fetchTasks = async () => {
