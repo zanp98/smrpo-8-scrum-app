@@ -43,7 +43,6 @@ userStoriesRouter.get(
       if (!currentSprintId) {
         const userStories = await UserStory.find({
           project: projectId,
-          $or: [{ status: [UserStoryStatus.BACKLOG, UserStoryStatus.DONE] }],
         })
           .populate('assignee', 'username firstName lastName')
           .populate('sprint');

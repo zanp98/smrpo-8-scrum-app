@@ -83,7 +83,7 @@ export const RolesEditForm = ({ onClose, activeProjectId }) => {
           user: formData.scrumMaster,
           role: 'scrum_master',
         },
-      ];
+      ].filter((m) => !!m.user);
       formData.members.forEach((member) => {
         if (members.find((m) => m.user === member)) {
           return;
