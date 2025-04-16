@@ -173,19 +173,27 @@ export const Projects = ({
               <button
                 className="btn-general"
                 onClick={() => {
-                  setShowCreateUserStory(true);
-                  setSelectedUserStory(null);
+                  setShowRolesEditForm(true);
                 }}
               >
-                ➕ New UserStory
+                🔧 Edit a Project
               </button>
               <button
                 className="btn-general"
                 onClick={() => {
-                  setShowRolesEditForm(true);
+                  setShowSprintForm(true);
                 }}
               >
-                🔧 Edit project
+                🏃 Add a Sprint
+              </button>
+              <button
+                className="btn-general"
+                onClick={() => {
+                  setShowCreateUserStory(true);
+                  setSelectedUserStory(null);
+                }}
+              >
+                ➕ Add a User Story
               </button>
               <button
                 className="btn-general"
@@ -194,16 +202,9 @@ export const Projects = ({
                   setSelectedUserStory(null);
                 }}
               >
-                🗒️ Add stories to sprint
+                🗒️ Asign User Stories
               </button>
-              <button
-                className="btn-general"
-                onClick={() => {
-                  setShowSprintForm(true);
-                }}
-              >
-                🏃 Add a sprint
-              </button>
+
             </div>
           )}
 
@@ -239,7 +240,6 @@ export const Projects = ({
             <RolesEditForm
               activeProjectId={activeProject._id}
               onClose={() => setShowRolesEditForm(false)}
-              onSprintCreate={() => onCreate?.()}
             />
           )}
 

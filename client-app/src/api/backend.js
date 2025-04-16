@@ -164,3 +164,14 @@ export const addManualTimer = async (taskId, time) => {
     throw error;
   }
 };
+
+export const updateCurrentSprint = async (sprintId, updatedSprintData) => {
+  try {
+    // Sending GET request to the backend route that returns all users
+    const response = await backendApi.put(`/updateSprint/${sprintId}`, updatedSprintData);
+    return response.data; // Assuming the response is in the `data` field
+  } catch (error) {
+    console.error('Failed to update sprint:', error);
+    throw error; // Optionally rethrow the error if you want it handled elsewhere
+  }
+};

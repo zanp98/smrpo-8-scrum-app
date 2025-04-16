@@ -11,6 +11,8 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
   const [userStories, setUserStories] = useState([]);
   const [counter, setCounter] = useState(0);
   const { projectId, sprintId } = useParams();
+  const [showSprintEditForm, setShowSprintEditForm] = useState(false);
+
   if (project?._id !== projectId) {
     setActiveProject?.(projectId);
   }
@@ -73,6 +75,14 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
       <div className={totalStoryPoints > sprint.expectedVelocity ? 'label-overbooked' : ''}>
         Velocity: {totalStoryPoints}/{sprint.expectedVelocity}
       </div>
+      <button
+        className="btn-general"
+        onClick={() => {
+          setShowSprintEditForm(true);
+        }}
+      >
+        🛠 Edit a Sprint
+      </button>
       <br />
       {showEditUserStory && (
         <SprintUserStoryForm

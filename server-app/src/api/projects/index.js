@@ -159,7 +159,7 @@ projectsRouter.put(
       const userRole = await ProjectUserRole.findOne({ project: projectId, user: userId });
 
       const isScrumMaster = userRole && userRole.role === ProjectRole.SCRUM_MASTER;
-      const isAdmin = req.user.role === UserRoles.ADMIN;
+      const isAdmin = req.user.role === ProjectRole.ADMIN;
 
       if (!isScrumMaster && !isAdmin) {
         return res
