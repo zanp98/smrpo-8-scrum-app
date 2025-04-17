@@ -51,9 +51,10 @@ export const getSprintUserStories = async ({ projectId, sprintId }) => {
   }
 };
 
-export const getProjectUsers = async (projectId) => {
+export const getProjectUsers = async (projectId, userId = '') => {
   try {
-    return backendApi.get(`/projects/users/${projectId}`).then((res) => res.data);
+    const endpoint = [projectId, userId].filter(Boolean).join('/');
+    return backendApi.get(`/projects/users/${endpoint}`).then((res) => res.data);
   } catch (error) {
     console.error('Failed to project user data');
   }
