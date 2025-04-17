@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import '../../styles/forms.css';
 import '../../styles/user-story-form.css';
 import { UserStoryPriority, UserStoryStatus, UserStoryType } from '../project/UserStoryForm';
+import { ProjectRole } from '../project/ProjectForm';
 
-export const SprintUserStoryForm = ({ onSubmit, initialData, onClose }) => {
+export const SprintUserStoryForm = ({ onSubmit, initialData, onClose, currentUserProjectRole }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -18,6 +19,11 @@ export const SprintUserStoryForm = ({ onSubmit, initialData, onClose }) => {
   });
 
   const isEditMode = !!initialData;
+
+  const canSeeBusinessValues = useMemo(
+    () => currentUserProjectRole !== ProjectRole.PRODUCT_OWNER,
+    [currentUserProjectRole],
+  );
 
   useEffect(() => {
     if (!initialData) {
@@ -133,31 +139,34 @@ export const SprintUserStoryForm = ({ onSubmit, initialData, onClose }) => {
           </select>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="points">Points</label>
-          <input
-            type="number"
-            id="points"
-            name="points"
-            min="0"
-            value={formData.points}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="businessValue">Business value</label>
-          <input
-            type="number"
-            id="businessValue"
-            name="businessValue"
-            min="1"
-            max="10"
-            value={formData.businessValue}
-            onChange={handleChange}
-          />
-        </div>
+        {canSeeBusinessValues && (
+          <>
+            <div className="form-group">
+              <label htmlFor="points">Points</label>
+              <input
+                type="number"
+                id="points"
+                name="points"
+                min="0"
+                value={formData.points}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="businessValue">Business value</label>
+              <input
+                type="number"
+                id="businessValue"
+                name="businessValue"
+                min="1"
+                max="10"
+                value={formData.businessValue}
+                onChange={handleChange}
+              />
+            </div>
+          </>
+        )}
 
         <button type="submit" className="submit-btn">
           {isEditMode ? 'Update UserStory' : 'Create UserStory'}

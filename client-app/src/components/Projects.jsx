@@ -76,11 +76,6 @@ export const Projects = ({
     [currentUserRole],
   );
 
-  const availableProjectSprints = useMemo(
-    () => projectSprints?.filter((s) => isDateInFuture(s.endDate)),
-    [projectSprints],
-  );
-
   const fetchProjectUsers = async () => {
     if (!activeProject) {
       return;
@@ -224,13 +219,12 @@ export const Projects = ({
           {showCreateUserStory && (
             <UserStoryForm
               onSubmit={handleCreateUserStory}
-              projectUsers={projectUsers}
-              projectSprints={availableProjectSprints}
               initialData={selectedUserStory}
               onClose={() => {
                 setShowCreateUserStory(false);
                 setSelectedUserStory(null);
               }}
+              currentUserProjectRole={currentUserRole}
             />
           )}
           {showAddStoriesToSprint && (
@@ -284,7 +278,7 @@ export const Projects = ({
                   {posts && posts.length > 0 ? (
                     posts.map((post) => {
                       const isAuthor = post.author?._id === currentUser.id;
-                      const role = post.postRole
+                      const role = post.postRole;
 
                       let postClass = 'post-item';
                       if (role === 'product_owner') postClass += ' post-item-po';
@@ -293,30 +287,34 @@ export const Projects = ({
                       return (
                         <div key={post._id} className={postClass}>
                           <div className="post-header">
-                            <strong>{post.author?.email || 'Unknown Author'} ({post.postRole || 'Unknown role'})</strong>
+                            <strong>
+                              {post.author?.email || 'Unknown Author'} (
+                              {post.postRole || 'Unknown role'})
+                            </strong>
                             <span className="post-date">
                               {' '}
                               {new Date(post.createdAt).toLocaleString()}
                             </span>
-                            
                           </div>
                           <p className="post-content">{post.content}</p>
                           {isAuthor && (
-                              <div className="post-actions">
-                                <button className="btn-general"
-                                 style={{ width: '3vw' }} 
-                                 onClick={() => handleEditPost(post)}>
-                                  ✏️
-                                </button>
-                                <button
-                                  className="btn-general" 
-                                  style={{ width: '3vw' }}
-                                  onClick={() => handleDeletePost(post._id)}
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            )}
+                            <div className="post-actions">
+                              <button
+                                className="btn-general"
+                                style={{ width: '3vw' }}
+                                onClick={() => handleEditPost(post)}
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                className="btn-general"
+                                style={{ width: '3vw' }}
+                                onClick={() => handleDeletePost(post._id)}
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          )}
                         </div>
                       );
                     })

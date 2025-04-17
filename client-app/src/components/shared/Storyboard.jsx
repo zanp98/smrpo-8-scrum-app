@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import '../../styles/storyboard.css';
 import { backendApi } from '../../api/backend';
 import { TaskList } from '../TaskList';
@@ -65,6 +65,11 @@ export const Storyboard = ({
     }
   };
 
+  const canSeeBusinessValues = useMemo(
+    () => currentUserRole !== ProjectRole.PRODUCT_OWNER,
+    [currentUserRole],
+  );
+
   const calculateTotalHours = (tasks) =>
     tasks.reduce((total, task) => total + task.timeEstimation, 0);
 
@@ -83,16 +88,16 @@ export const Storyboard = ({
 
   const handleAcceptStory = async (projectId, storyId) => {
     try {
-      console.log(storyId)
+      console.log(storyId);
       await backendApi.post(`/userStories/${storyId}/accept`);
-      window.location.reload(); 
+      window.location.reload();
     } catch (error) {
       console.error('Accept failed', error);
     }
   };
-  
+
   const handleDenyStory = async (projectId, storyId) => {
-    const comment = prompt("Why are you denying this story?");
+    const comment = prompt('Why are you denying this story?');
     try {
       await backendApi.post(`/userStories/${storyId}/deny`, { comment });
       window.location.reload();
@@ -101,11 +106,11 @@ export const Storyboard = ({
     }
   };
 
-
   const renderUserStoryCard = (userStory) => {
     const priorityClass = `priority-${userStory.priority}`;
     const typeIcon = getTypeIcon(userStory.type);
 
+    const showStoryPoints = canSeeBusinessValues && userStory.points > 0;
     return (
       <div
         key={userStory._id}
@@ -155,8 +160,10 @@ export const Storyboard = ({
         <div className="user-story-description">{userStory.acceptanceTests ?? ''}</div>
         <div className="user-story-sprint">{userStory.sprint ? userStory.sprint.name : ''}</div>
         <div className="user-story-footer">
-          <span className="user-story-points">
-            {userStory.points > 0 ? `${userStory.points} pts` : ''}
+          <span
+            className={`user-story-points ${showStoryPoints ? 'user-story-points-background' : ''}`}
+          >
+            {showStoryPoints ? `${userStory.points} pts` : ''}
           </span>
           <span className="user-story-hours">{calculateTotalHours(tasks)}h</span>
           {userStory.assignee && (
@@ -167,19 +174,29 @@ export const Storyboard = ({
           {!userStory.assignee && <span className="user-story-unassigned">Unassigned</span>}
         </div>
         <div className="acceptUserStory">
-        {userStory.status === 'review' &&
-            (currentUserRole === ProjectRole.PRODUCT_OWNER) && (
-              <div className="review-buttons">
-                <button className="accept-btn" onClick={(e) => {
+          {userStory.status === 'review' && currentUserRole === ProjectRole.PRODUCT_OWNER && (
+            <div className="review-buttons">
+              <button
+                className="accept-btn"
+                onClick={(e) => {
                   e.stopPropagation();
                   handleAcceptStory(project._id, userStory._id);
-                }}>✅ Accept</button>
+                }}
+              >
+                ✅ Accept
+              </button>
 
-                <button className="deny-btn" onClick={(e) => {
+              <button
+                className="deny-btn"
+                onClick={(e) => {
                   e.stopPropagation();
                   handleDenyStory(project._id, userStory._id);
-                }}>❌ Deny</button>
-              </div>)}
+                }}
+              >
+                ❌ Deny
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );

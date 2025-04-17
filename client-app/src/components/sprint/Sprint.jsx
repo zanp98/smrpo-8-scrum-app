@@ -99,6 +99,7 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
           onClose={() => {
             setShowEditUserStory(false);
           }}
+          currentUserProjectRole={currentUserRole}
         />
       )}
       <Storyboard

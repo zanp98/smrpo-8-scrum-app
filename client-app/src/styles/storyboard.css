@@ -112,9 +112,11 @@
 
 .user-story-points {
   font-weight: bold;
-  background: #f4f4f4;
   padding: 2px 6px;
   border-radius: 4px;
+}
+.user-story-points-background {
+  background: #f4f4f4;
 }
 
 .user-story-assignee {

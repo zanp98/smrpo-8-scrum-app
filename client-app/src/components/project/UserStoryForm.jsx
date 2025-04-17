@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import '../../styles/forms.css';
 import '../../styles/user-story-form.css';
+import { ProjectRole } from './ProjectForm';
 
 export const UserStoryType = Object.freeze({
   STORY: 'story',
@@ -27,13 +28,7 @@ export const UserStoryPriority = Object.freeze({
   LOWEST: 'lowest',
 });
 
-export const UserStoryForm = ({
-  onSubmit,
-  projectUsers = [],
-  initialData,
-  projectSprints = [],
-  onClose,
-}) => {
+export const UserStoryForm = ({ onSubmit, initialData, onClose, currentUserProjectRole }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -49,9 +44,9 @@ export const UserStoryForm = ({
 
   const isEditMode = !!initialData;
 
-  const sprintCanBeChanged = useMemo(
-    () => formData?.status !== 'done' && formData?.points > 0,
-    [formData],
+  const canSeeBusinessValues = useMemo(
+    () => currentUserProjectRole !== ProjectRole.PRODUCT_OWNER,
+    [currentUserProjectRole],
   );
 
   useEffect(() => {
@@ -168,31 +163,35 @@ export const UserStoryForm = ({
           </select>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="points">Points</label>
-          <input
-            type="number"
-            id="points"
-            name="points"
-            min="0"
-            value={formData.points}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {canSeeBusinessValues && (
+          <>
+            <div className="form-group">
+              <label htmlFor="points">Points</label>
+              <input
+                type="number"
+                id="points"
+                name="points"
+                min="0"
+                value={formData.points}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="businessValue">Business value</label>
-          <input
-            type="number"
-            id="businessValue"
-            name="businessValue"
-            min="1"
-            max="10"
-            value={formData.businessValue}
-            onChange={handleChange}
-          />
-        </div>
+            <div className="form-group">
+              <label htmlFor="businessValue">Business value</label>
+              <input
+                type="number"
+                id="businessValue"
+                name="businessValue"
+                min="1"
+                max="10"
+                value={formData.businessValue}
+                onChange={handleChange}
+              />
+            </div>
+          </>
+        )}
 
         <button type="submit" className="submit-btn">
           {isEditMode ? 'Update UserStory' : 'Create UserStory'}
