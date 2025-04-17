@@ -255,13 +255,18 @@ projectsRouter.delete(
 );
 
 projectsRouter.get(
-  '/users/:projectId',
+  '/users/:projectId/:userId?',
   projectRolesRequired(CAN_READ_PROJECTS),
   errorHandlerWrapped(async (req, res) => {
     try {
       const projectId = req.params.projectId;
+      const userId = req.params.userId;
 
-      const projectUserRoles = await ProjectUserRole.find({ project: projectId }).populate(
+      const findClause = {
+        project: projectId,
+        ...(userId ? { user: userId } : {}),
+      };
+      const projectUserRoles = await ProjectUserRole.find(findClause).populate(
         'user',
         'username firstName lastName id',
       );
