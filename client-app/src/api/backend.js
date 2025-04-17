@@ -1,31 +1,10 @@
 import axios from 'axios';
-import { toast } from 'react-toastify';
 
 const restApiUrl = process.env.REACT_APP_REST_API_URL ?? 'http://localhost:8000';
 
 export const backendApi = axios.create({
   baseURL: `${restApiUrl}/api/v1`,
 });
-
-backendApi.interceptors.response.use(
-  (response) => {
-    if (response.status >= 200 && response.status < 300 && response.data?.message) {
-      // This is a success message, we should pop a toast to the user
-      toast.success(response.data.message);
-    }
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 418) {
-      return Promise.reject(error);
-    }
-    if (error.response?.status >= 400 && error.response?.status < 500) {
-      // This is a validation issue, we should pop a toast to the user
-      toast.error(error.response.data?.message);
-    }
-    return Promise.reject(error);
-  },
-);
 
 export const getUserQRCode = async () => {
   try {
