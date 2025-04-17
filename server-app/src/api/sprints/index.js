@@ -190,7 +190,7 @@ sprintsRouter.put(
       const userId = req.user.id; // Authenticated user
 
       // Find sprint
-      let sprint = await Sprint.findById(sprintId);
+      const sprint = await Sprint.findById(sprintId);
       if (!sprint) {
         return res.status(404).json({ message: 'Sprint not found' });
       }
