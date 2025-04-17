@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import Login from './components/auth/Login';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { OfferTfa } from './components/auth/OfferTfa';
+import { AxiosErrorHandler } from './api/AxiosErrorHandler';
 
 // Main app component that checks authentication
 const AppContent = () => {
@@ -35,10 +36,12 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppContent />
-        <ToastContainer />
-      </BrowserRouter>
+      <AxiosErrorHandler>
+        <BrowserRouter>
+          <AppContent />
+          <ToastContainer />
+        </BrowserRouter>
+      </AxiosErrorHandler>
     </AuthProvider>
   );
 };
