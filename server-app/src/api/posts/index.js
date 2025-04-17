@@ -32,13 +32,14 @@ postsRouter.get(
 
     const posts = await Post.find({ project: projectId })
       .populate('author', '_id name email')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     const roles = await ProjectUserRole.find({ project: projectId });
     posts.forEach((post) => {
-      const postRole = roles.find((r) => r.user === post.author._id);
+      const postRole = roles.find((r) => r.user.toString() === post.author._id.toString());
       if (postRole) {
-        roles.postRole = postRole;
+        post.postRole = postRole.role;
       }
     });
 
