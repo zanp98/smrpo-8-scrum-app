@@ -284,30 +284,39 @@ export const Projects = ({
                   {posts && posts.length > 0 ? (
                     posts.map((post) => {
                       const isAuthor = post.author?._id === currentUser.id;
+                      const role = post.postRole
+
+                      let postClass = 'post-item';
+                      if (role === 'product_owner') postClass += ' post-item-po';
+                      else if (role === 'scrum_master') postClass += ' post-item-sm';
 
                       return (
-                        <div key={post._id} className="post-item">
+                        <div key={post._id} className={postClass}>
                           <div className="post-header">
-                            <strong>{post.author?.email || 'Unknown Author'}</strong>
+                            <strong>{post.author?.email || 'Unknown Author'} ({post.postRole || 'Unknown role'})</strong>
                             <span className="post-date">
                               {' '}
                               {new Date(post.createdAt).toLocaleString()}
                             </span>
-                            {isAuthor && (
+                            
+                          </div>
+                          <p className="post-content">{post.content}</p>
+                          {isAuthor && (
                               <div className="post-actions">
-                                <button className="edit-btn" onClick={() => handleEditPost(post)}>
+                                <button className="btn-general"
+                                 style={{ width: '3vw' }} 
+                                 onClick={() => handleEditPost(post)}>
                                   ✏️
                                 </button>
                                 <button
-                                  className="delete-btn"
+                                  className="btn-general" 
+                                  style={{ width: '3vw' }}
                                   onClick={() => handleDeletePost(post._id)}
                                 >
                                   🗑️
                                 </button>
                               </div>
                             )}
-                          </div>
-                          <p className="post-content">{post.content}</p>
                         </div>
                       );
                     })

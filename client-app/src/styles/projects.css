@@ -293,7 +293,25 @@ h3 {
 }
 
 .post-actions {
-  gap: 1rem; 
-  justify-content: center;
+  gap: 1vw; 
+  justify-content:space-between;
   align-items: center;
+  flex-direction: row;
+
+}
+
+.post-item-sm {
+  border: 3px solid #ff9900;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+}
+
+.post-item-po {
+  border: 3px solid #ffff00;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
 }
