@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useParams } from 'react-router';
 import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
-import { UserStoryForm, UserStoryStatus } from './project/UserStoryForm';
+import { UserStoryForm, UserStoryPriority, UserStoryStatus } from './project/UserStoryForm';
 import { SprintForm } from './sprint/SprintForm';
 import { RolesEditForm } from './project/RolesEditForm';
 import { Storyboard } from './shared/Storyboard';
@@ -12,16 +12,30 @@ import { AddStoriesToSprint } from './shared/AddStoriesToSprint';
 
 const projectColumnConfiguration = [
   {
+    name: 'Future releases',
+    filters: {
+      status: [UserStoryStatus.BACKLOG],
+      priority: [UserStoryPriority.LOW],
+    },
+  },
+  {
     name: 'Backlog',
-    status: [UserStoryStatus.BACKLOG],
+    filters: {
+      status: [UserStoryStatus.BACKLOG],
+      priority: [UserStoryPriority.MEDIUM, UserStoryPriority.HIGH, UserStoryPriority.HIGHEST],
+    },
   },
   {
     name: 'In Progress',
-    status: [UserStoryStatus.TODO, UserStoryStatus.IN_PROGRESS, UserStoryStatus.REVIEW],
+    filters: {
+      status: [UserStoryStatus.TODO, UserStoryStatus.IN_PROGRESS, UserStoryStatus.REVIEW],
+    },
   },
   {
-    name: 'Done',
-    status: [UserStoryStatus.DONE],
+    name: 'Finished',
+    filters: {
+      status: [UserStoryStatus.DONE],
+    },
   },
 ];
 
