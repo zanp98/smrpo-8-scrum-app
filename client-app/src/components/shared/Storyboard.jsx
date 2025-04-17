@@ -71,6 +71,27 @@ export const Storyboard = ({
     }
   };
 
+  const handleAcceptStory = async (projectId, storyId) => {
+    try {
+      console.log(storyId)
+      await backendApi.post(`/userStories/${storyId}/accept`);
+      window.location.reload(); 
+    } catch (error) {
+      console.error('Accept failed', error);
+    }
+  };
+  
+  const handleDenyStory = async (projectId, storyId) => {
+    const comment = prompt("Why are you denying this story?");
+    try {
+      await backendApi.post(`/userStories/${storyId}/deny`, { comment });
+      window.location.reload();
+    } catch (error) {
+      console.error('Deny failed', error);
+    }
+  };
+
+
   const renderUserStoryCard = (userStory) => {
     const priorityClass = `priority-${userStory.priority}`;
     const typeIcon = getTypeIcon(userStory.type);
@@ -134,6 +155,21 @@ export const Storyboard = ({
             </span>
           )}
           {!userStory.assignee && <span className="user-story-unassigned">Unassigned</span>}
+        </div>
+        <div className="acceptUserStory">
+        {userStory.status === 'review' &&
+            (currentUserRole === ProjectRole.PRODUCT_OWNER) && (
+              <div className="review-buttons">
+                <button className="accept-btn" onClick={(e) => {
+                  e.stopPropagation();
+                  handleAcceptStory(project._id, userStory._id);
+                }}>✅ Accept</button>
+
+                <button className="deny-btn" onClick={(e) => {
+                  e.stopPropagation();
+                  handleDenyStory(project._id, userStory._id);
+                }}>❌ Deny</button>
+              </div>)}
         </div>
       </div>
     );
