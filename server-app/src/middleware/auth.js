@@ -135,13 +135,13 @@ export const projectRolesRequired = (...roles) => {
       );
       if (!(requiredRoles ?? []).includes(assignedRole)) {
         if (requestingUser.role !== 'admin') {
-          return res.status(403).json({ message: 'Unauthorized' });
+          return res.status(403).json({ message: 'Unauthorized operation for project' });
         }
       }
       next();
     } catch (err) {
       console.error(err);
-      return res.status(403).json({ message: 'Unauthorized' });
+      return res.status(403).json({ message: 'Unauthorized operation' });
     }
   };
 };
