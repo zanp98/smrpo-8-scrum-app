@@ -11,6 +11,7 @@ import { Sprint } from './sprint/Sprint'; // Added SprintForm import
 import { ProjectForm } from './project/ProjectForm';
 import UserSettings from './user/UserSettings';
 import LogoSvg from './assets/Logo-White.svg';
+import { minBy } from 'lodash';
 
 const Dashboard = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -22,7 +23,11 @@ const Dashboard = () => {
   const [selectedProjectSprints, setSelectedProjectSprints] = useState([]);
 
   const currentActiveSprint = useMemo(
-    () => selectedProjectSprints?.find((ps) => isNowBetween(ps.startDate, ps.endDate)),
+    () =>
+      minBy(
+        selectedProjectSprints?.filter((ps) => isNowBetween(ps.startDate, ps.endDate)),
+        'startDate',
+      ),
     [selectedProjectSprints],
   );
 

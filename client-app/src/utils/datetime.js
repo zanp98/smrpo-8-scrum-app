@@ -11,5 +11,7 @@ export const isDateInFuture = (date) => new Date() - new Date(date) < 0;
 
 export const isNowBetween = (startDate, endDate) => {
   const now = new Date();
-  return new Date(startDate) < now && now < new Date(endDate);
+  const toDateEoD = new Date(endDate);
+  toDateEoD.setHours(23, 59, 59, 999);
+  return new Date(startDate) < now && now < toDateEoD;
 };

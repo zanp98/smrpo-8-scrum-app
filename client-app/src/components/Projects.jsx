@@ -7,8 +7,8 @@ import { RolesEditForm } from './project/RolesEditForm';
 import { Storyboard } from './shared/Storyboard';
 import '../styles/projects.css';
 import { AuthContext } from '../context/AuthContext';
-import { isDateInFuture } from '../utils/datetime';
 import { AddStoriesToSprint } from './shared/AddStoriesToSprint';
+import { ProjectRole } from './project/ProjectForm';
 
 const projectColumnConfiguration = [
   {
@@ -38,6 +38,8 @@ const projectColumnConfiguration = [
     },
   },
 ];
+
+const CAN_CREATE_STORIES = [ProjectRole.SCRUM_MASTER, ProjectRole.ADMIN, ProjectRole.PRODUCT_OWNER];
 
 export const Projects = ({
   activeProject,
@@ -72,7 +74,7 @@ export const Projects = ({
   }, [currentUser, projectUsers]);
 
   const canCreateUserStories = useMemo(
-    () => currentUserRole === 'scrum_master' || currentUserRole === 'admin',
+    () => CAN_CREATE_STORIES.includes(currentUserRole),
     [currentUserRole],
   );
 
@@ -204,15 +206,17 @@ export const Projects = ({
               >
                 ➕ Add a User Story
               </button>
-              <button
-                className="btn-general"
-                onClick={() => {
-                  setShowAddStoriesToSprint(true);
-                  setSelectedUserStory(null);
-                }}
-              >
-                🗒️ Asign User Stories
-              </button>
+              {!!currentSprint && (
+                <button
+                  className="btn-general"
+                  onClick={() => {
+                    setShowAddStoriesToSprint(true);
+                    setSelectedUserStory(null);
+                  }}
+                >
+                  🗒️ Asign User Stories
+                </button>
+              )}
             </div>
           )}
 
@@ -227,7 +231,7 @@ export const Projects = ({
               currentUserProjectRole={currentUserRole}
             />
           )}
-          {showAddStoriesToSprint && (
+          {showAddStoriesToSprint && !!currentSprint && (
             <AddStoriesToSprint
               userStories={userStories}
               currentSprint={currentSprint}
@@ -259,6 +263,7 @@ export const Projects = ({
               setShowCreateUserStory(true);
             }}
             columnConfiguration={projectColumnConfiguration}
+            currentUserRole={currentUserRole}
           />
 
           <div className="project-wall-section">
