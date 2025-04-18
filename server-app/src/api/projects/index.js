@@ -254,6 +254,7 @@ projectsRouter.delete(
   }),
 );
 
+//Getting roles for a certain project (and user on project)
 projectsRouter.get(
   '/users/:projectId/:userId?',
   projectRolesRequired(CAN_READ_PROJECTS),

@@ -8,6 +8,7 @@ import {
   CAN_READ_USER_STORIES,
   CAN_UPDATE_USER_STORIES,
   CAN_UPDATE_USER_STORIES_POINTS,
+  CAN_ACCEPT_STORIES
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
@@ -193,5 +194,70 @@ userStoriesRouter.patch(
     await userStory.save();
 
     return res.status(200).json(userStory);
+  }),
+);
+
+//Product owner can check user stories as done - realised and accepted
+userStoriesRouter.patch(
+  '/:projectId/:userStoryId/accept',
+  errorHandlerWrapped(async (req, res) => {
+    const { projectId, userStoryId } = req.params;
+
+    const userStory = await UserStory.findOne({ _id: userStoryId, project: projectId });
+
+    if (!userStory) {
+      return res.status(404).json({ message: 'User story not found' });
+    }
+
+    // Check if it's part of an active sprint (adjust logic as needed)
+    if (!userStory.sprint) {
+      return res.status(400).json({ message: 'User story must be in a sprint to be accepted' });
+    }
+
+    const now = new Date();
+    const sprint = userStory.sprint;
+
+    //Add checking if it's in the current sprint
+
+    // Mark as accepted
+    userStory.status = 'done';
+    userStory.lastReviewedAt = new Date();
+    await userStory.save();
+
+    return res.status(200).json({ message: 'User story accepted', userStory });
+  }),
+);
+
+//Product owner can check user stories as done -  denied
+userStoriesRouter.patch(
+  '/:projectId/:userStoryId/deny',
+  projectRolesRequired(CAN_ACCEPT_STORIES), 
+  errorHandlerWrapped(async (req, res) => {
+    const { projectId, userStoryId } = req.params;
+    const { comment } = req.body;
+
+    const userStory = await UserStory.findOne({ _id: userStoryId, project: projectId });
+
+    if (!userStory) {
+      return res.status(404).json({ message: 'User story not found' });
+    }
+
+    // Check if it's part of an active sprint
+    if (!userStory.sprint) {
+      return res.status(400).json({ message: 'User story must be in a sprint to be denied' });
+    }
+
+    const now = new Date();
+    const sprint = userStory.sprint;
+
+    //add date checks
+
+    // Set comment and send it back to backlog
+    userStory.status = 'backlog';
+    userStory.comment = comment || 'No comment provided';
+    userStory.lastReviewedAt = new Date();
+    await userStory.save();
+
+    return res.status(200).json({ message: 'User story denied with comment', userStory });
   }),
 );

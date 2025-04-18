@@ -90,6 +90,16 @@ const UserStorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Sprint',
     },
+    comment: {
+      type: String,
+      required: false,
+      default: "No comment",
+    },
+    lastReviewedAt: {
+      type: Date,
+      required: false,
+      default: null,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
