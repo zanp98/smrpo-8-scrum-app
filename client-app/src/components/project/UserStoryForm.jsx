@@ -44,7 +44,7 @@ export const UserStoryForm = ({ onSubmit, initialData, onClose, currentUserProje
 
   const isEditMode = !!initialData;
 
-  const canSeeBusinessValues = useMemo(
+  const canSeeStoryPoints = useMemo(
     () => currentUserProjectRole !== ProjectRole.PRODUCT_OWNER,
     [currentUserProjectRole],
   );
@@ -163,7 +163,7 @@ export const UserStoryForm = ({ onSubmit, initialData, onClose, currentUserProje
           </select>
         </div>
 
-        {canSeeBusinessValues && (
+        {canSeeStoryPoints && (
           <>
             <div className="form-group">
               <label htmlFor="points">Points</label>
@@ -178,7 +178,11 @@ export const UserStoryForm = ({ onSubmit, initialData, onClose, currentUserProje
               />
             </div>
 
-            <div className="form-group">
+            
+          </>
+        )}
+
+          <div className="form-group">
               <label htmlFor="businessValue">Business value</label>
               <input
                 type="number"
@@ -190,8 +194,6 @@ export const UserStoryForm = ({ onSubmit, initialData, onClose, currentUserProje
                 onChange={handleChange}
               />
             </div>
-          </>
-        )}
 
         <button type="submit" className="submit-btn">
           {isEditMode ? 'Update UserStory' : 'Create UserStory'}
