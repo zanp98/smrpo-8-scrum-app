@@ -18,6 +18,9 @@ export const TaskList = ({
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [isEditingTask, setIsEditingTask] = useState(false);
+  const [editBuffer, setEditBuffer] = useState({ description: '', timeEstimation: 0 });
+
   const { currentUser } = useContext(AuthContext);
   const hasActiveTask = useMemo(() => tasks?.find((t) => t.isActive), [tasks]);
 
@@ -50,16 +53,22 @@ export const TaskList = ({
     }
   };
 
-  // --------------------------------------------------------------------------
-  // Update existing task fields (like status, assignedUser, etc.)
-  // --------------------------------------------------------------------------
-  const handleUpdateTask = async (taskId, updatedFields) => {
+  const handleUpdateTask = async (id, fields) => {
     try {
-      await backendApi.patch(`/tasks/${taskId}`, updatedFields);
-      // Also tell the parent to refresh tasks
+      await backendApi.patch(`/tasks/${id}`, fields);
       onTasksUpdate();
-    } catch (error) {
-      console.error('Failed to update task:', error);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteTask = async (id) => {
+    try {
+      await backendApi.delete(`/tasks/${id}`);
+      onTasksUpdate();
+      setSelectedTask(null);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -72,7 +81,6 @@ export const TaskList = ({
       const currentUserId = currentUser.id;
       await handleUpdateTask(selectedTask._id, { assignedUser: currentUserId });
 
-      const me = users.find((u) => u._id === currentUserId);
       setSelectedTask((prev) => ({
         ...prev,
         assignedUser: currentUser,
@@ -82,9 +90,6 @@ export const TaskList = ({
     }
   };
 
-  // --------------------------------------------------------------------------
-  // Reject the task if I'm the assigned user
-  // --------------------------------------------------------------------------
   const handleRejectTask = async () => {
     if (!selectedTask) return;
     try {
@@ -98,30 +103,81 @@ export const TaskList = ({
     }
   };
 
-  // --------------------------------------------------------------------------
-  // If loading
-  // --------------------------------------------------------------------------
-  if (loading) {
-    return <div className="tasks-loading">Loading tasks...</div>;
-  }
-
-  // --------------------------------------------------------------------------
-  // Render task details in a modal
-  // --------------------------------------------------------------------------
+  /* ───────── modal for a selected task ───────── */
   const renderTaskModal = () => {
     if (!selectedTask) return null;
 
-    // Close the modal
-    const closeModal = () => setSelectedTask(null);
+    const closeModal = () => {
+      setIsEditingTask(false);
+      setSelectedTask(null);
+    };
 
-    // Change the task's status in the DB and local state
-    const handleStatusChange = async (e) => {
+    const changeStatus = async (e) => {
       const newStatus = e.target.value;
       await handleUpdateTask(selectedTask._id, { status: newStatus });
-      // Also update the local selectedTask
       setSelectedTask((prev) => ({ ...prev, status: newStatus }));
     };
 
+    // ───── Edit mode: only show form with labels ─────
+    if (isEditingTask) {
+      return ReactDOM.createPortal(
+        <div className="task-modal-overlay" onClick={closeModal}>
+          <div className="task-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Edit Task</h3>
+            <label htmlFor="edit-desc">
+              <strong>Description:</strong>
+            </label>
+            <input
+              id="edit-desc"
+              type="text"
+              value={editBuffer.description}
+              onChange={(e) => setEditBuffer((prev) => ({ ...prev, description: e.target.value }))}
+              required
+            />
+            <label htmlFor="edit-time">
+              <strong>Time Estimation (h):</strong>
+            </label>
+            <input
+              id="edit-time"
+              type="number"
+              min="0"
+              value={editBuffer.timeEstimation}
+              onChange={(e) =>
+                setEditBuffer((prev) => ({
+                  ...prev,
+                  timeEstimation: Number(e.target.value),
+                }))
+              }
+              required
+            />
+            <div style={{ marginTop: '20px' }}>
+              <button
+                onClick={async () => {
+                  await handleUpdateTask(selectedTask._id, {
+                    description: editBuffer.description,
+                    timeEstimation: editBuffer.timeEstimation,
+                  });
+                  setSelectedTask((prev) => ({
+                    ...prev,
+                    description: editBuffer.description,
+                    timeEstimation: editBuffer.timeEstimation,
+                  }));
+                  setIsEditingTask(false);
+                }}
+              >
+                Save
+              </button>
+              <button onClick={() => setIsEditingTask(false)} style={{ marginLeft: '10px' }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      );
+    }
+
+    // ───── Normal view: full details ─────
     return ReactDOM.createPortal(
       <div className="task-modal-overlay" onClick={closeModal}>
         <div className="task-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -135,35 +191,41 @@ export const TaskList = ({
           <p>
             <strong>Time Estimation:</strong> {selectedTask.timeEstimation}h
           </p>
-
           <label htmlFor="status-select">
             <strong>Status:</strong>
           </label>
-          <select id="status-select" value={selectedTask.status} onChange={handleStatusChange}>
+          <select id="status-select" value={selectedTask.status} onChange={changeStatus}>
             <option value="TODO">To Do</option>
             <option value="IN_PROGRESS">In Progress</option>
             <option value="DONE">Done</option>
           </select>
-
-          {/* Assign to me button */}
           {!selectedTask.assignedUser && (
-            <button
-              style={{ marginTop: '20px', marginRight: '10px' }}
-              onClick={handleAssignTaskToMe}
-            >
-              Assign to Me
-            </button>
+            <button onClick={handleAssignTaskToMe}>Assign to Me</button>
           )}
-
-          {/* Reject button (only if I'm the assigned user) */}
           {(selectedTask.assignedUser?.id === currentUser.id ||
             selectedTask.assignedUser?._id === currentUser.id) && (
-            <button style={{ marginTop: '20px', marginRight: '10px' }} onClick={handleRejectTask}>
-              Reject Task
-            </button>
+            <button onClick={handleRejectTask}>Reject Task</button>
           )}
-
-          <button style={{ marginTop: '20px' }} onClick={closeModal}>
+          <button
+            style={{ marginLeft: '10px' }}
+            onClick={() => {
+              setEditBuffer({
+                description: selectedTask.description,
+                timeEstimation: selectedTask.timeEstimation,
+              });
+              setIsEditingTask(true);
+            }}
+          >
+            Edit Task
+          </button>
+          <button
+            style={{ marginLeft: '10px' }}
+            disabled={Boolean(selectedTask.assignedUser)}
+            onClick={() => handleDeleteTask(selectedTask._id)}
+          >
+            Delete Task
+          </button>
+          <button style={{ marginLeft: '10px' }} onClick={closeModal}>
             Close
           </button>
         </div>
@@ -172,9 +234,10 @@ export const TaskList = ({
     );
   };
 
-  // --------------------------------------------------------------------------
-  // Main render
-  // --------------------------------------------------------------------------
+  /* ───────── early loading state ───────── */
+  if (loading) return <div className="tasks-loading">Loading tasks...</div>;
+
+  /* ───────── main render ───────── */
   return (
     <div className="tasks-container" onClick={(e) => e.stopPropagation()}>
       <h4>Tasks</h4>
@@ -225,7 +288,6 @@ export const TaskList = ({
         </button>
       )}
 
-      {/* Add-Task Modal */}
       {isAddingTask &&
         ReactDOM.createPortal(
           <div className="task-modal-overlay" onClick={() => setIsAddingTask(false)}>
