@@ -199,7 +199,7 @@ userStoriesRouter.patch(
 
 //Product owner can check user stories as done - realised and accepted
 userStoriesRouter.patch(
-  '/:projectId/:userStoryId/accept',
+  '/accept/:projectId/:userStoryId',
   errorHandlerWrapped(async (req, res) => {
     const { projectId, userStoryId } = req.params;
 
@@ -230,7 +230,7 @@ userStoriesRouter.patch(
 
 //Product owner can check user stories as done -  denied
 userStoriesRouter.patch(
-  '/:projectId/:userStoryId/deny',
+  '/deny/:projectId/:userStoryId',
   projectRolesRequired(CAN_ACCEPT_STORIES), 
   errorHandlerWrapped(async (req, res) => {
     const { projectId, userStoryId } = req.params;

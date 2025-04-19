@@ -89,8 +89,8 @@ export const Storyboard = ({
   const handleAcceptStory = async (projectId, storyId) => {
     try {
       console.log(storyId);
-      await backendApi.post(`/userStories/${storyId}/accept`);
-      window.location.reload();
+      await backendApi.patch(`/userStories/accept/${projectId}/${storyId}`);
+      //TODO: ADD RELOAD
     } catch (error) {
       console.error('Accept failed', error);
     }
@@ -99,8 +99,8 @@ export const Storyboard = ({
   const handleDenyStory = async (projectId, storyId) => {
     const comment = prompt('Why are you denying this story?');
     try {
-      await backendApi.post(`/userStories/${storyId}/deny`, { comment });
-      window.location.reload();
+      await backendApi.patch(`/userStories/deny/${projectId}/${storyId}`, { comment });
+      //TODO: ADD RELOAD
     } catch (error) {
       console.error('Deny failed', error);
     }
