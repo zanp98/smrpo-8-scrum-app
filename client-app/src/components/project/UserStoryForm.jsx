@@ -106,7 +106,6 @@ export const UserStoryForm = ({ onSubmit, initialData, onClose, currentUserProje
             name="title"
             value={formData.title}
             onChange={handleChange}
-            disabled={!!initialData}
             required
           />
         </div>

@@ -150,6 +150,23 @@ userStoriesRouter.patch(
     if (!nonUndefinedFields) {
       throw new ValidationError('No update fields provided');
     }
+
+    const currentStory = await UserStory.findById(userStoryId);
+    if (!currentStory) {
+      throw new NotFoundError('User story not found');
+    }
+    
+    if (title && title.toLowerCase() !== currentStory.title.toLowerCase()) {
+      const existingStory = await UserStory.findOne({
+        _id: { $ne: userStoryId },
+        title: { $regex: getCaseInsensitiveRegex(title) },
+      });
+
+      if (existingStory) {
+        throw new ValidationError('Another user story with the same title already exists');
+      }
+    }
+
     const userStory = await UserStory.updateOne({ _id: userStoryId }, nonUndefinedFields);
     return res.status(201).json(userStory);
   }),
