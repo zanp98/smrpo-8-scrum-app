@@ -111,6 +111,7 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
           setShowEditUserStory(true);
         }}
         currentUserRole={currentUserRole}
+        reloadUserStories={() => setCounter((c) => c + 1)} 
       />
     </div>
   );

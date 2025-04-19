@@ -264,6 +264,7 @@ export const Projects = ({
             }}
             columnConfiguration={projectColumnConfiguration}
             currentUserRole={currentUserRole}
+            reloadUserStories={fetchUserStories}
           />
 
           <div className="project-wall-section">

@@ -62,6 +62,16 @@
   transition: color 0.2s ease-in-out;
 }
 
+.delete-user-story-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--blue-general-color);
+  padding: 4px;
+  transition: color 0.2s ease-in-out;
+}
+
 .edit-user-story-btn:hover {
   color: #0056b3;
 }

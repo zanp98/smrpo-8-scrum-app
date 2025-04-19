@@ -44,6 +44,7 @@ export const Storyboard = ({
   currentSprint,
   columnConfiguration = defaultColumnConfiguration,
   currentUserRole,
+  reloadUserStories,
 }) => {
   const [selectedUserStory, setSelectedUserStory] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -90,7 +91,7 @@ export const Storyboard = ({
     try {
       console.log(storyId);
       await backendApi.patch(`/userStories/accept/${projectId}/${storyId}`);
-      //TODO: ADD RELOAD
+      reloadUserStories?.()
     } catch (error) {
       console.error('Accept failed', error);
     }
@@ -100,15 +101,30 @@ export const Storyboard = ({
     const comment = prompt('Why are you denying this story?');
     try {
       await backendApi.patch(`/userStories/deny/${projectId}/${storyId}`, { comment });
-      //TODO: ADD RELOAD
+      reloadUserStories?.()
     } catch (error) {
       console.error('Deny failed', error);
     }
   };
 
+  const handleDeleteStory = async(projectId, storyId) => {
+    try {
+      await backendApi.delete(`/userStories/${projectId}/${storyId}`);
+      reloadUserStories?.()
+    } catch (error) {
+      console.error('Delete failed', error);
+    }
+
+  }
+
   const renderUserStoryCard = (userStory) => {
     const priorityClass = `priority-${userStory.priority}`;
     const typeIcon = getTypeIcon(userStory.type);
+
+    const canEditAndDeleteUserStory = 
+    (currentUserRole === ProjectRole.PRODUCT_OWNER || currentUserRole === ProjectRole.SCRUM_MASTER) &&
+    !userStory.sprint && 
+    userStory.status !== UserStoryStatus.DONE;
 
     const showStoryPoints = canSeeBusinessValues && userStory.points > 0;
     return (
@@ -120,7 +136,9 @@ export const Storyboard = ({
         <div className="user-story-header">
           <span className="user-story-type">{typeIcon}</span>
           <div className="user-story-actions">
-            <button
+            {canEditAndDeleteUserStory && ( 
+              <div className="user-story-actions">
+              <button
               className="edit-user-story-btn"
               onClick={(event) => {
                 event.stopPropagation();
@@ -129,6 +147,18 @@ export const Storyboard = ({
             >
               ✏️
             </button>
+            <button
+              className="delete-user-story-btn"
+              onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteStory(project._id, userStory._id);
+              }}
+            >
+              🗑️
+            </button>
+            </div>
+          )}
+
             <button
               className="edit-user-story-btn"
               onClick={() => {
