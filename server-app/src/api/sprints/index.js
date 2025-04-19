@@ -15,7 +15,7 @@ import {
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
 import { UserStory } from '../../db/UserStory.js';
-import { isHoliday, isWeekend } from '../../utils/date-util.js';
+import { isDateChanged, isHoliday, isWeekend } from '../../utils/date-util.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 export const sprintsRouter = express.Router();
@@ -208,11 +208,17 @@ sprintsRouter.put(
       }
 
       // Validate dates
-      if (startDate && new Date(startDate) < new Date()) {
-        return res.status(400).json({ message: 'Sprint start date cannot be in the past' });
+      const isStartDateChanged = isDateChanged(startDate, sprint.startDate);
+      if (isStartDateChanged) {
+        if (startDate && new Date(startDate) < new Date()) {
+          return res.status(400).json({ message: 'Sprint start date cannot be in the past' });
+        }
       }
-      if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
-        return res.status(400).json({ message: 'Sprint end date must be after start date' });
+      const isEndDateChanged = isDateChanged(endDate, sprint.endDate);
+      if (isStartDateChanged || isEndDateChanged) {
+        if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+          return res.status(400).json({ message: 'Sprint end date must be after start date' });
+        }
       }
 
       // Validate velocity
@@ -221,13 +227,13 @@ sprintsRouter.put(
       }
 
       // Update sprint
-      sprint = await Sprint.findByIdAndUpdate(
+      const updatedSprint = await Sprint.findByIdAndUpdate(
         sprintId,
         { name, startDate, endDate, expectedVelocity, goal, status },
         { new: true }, // Return updated document
       );
 
-      res.status(200).json(sprint);
+      res.status(200).json(updatedSprint);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });

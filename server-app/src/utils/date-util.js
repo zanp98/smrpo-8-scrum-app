@@ -13,3 +13,9 @@ export const isWeekend = (date) => {
 export const isHoliday = (date) => {
   return hd.isHoliday(new Date(date));
 };
+
+export const isDateChanged = (date, other) => {
+  const d1 = new Date(date);
+  const d2 = new Date(other);
+  return d1.getTime() !== d2.getTime();
+};

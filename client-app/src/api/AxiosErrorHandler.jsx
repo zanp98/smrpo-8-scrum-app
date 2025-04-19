@@ -8,7 +8,7 @@ export const AxiosErrorHandler = ({ children }) => {
   const { logout } = useContext(AuthContext);
 
   useEffect(() => {
-    axios.interceptors.response.use(
+    const axiosInterceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
         if (error.response?.status === 401) {
@@ -16,7 +16,7 @@ export const AxiosErrorHandler = ({ children }) => {
         }
       },
     );
-    backendApi.interceptors.response.use(
+    const backendApiInterceptor = backendApi.interceptors.response.use(
       (response) => {
         if (response.status >= 200 && response.status < 300 && response.data?.message) {
           // This is a success message, we should pop a toast to the user
@@ -38,6 +38,10 @@ export const AxiosErrorHandler = ({ children }) => {
         return Promise.reject(error);
       },
     );
+    return () => {
+      axios.interceptors.response.eject(axiosInterceptor);
+      backendApi.interceptors.response.eject(backendApiInterceptor);
+    };
   }, [logout]);
 
   return children;

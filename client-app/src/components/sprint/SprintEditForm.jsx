@@ -1,46 +1,49 @@
-import { useEffect, useState, useCallback } from "react"
-import "../../styles/forms.css"
-import { getProjectSprints, updateCurrentSprint} from '../../api/backend';
-import { SprintStatus } from "./SprintForm" // Import SprintStatus from SprintForm
+import { useEffect, useState, useCallback } from 'react';
+import '../../styles/forms.css';
+import { getProjectSprints, updateCurrentSprint } from '../../api/backend';
+import { SprintStatus } from './SprintForm'; // Import SprintStatus from SprintForm
 
 export const SprintEditForm = ({ onClose, sprintId, activeProjectId }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    project: "",
-    startDate: "",
-    endDate: "",
+    name: '',
+    project: '',
+    startDate: '',
+    endDate: '',
     expectedVelocity: 1,
-    goal: "",
+    goal: '',
     status: SprintStatus.PLANNING,
-  })
+  });
 
-  const [sprints, setSprints] = useState([])
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [sprints, setSprints] = useState([]);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSprintSelect = useCallback(async (sprintId) => {
-    const selectedSprint = sprints.find((sprint) => sprint._id === sprintId);
-    if (selectedSprint) {
-      try {
-        const tempStartDate = new Date(selectedSprint.startDate).toISOString().split('T')[0];
-        const tempEndDate = new Date(selectedSprint.endDate).toISOString().split('T')[0];
-        
-        setFormData({
-          name: selectedSprint.name,
-          project: selectedSprint.project,
-          startDate: tempStartDate,
-          endDate: tempEndDate,
-          expectedVelocity: selectedSprint.expectedVelocity,
-          goal: selectedSprint.goal,
-          status: selectedSprint.status,
-        });
-      } catch (err) {
-        console.error('Failed to fetch project users:', err);
-        setError('Failed to load project users.');
+  const handleSprintSelect = useCallback(
+    async (sprintId) => {
+      const selectedSprint = sprints.find((sprint) => sprint._id === sprintId);
+      if (selectedSprint) {
+        try {
+          const tempStartDate = new Date(selectedSprint.startDate).toISOString().split('T')[0];
+          const tempEndDate = new Date(selectedSprint.endDate).toISOString().split('T')[0];
+
+          setFormData({
+            name: selectedSprint.name,
+            project: selectedSprint.project,
+            startDate: tempStartDate,
+            endDate: tempEndDate,
+            expectedVelocity: selectedSprint.expectedVelocity,
+            goal: selectedSprint.goal,
+            status: selectedSprint.status,
+          });
+        } catch (err) {
+          console.error('Failed to fetch project users:', err);
+          setError('Failed to load project users.');
+        }
       }
-    }
-  }, [sprints]);
+    },
+    [sprints],
+  );
 
   // 1. Fetch all sprints
   useEffect(() => {
@@ -48,10 +51,10 @@ export const SprintEditForm = ({ onClose, sprintId, activeProjectId }) => {
       try {
         const sprints = await getProjectSprints(activeProjectId);
         setSprints(sprints);
-        setLoading(false);
       } catch (err) {
         console.error('Failed to load sprints:', err);
         setError('Failed to load sprints.');
+      } finally {
         setLoading(false);
       }
     };
@@ -73,33 +76,33 @@ export const SprintEditForm = ({ onClose, sprintId, activeProjectId }) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e) => {
     try {
-      e.preventDefault()
-      setError(null)
-      setSuccess(null)
-      setLoading(true)
+      e.preventDefault();
+      setError(null);
+      setSuccess(null);
+      setLoading(true);
 
       if (!formData.name) {
-        setError("Sprint name is required.");
+        setError('Sprint name is required.');
         setLoading(false);
         return;
       }
       if (!formData.startDate) {
-        setError("Start date is required.");
+        setError('Start date is required.');
         setLoading(false);
         return;
       }
       if (!formData.endDate) {
-        setError("End date is required.");
+        setError('End date is required.');
         setLoading(false);
         return;
       }
       if (!formData.expectedVelocity) {
-        setError("Expected velocity is required.");
+        setError('Expected velocity is required.');
         setLoading(false);
         return;
       }
@@ -108,12 +111,12 @@ export const SprintEditForm = ({ onClose, sprintId, activeProjectId }) => {
       console.log('Sprint updated successfully:', result);
       onClose();
     } catch (err) {
-        console.error('Sprint update failed:', err);
-        setError('Failed to update sprint.');
+      console.error('Sprint update failed:', err);
+      setError('Failed to update sprint.');
+    } finally {
+      setLoading(false);
     }
   };
-    
-  
 
   return (
     <div className="general-form-container">
@@ -124,10 +127,17 @@ export const SprintEditForm = ({ onClose, sprintId, activeProjectId }) => {
 
       <form onSubmit={handleSubmit} className="general-form">
         <input type="hidden" name="project" value={formData.project} />
-        
+
         <div className="form-group">
           <label htmlFor="name">Sprint Name</label>
-          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
@@ -144,7 +154,14 @@ export const SprintEditForm = ({ onClose, sprintId, activeProjectId }) => {
 
         <div className="form-group">
           <label htmlFor="endDate">End Date</label>
-          <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} required />
+          <input
+            type="date"
+            id="endDate"
+            name="endDate"
+            value={formData.endDate}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
@@ -175,9 +192,9 @@ export const SprintEditForm = ({ onClose, sprintId, activeProjectId }) => {
         </div>
 
         <button type="submit" className="submit-btn" disabled={loading}>
-          {loading ? "Updating..." : "Update Sprint"}
+          {loading ? 'Updating...' : 'Update Sprint'}
         </button>
       </form>
     </div>
-  )
-}
+  );
+};
