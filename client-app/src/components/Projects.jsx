@@ -285,13 +285,14 @@ export const Projects = ({
                     posts.map((post) => {
                       const isAuthor = post.author?._id === currentUser.id;
                       const role = post.postRole;
-
+                      const isAuthorOrScrumMaster = post.author?._id === currentUser.id || currentUserRole == "scrum_master"
+                      
                       let postClass = 'post-item';
                       if (role === 'product_owner') postClass += ' post-item-po';
                       else if (role === 'scrum_master') postClass += ' post-item-sm';
 
                       return (
-                        <div key={post._id} className={postClass}>
+                        <div key={post._id} className={`post-container ${postClass}`}>
                           <div className="post-header">
                             <strong>
                               {post.author?.email || 'Unknown Author'} (
@@ -303,24 +304,31 @@ export const Projects = ({
                             </span>
                           </div>
                           <p className="post-content">{post.content}</p>
+                          <div className='post-actions-row'>
                           {isAuthor && (
-                            <div className="post-actions">
+                            <div>
                               <button
-                                className="btn-general"
+                                className="btn-post-actions"
                                 style={{ width: '3vw' }}
                                 onClick={() => handleEditPost(post)}
                               >
                                 ✏️
                               </button>
+                            </div>
+                          )}
+
+                        {isAuthorOrScrumMaster && (
+                            <div>
                               <button
-                                className="btn-general"
+                                className="btn-post-actions"
                                 style={{ width: '3vw' }}
                                 onClick={() => handleDeletePost(post._id)}
                               >
                                 🗑️
                               </button>
                             </div>
-                          )}
+                          )} 
+                          </div> 
                         </div>
                       );
                     })
@@ -332,19 +340,20 @@ export const Projects = ({
                 <h3>Add a post</h3>
                 <form className="post-form" onSubmit={handleCreatePost}>
                   <textarea
+                    className="post-textarea"
                     rows={10}
-                    cols={60}
+                    cols={80}
                     value={newPostContent}
                     onChange={(e) => setNewPostContent(e.target.value)}
-                    placeholder="......"
+                    placeholder="What is on your mind?"
                   />
-                  <button type="submit" style={{ width: '30vw' }}>
+                  <button type="submit" style={{ width: '20vw' }}>
                     {editingPost ? 'Update Post' : 'Add Post'}
                   </button>
                   {editingPost && (
                     <button
                       type="button"
-                      style={{ width: '30vw' }}
+                      style={{ width: '20vw' }}
                       onClick={() => {
                         setEditingPost(null);
                         setNewPostContent('');

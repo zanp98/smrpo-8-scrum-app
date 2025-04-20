@@ -241,7 +241,7 @@ export const Storyboard = ({
       case 'epic':
         return '🏆';
       default:
-        return '📋';
+        return '🧩';
     }
   };
 

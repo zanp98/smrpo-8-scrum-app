@@ -290,28 +290,49 @@ h3 {
   gap: 1rem; 
   justify-content: center;
   align-items: center;
-}
-
-.post-actions {
-  gap: 1vw; 
-  justify-content:space-between;
-  align-items: center;
-  flex-direction: row;
-
+  padding: 10px;
 }
 
 .post-item-sm {
   border: 3px solid #ff9900;
+  background-color: #ffcc7f;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #f9f9f9;
+
 }
 
 .post-item-po {
   border: 3px solid #ffff00;
+  background-color: #ffffabfc;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #f9f9f9;
+
+}
+
+.post-actions-row {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.post-container {
+  position: relative;
+  padding-bottom: 3rem; /* space for buttons */
+}
+
+.btn-post-actions {
+  border: #555 3px;
+  background: #e1e1e1;
+}
+
+.post-textarea {
+  padding: 1rem;
+  font-size: 1.1rem;
+  border-radius: 8px; /* optional for softer look */
+  border: 1px solid #ccc; /* optional for a cleaner border */
+  resize: vertical; /* allows user to resize only vertically */
 }
