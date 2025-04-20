@@ -167,7 +167,7 @@ export const TaskList = ({
               >
                 Save
               </button>
-              <button onClick={() => setIsEditingTask(false)} style={{ marginLeft: '10px' }}>
+              <button style={{ marginTop: '10px' }} onClick={() => setIsEditingTask(false)}>
                 Cancel
               </button>
             </div>
@@ -194,20 +194,37 @@ export const TaskList = ({
           <label htmlFor="status-select">
             <strong>Status:</strong>
           </label>
-          <select id="status-select" value={selectedTask.status} onChange={changeStatus}>
+          <select
+            id="status-select"
+            value={selectedTask.status}
+            onChange={changeStatus}
+            disabled={
+              !selectedTask.assignedUser ||
+              ![selectedTask.assignedUser.id, selectedTask.assignedUser._id].includes(
+                currentUser.id,
+              )
+            }
+          >
             <option value="TODO">To Do</option>
             <option value="IN_PROGRESS">In Progress</option>
             <option value="DONE">Done</option>
           </select>
           {!selectedTask.assignedUser && (
-            <button onClick={handleAssignTaskToMe}>Assign to Me</button>
+            <button
+              style={{ marginTop: '10px', marginRight: '10px' }}
+              onClick={handleAssignTaskToMe}
+            >
+              Assign to Me
+            </button>
           )}
           {(selectedTask.assignedUser?.id === currentUser.id ||
             selectedTask.assignedUser?._id === currentUser.id) && (
-            <button onClick={handleRejectTask}>Reject Task</button>
+            <button style={{ marginTop: '10px', marginRight: '10px' }} onClick={handleRejectTask}>
+              Reject Task
+            </button>
           )}
           <button
-            style={{ marginLeft: '10px' }}
+            style={{ marginTop: '10px', marginRight: '10px' }}
             onClick={() => {
               setEditBuffer({
                 description: selectedTask.description,
@@ -219,13 +236,14 @@ export const TaskList = ({
             Edit Task
           </button>
           <button
-            style={{ marginLeft: '10px' }}
+            style={{ marginTop: '10px', marginRight: '10px' }}
+            className={`delete-task-button ${Boolean(selectedTask.assignedUser) ? 'disabled' : ''}`}
             disabled={Boolean(selectedTask.assignedUser)}
             onClick={() => handleDeleteTask(selectedTask._id)}
           >
             Delete Task
           </button>
-          <button style={{ marginLeft: '10px' }} onClick={closeModal}>
+          <button style={{ marginTop: '10px', marginRight: '10px' }} onClick={closeModal}>
             Close
           </button>
         </div>
