@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 
+const commentSchema = new mongoose.Schema({
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const PostSchema = new mongoose.Schema(
   {
     content: {
@@ -17,6 +23,7 @@ const PostSchema = new mongoose.Schema(
       ref: 'Project',
       required: true,
     },
+    comments: [commentSchema]
   },
   {
     timestamps: true, 

@@ -67,6 +67,7 @@ export const Projects = ({
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState('');
   const [editingPost, setEditingPost] = useState(null);
+  const [newComments, setNewComments] = useState({});
 
   const currentUserRole = useMemo(() => {
     const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
@@ -170,6 +171,33 @@ export const Projects = ({
       console.error('Failed to delete post:', error);
     }
   };
+
+  const handleCommentInput = (postId, value) => {
+    setNewComments((prev) => ({
+      ...prev,
+      [postId]: value,
+    }));
+  };
+  
+  const submitComment = async (postId) => {
+    const commentText = newComments[postId];
+  
+    if (!commentText?.trim()) return; // Skip empty comments
+  
+    try {
+        await backendApi.post(`/posts/comments/${postId}`, {
+          content: commentText,
+        });
+
+      setNewPostContent('');
+      setEditingPost(null);
+      fetchPosts();
+    } catch (error) {
+      console.error('Failed to submit post:', error);
+    }
+  };
+
+
 
   return (
     <main className="main-content">
@@ -286,49 +314,65 @@ export const Projects = ({
                       const isAuthor = post.author?._id === currentUser.id;
                       const role = post.postRole;
                       const isAuthorOrScrumMaster = post.author?._id === currentUser.id || currentUserRole == "scrum_master"
-                      
+
                       let postClass = 'post-item';
                       if (role === 'product_owner') postClass += ' post-item-po';
                       else if (role === 'scrum_master') postClass += ' post-item-sm';
 
                       return (
-                        <div key={post._id} className={`post-container ${postClass}`}>
-                          <div className="post-header">
-                            <strong>
-                              {post.author?.email || 'Unknown Author'} (
-                              {post.postRole || 'Unknown role'})
-                            </strong>
-                            <span className="post-date">
-                              {' '}
-                              {new Date(post.createdAt).toLocaleString()}
-                            </span>
-                          </div>
-                          <p className="post-content">{post.content}</p>
-                          <div className='post-actions-row'>
-                          {isAuthor && (
-                            <div>
-                              <button
-                                className="btn-post-actions"
-                                style={{ width: '3vw' }}
-                                onClick={() => handleEditPost(post)}
-                              >
-                                ✏️
-                              </button>
+                        <div>
+                          <div key={post._id} className={`post-container`}>
+                            <div className={`post-new ${postClass}`}>
+                              <div className="post-header">
+                                <strong>
+                                  {post.author?.email || 'Unknown Author'} ({post.postRole || 'Unknown role'})
+                                </strong>
+                                <span>{new Date(post.createdAt).toLocaleString()}</span>
+                              </div>
+                              <p className="post-content">{post.content}</p>
+                              <div className="post-actions-row">
+                                {isAuthor && (
+                                  
+                                    <button className="btn-post-actions" onClick={() => handleEditPost(post)}>✏️</button>
+                                )}
+                                {isAuthorOrScrumMaster && (                             
+                                    <button className="btn-post-actions" onClick={() => handleDeletePost(post._id)}>🗑️</button>                                
+                                )}
+                              </div>
                             </div>
-                          )}
 
-                        {isAuthorOrScrumMaster && (
                             <div>
-                              <button
-                                className="btn-post-actions"
-                                style={{ width: '3vw' }}
-                                onClick={() => handleDeletePost(post._id)}
-                              >
-                                🗑️
-                              </button>
+                              <div>
+                                {post.comments && post.comments.length > 0 ? (
+                                  post.comments.map((comment, i) => (
+                                    <div key={i} className="comment">
+                                      <div><strong>{comment.author?.email || 'Anonymous'}:</strong> {comment.content} </div>
+
+                                       {new Date(comment.createdAt).toLocaleString()}
+                                    </div>
+                                  ))
+                                ) : (
+                                  <div className="no-comments">No comments yet.</div>
+                                )}
+                                <div className="comment-input-area">
+                                  <textarea
+                                    className="comment-textarea"
+                                    placeholder="Write a comment..."
+                                    rows={3}
+                                    cols={60}
+                                    onChange={(e) => handleCommentInput(post._id, e.target.value)}
+                                  />
+                                  <div>
+                                  <button className="btn-general" style={{ width: '20vw' }} onClick={() => submitComment(post._id) }>
+                                    Post Comment
+                                  </button>
+                                  </div>                                  
+                                </div>
+                              </div>
                             </div>
-                          )} 
-                          </div> 
+                          </div>
+                          <div>
+                          </div>
                         </div>
                       );
                     })

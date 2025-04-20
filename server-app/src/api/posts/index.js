@@ -32,6 +32,7 @@ postsRouter.get(
 
     const posts = await Post.find({ project: projectId })
       .populate('author', '_id name email')
+      .populate('comments.author', 'email')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -103,3 +104,24 @@ postsRouter.patch(
     return res.status(200).json(post);
   }),
 );
+
+//add a comment to a post
+postsRouter.post('/comments/:postId', async (req, res) => {
+  const { postId } = req.params;
+  const { content } = req.body;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+
+    const author = req.user.id;
+
+    post.comments.push({ content, author});
+    await post.save();
+
+    res.status(201).json(post);
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ error: 'Failed to add comment' });
+  }
+});
