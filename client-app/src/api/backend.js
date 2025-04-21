@@ -159,6 +159,16 @@ export const stopTimer = async (taskId, description) => {
   }
 };
 
+export const getTimeLogEntries = async (projectId) => {
+  try {
+    const response = await backendApi.post(`/time-log/list/${projectId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch all users:', error);
+    throw error;
+  }
+};
+
 export const updateCurrentSprint = async (sprintId, updatedSprintData) => {
   try {
     // Sending GET request to the backend route that returns all users

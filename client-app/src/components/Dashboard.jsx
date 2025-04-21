@@ -12,6 +12,7 @@ import { ProjectForm } from './project/ProjectForm';
 import UserSettings from './user/UserSettings';
 import LogoSvg from './assets/Logo-White.svg';
 import { minBy } from 'lodash';
+import { TimeLogTable } from './timelog/TimeLogTable';
 
 const Dashboard = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -126,6 +127,11 @@ const Dashboard = () => {
             <h3>
               <Link to="/projects">Create a Project</Link> {/* Added Sprint Management link */}
             </h3>
+          </div>{' '}
+          <div>
+            <h3>
+              <Link to="/timelogs">Time Logs</Link> {/* Added Sprint Management link */}
+            </h3>
           </div>
           <div className="projects-list">
             <h3>Projects</h3>
@@ -207,6 +213,7 @@ const Dashboard = () => {
             path="/projects"
             element={<ProjectForm onProjectCreate={() => handleProjectCreate()} />}
           />
+          <Route path="/timelogs" element={<TimeLogTable />} />
           {/* Added route for SprintForm */}
           <Route
             path="/project/:projectId/sprint/:sprintId"

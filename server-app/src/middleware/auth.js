@@ -138,6 +138,7 @@ export const projectRolesRequired = (...roles) => {
           return res.status(403).json({ message: 'Unauthorized operation for project' });
         }
       }
+      req.projectRole = assignedRole;
       next();
     } catch (err) {
       console.error(err);
