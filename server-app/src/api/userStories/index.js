@@ -13,6 +13,7 @@ import {
 import { ValidationError } from '../../middleware/errors.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 import { Sprint } from '../../db/Sprint.js';
+import { TimeLog } from '../../db/TimeLog.js';
 
 export const userStoriesRouter = express.Router();
 
@@ -23,6 +24,7 @@ userStoriesRouter.get(
   errorHandlerWrapped(async (req, res) => {
     try {
       const { projectId, sprintId } = req.params;
+      const userId = req.user.id;
       // If there is sprintId we should fetch as usual:
       if (!!sprintId) {
         const userStories = await UserStory.find({
@@ -31,8 +33,21 @@ userStoriesRouter.get(
         })
           .populate('assignee', 'username firstName lastName')
           .populate('sprint')
+          .populate({ path: 'tasks', populate: { path: 'timeLogEntries' } })
           .lean();
-
+        const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
+          'task',
+          '_id',
+        );
+        if (activeTask) {
+          userStories.forEach((us) =>
+            us.tasks?.forEach((task) => {
+              if (task._id.toString() === activeTask.task._id.toString()) {
+                task.isActive = true;
+              }
+            }),
+          );
+        }
         return res.json(userStories);
       }
       // If there is no sprint id we need to fetch all stories and group
@@ -48,7 +63,21 @@ userStoriesRouter.get(
         })
           .populate('assignee', 'username firstName lastName')
           .populate('sprint')
+          .populate({ path: 'tasks', populate: { path: 'timeLogEntries' } })
           .lean();
+        const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
+          'task',
+          '_id',
+        );
+        if (activeTask) {
+          userStories.forEach((us) =>
+            us.tasks?.forEach((task) => {
+              if (task._id.toString() === activeTask.task._id.toString()) {
+                task.isActive = true;
+              }
+            }),
+          );
+        }
         return res.json(userStories);
       }
       const userStories = await UserStory.find({
@@ -63,7 +92,22 @@ userStoriesRouter.get(
       })
         .populate('assignee', 'username firstName lastName')
         .populate('sprint')
+        .populate({ path: 'tasks', populate: { path: 'timeLogEntries' } })
         .lean();
+
+      const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
+        'task',
+        '_id',
+      );
+      if (activeTask) {
+        userStories.forEach((us) =>
+          us.tasks?.forEach((task) => {
+            if (task._id.toString() === activeTask.task._id.toString()) {
+              task.isActive = true;
+            }
+          }),
+        );
+      }
       res.json(userStories);
     } catch (error) {
       console.error(error);

@@ -37,6 +37,19 @@ const getStoryPredicates = (filters) => {
   return (userStory) => predicates.every((predicate) => predicate(userStory));
 };
 
+const calculateTotalHours = (tasks) =>
+  tasks.reduce((total, task) => total + task.timeEstimation, 0);
+
+const calculateTotalLoggedHours = (tasks) => {
+  const allTimeLogEntries = tasks.flatMap((task) => task.timeLogEntries ?? []);
+  if (!allTimeLogEntries.length) {
+    return 0;
+  }
+  return allTimeLogEntries.reduce((total, tle) => total + tle.time, 0);
+};
+
+const roundNumberToPointOne = (num) => (Math.ceil(num * 10) / 10).toFixed(1);
+
 export const Storyboard = ({
   project,
   userStories = [],
@@ -74,11 +87,8 @@ export const Storyboard = ({
     [currentUserRole],
   );
 
-  const calculateTotalHours = (tasks) =>
-    tasks.reduce((total, task) => total + task.timeEstimation, 0);
-
   useEffect(() => {
-    fetchTasks();
+    // fetchTasks();
   }, [isExpanded, selectedUserStory]);
 
   const handleCardClick = (userStory) => {
@@ -129,6 +139,16 @@ export const Storyboard = ({
       !userStory.sprint &&
       userStory.status !== UserStoryStatus.DONE;
 
+    const renderLoggedTime = () => {
+      const totalLoggedHours = roundNumberToPointOne(
+        Math.abs(calculateTotalLoggedHours(userStory.tasks) / 36e5),
+      );
+      if (totalLoggedHours < 0.1) {
+        return '';
+      }
+      return ` (${totalLoggedHours}h logged)`;
+    };
+
     const showStoryPoints = canSeeBusinessValues && userStory.points > 0;
     return (
       <div
@@ -177,9 +197,9 @@ export const Storyboard = ({
         </div>
         {isExpanded && selectedUserStory?._id === userStory._id && (
           <TaskList
-            tasks={tasks}
+            tasks={userStory.tasks}
             userStoryId={userStory._id}
-            onTasksUpdate={fetchTasks}
+            onTasksUpdate={reloadUserStories}
             userStorySprintId={userStory.sprint?._id}
             currentSprintId={currentSprint?._id}
             projectId={project._id}
@@ -198,7 +218,9 @@ export const Storyboard = ({
           >
             {showStoryPoints ? `${userStory.points} pts` : ''}
           </span>
-          <span className="user-story-hours">{calculateTotalHours(tasks)}h</span>
+          <span className="user-story-hours">
+            {calculateTotalHours(userStory.tasks)}h {renderLoggedTime(userStory.tasks)}
+          </span>
           {userStory.assignee && (
             <span className="user-story-assignee">
               {userStory.assignee.firstName} {userStory.assignee.lastName.charAt(0)}.

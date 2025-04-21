@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import { Task } from './Task.js';
+import uniq from 'lodash/uniq.js';
 
 const TimeLogEntrySchema = new mongoose.Schema({
   user: {
@@ -27,6 +29,17 @@ const TimeLogEntrySchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+});
+
+TimeLogEntrySchema.post('save', async function (doc, next) {
+  try {
+    const task = await Task.findOne({ _id: doc.task });
+    task.timeLogEntries = uniq([...(task.timeLogEntries ?? []), this._id]);
+    await task.save();
+    next();
+  } catch (e) {
+    console.error('Error assigning time log entry to task', e);
+  }
 });
 
 export const TimeLogEntry = mongoose.model('TimeLogEntry', TimeLogEntrySchema);
