@@ -1,6 +1,13 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useParams } from 'react-router';
-import { addStoriesToSprint, backendApi, getProjectUsers, getUserStories } from '../api/backend';
+import {
+  addStoriesToSprint,
+  backendApi,
+  getProjectUsers,
+  getUserStories,
+  getProjectDocumentation,
+  updateProjectDocumentation,
+} from '../api/backend';
 import { UserStoryForm, UserStoryPriority, UserStoryStatus } from './project/UserStoryForm';
 import { SprintForm } from './sprint/SprintForm';
 import { RolesEditForm } from './project/RolesEditForm';
@@ -102,8 +109,18 @@ export const Projects = ({
     setLoading(false);
   };
 
+  const fetchProjectDocumentation = async () => {
+    console.log('fetching project documentation');
+    if (!activeProject) return;
+    const { data } = await getProjectDocumentation(activeProject._id);
+    console.log(data);
+    setProjectDocumentation(data);
+  };
+
   const handleDocumentationSave = (content) => {
-    setProjectDocumentation(content);
+    updateProjectDocumentation(activeProject._id, content).then(() => {
+      setProjectDocumentation(content);
+    });
   };
 
   const fetchPosts = async () => {
@@ -139,6 +156,7 @@ export const Projects = ({
     fetchUserStories();
     fetchProjectUsers();
     fetchPosts();
+    fetchProjectDocumentation();
   }, [activeProject]);
 
   const handleCreateUserStory = async (userStoryData) => {
@@ -252,13 +270,6 @@ export const Projects = ({
               )}
             </div>
           )}
-          <button
-            className="btn-general"
-            style={{ width: '30vw' }}
-            onClick={() => setShowDocumentationModal(true)}
-          >
-            User Documentation
-          </button>
 
           {showCreateUserStory && (
             <UserStoryForm
@@ -298,6 +309,7 @@ export const Projects = ({
             onClose={() => setShowDocumentationModal(false)}
             documentation={projectDocumentation}
             onSave={handleDocumentationSave}
+            activeProject={activeProject}
           />
 
           <Storyboard
@@ -320,6 +332,14 @@ export const Projects = ({
               onClick={() => setShowProjectWall(!showProjectWall)}
             >
               🧱 Project Wall
+            </button>
+
+            <button
+              className="btn-general"
+              style={{ marginLeft: '20px', width: '30vw' }}
+              onClick={() => setShowDocumentationModal(true)}
+            >
+              📄 User Documentation
             </button>
 
             {showProjectWall && (

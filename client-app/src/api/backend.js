@@ -55,6 +55,14 @@ export const getProjectSprints = async (projectId) => {
   }
 };
 
+export const getProjectDocumentation = async (projectId) => {
+  try {
+    return await backendApi.get(`/projects/${projectId}/documentation`);
+  } catch (err) {
+    console.error('Failed to fetch project documentation', err);
+  }
+};
+
 export const addStoriesToSprint = async (userStories, sprintId, projectId) => {
   try {
     return await backendApi.post(`/sprints/assignToSprint/${projectId}`, {
@@ -153,5 +161,18 @@ export const updateCurrentSprint = async (sprintId, updatedSprintData) => {
   } catch (error) {
     console.error('Failed to update sprint:', error);
     throw error; // Optionally rethrow the error if you want it handled elsewhere
+  }
+};
+
+export const updateProjectDocumentation = async (projectId, documentation) => {
+  try {
+    const response = await backendApi.put(`/projects/${projectId}/documentation`, {
+      documentation,
+    });
+    console.log('updateProjectDocumentation call', response);
+    return response.data;
+  } catch (err) {
+    console.error('Failed to update project documentation', err);
+    throw err;
   }
 };

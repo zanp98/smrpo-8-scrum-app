@@ -1,14 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../../styles/project-documentation.css';
 import { pdfExporter } from 'quill-to-pdf';
 import { saveAs } from 'file-saver';
+import { updateProjectDocumentation } from '../../api/backend';
 
-const ProjectDocumentationModal = ({ isOpen, onClose, documentation, onSave }) => {
+const ProjectDocumentationModal = ({ isOpen, onClose, documentation, onSave, activeProject }) => {
   const [content, setContent] = useState(documentation || '');
   const [isEditing, setIsEditing] = useState(false);
   const quillRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setContent(documentation || '');
+      setIsEditing(false); // optional: reset editing state on open
+    }
+  }, [isOpen, documentation]);
 
   const handleImport = (event) => {
     const file = event.target.files[0];
@@ -18,6 +26,7 @@ const ProjectDocumentationModal = ({ isOpen, onClose, documentation, onSave }) =
         setContent(e.target.result);
       };
       reader.readAsText(file);
+      handleSave();
     } else {
       alert('Please select a .txt file.');
     }
@@ -43,7 +52,9 @@ const ProjectDocumentationModal = ({ isOpen, onClose, documentation, onSave }) =
   };
 
   const handleSave = () => {
-    onSave(content);
+    updateProjectDocumentation(activeProject._id, content).then(() => {
+      onSave(content);
+    });
     setIsEditing(false);
   };
 
@@ -56,7 +67,6 @@ const ProjectDocumentationModal = ({ isOpen, onClose, documentation, onSave }) =
           &times;
         </button>
         <h3 style={{ color: 'black' }}>Project Documentation</h3>
-
         <div className="button-container">
           <button
             style={{ marginRight: '10px' }}
@@ -86,7 +96,6 @@ const ProjectDocumentationModal = ({ isOpen, onClose, documentation, onSave }) =
             </button>
           )}
         </div>
-
         <ReactQuill
           ref={quillRef}
           theme="snow"

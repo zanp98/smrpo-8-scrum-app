@@ -10,6 +10,47 @@ import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
 
 export const projectsRouter = express.Router();
 
+// Get project documentation
+projectsRouter.get(
+  '/:projectId/documentation',
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const projectId = req.params.projectId;
+      const project = await Project.findById(projectId, 'documentation');
+      res.status(200).json(project.documentation);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }),
+);
+
+// Update project documentation
+projectsRouter.put(
+  '/:projectId/documentation',
+  errorHandlerWrapped(async (req, res) => {
+    try {
+      const projectId = req.params.projectId;
+      const { documentation } = req.body;
+
+      console.log('documentation', documentation);
+
+      const project = await Project.findById(projectId);
+      if (!project) {
+        return res.status(404).json({ message: 'Project not found' });
+      }
+
+      project.documentation = documentation;
+      await project.save();
+
+      res.status(200).json({ message: 'Project documentation updated', project });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }),
+);
+
 // Get all projects
 projectsRouter.get(
   '/',

@@ -14,6 +14,10 @@ const ProjectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  documentation: {
+    type: String,
+    default: '',
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
