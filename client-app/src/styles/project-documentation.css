@@ -1,0 +1,50 @@
+.project-doc-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.project-doc-modal-content {
+  position: relative;
+  width: 90vw;
+  height: 90vh;
+  background-color: white;
+  padding: 20px;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.ql-editor {
+  color: #222;
+  background-color: #fff;
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 15px;
+}
+
+.button-container {
+  display: flex; /* Aligns children (buttons) in a row */
+  justify-content: flex-start; /* Aligns children to the start of the row */
+  margin-bottom: 10px;
+}
+
+.close-button {
+  position: absolute;
+  width: 30px;
+  top: 10px; /* Adjusted for better positioning */
+  right: 10px; /* Align to the top-right corner */
+  font-size: 24px; /* Made the close button slightly larger */
+  color: white;
+  cursor: pointer;
+  border: none;
+  background: red;
+  padding: 2px; /* Added some padding */
+}
+

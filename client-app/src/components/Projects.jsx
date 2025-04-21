@@ -9,6 +9,7 @@ import '../styles/projects.css';
 import { AuthContext } from '../context/AuthContext';
 import { AddStoriesToSprint } from './shared/AddStoriesToSprint';
 import { ProjectRole } from './project/ProjectForm';
+import ProjectDocumentationModal from './project/ProjectDocumentationModal';
 
 const projectColumnConfiguration = [
   {
@@ -60,6 +61,7 @@ export const Projects = ({
   const [showCreateUserStory, setShowCreateUserStory] = useState(false);
   const [showAddStoriesToSprint, setShowAddStoriesToSprint] = useState(false);
   const [selectedUserStory, setSelectedUserStory] = useState(null);
+  const [showDocumentationModal, setShowDocumentationModal] = useState(false);
   const [showSprintForm, setShowSprintForm] = useState(false);
   const [showRolesEditForm, setShowRolesEditForm] = useState(false);
 
@@ -67,6 +69,7 @@ export const Projects = ({
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState('');
   const [editingPost, setEditingPost] = useState(null);
+  const [projectDocumentation, setProjectDocumentation] = useState('');
   const [newComments, setNewComments] = useState({});
 
   const currentUserRole = useMemo(() => {
@@ -97,6 +100,10 @@ export const Projects = ({
     const userStories = await getUserStories(activeProject._id);
     setUserStories(userStories);
     setLoading(false);
+  };
+
+  const handleDocumentationSave = (content) => {
+    setProjectDocumentation(content);
   };
 
   const fetchPosts = async () => {
@@ -178,16 +185,16 @@ export const Projects = ({
       [postId]: value,
     }));
   };
-  
+
   const submitComment = async (postId) => {
     const commentText = newComments[postId];
-  
+
     if (!commentText?.trim()) return; // Skip empty comments
-  
+
     try {
-        await backendApi.post(`/posts/comments/${postId}`, {
-          content: commentText,
-        });
+      await backendApi.post(`/posts/comments/${postId}`, {
+        content: commentText,
+      });
 
       setNewPostContent('');
       setEditingPost(null);
@@ -196,8 +203,6 @@ export const Projects = ({
       console.error('Failed to submit post:', error);
     }
   };
-
-
 
   return (
     <main className="main-content">
@@ -247,6 +252,13 @@ export const Projects = ({
               )}
             </div>
           )}
+          <button
+            className="btn-general"
+            style={{ width: '30vw' }}
+            onClick={() => setShowDocumentationModal(true)}
+          >
+            User Documentation
+          </button>
 
           {showCreateUserStory && (
             <UserStoryForm
@@ -281,6 +293,12 @@ export const Projects = ({
               onClose={() => setShowRolesEditForm(false)}
             />
           )}
+          <ProjectDocumentationModal
+            isOpen={showDocumentationModal}
+            onClose={() => setShowDocumentationModal(false)}
+            documentation={projectDocumentation}
+            onSave={handleDocumentationSave}
+          />
 
           <Storyboard
             project={activeProject}
@@ -313,7 +331,8 @@ export const Projects = ({
                     posts.map((post) => {
                       const isAuthor = post.author?._id === currentUser.id;
                       const role = post.postRole;
-                      const isAuthorOrScrumMaster = post.author?._id === currentUser.id || currentUserRole == "scrum_master"
+                      const isAuthorOrScrumMaster =
+                        post.author?._id === currentUser.id || currentUserRole == 'scrum_master';
 
                       let postClass = 'post-item';
                       if (role === 'product_owner') postClass += ' post-item-po';
@@ -325,18 +344,28 @@ export const Projects = ({
                             <div className={`post-new ${postClass}`}>
                               <div className="post-header">
                                 <strong>
-                                  {post.author?.email || 'Unknown Author'} ({post.postRole || 'Unknown role'})
+                                  {post.author?.email || 'Unknown Author'} (
+                                  {post.postRole || 'Unknown role'})
                                 </strong>
                                 <span>{new Date(post.createdAt).toLocaleString()}</span>
                               </div>
                               <p className="post-content">{post.content}</p>
                               <div className="post-actions-row">
                                 {isAuthor && (
-                                  
-                                    <button className="btn-post-actions" onClick={() => handleEditPost(post)}>✏️</button>
+                                  <button
+                                    className="btn-post-actions"
+                                    onClick={() => handleEditPost(post)}
+                                  >
+                                    ✏️
+                                  </button>
                                 )}
-                                {isAuthorOrScrumMaster && (                             
-                                    <button className="btn-post-actions" onClick={() => handleDeletePost(post._id)}>🗑️</button>                                
+                                {isAuthorOrScrumMaster && (
+                                  <button
+                                    className="btn-post-actions"
+                                    onClick={() => handleDeletePost(post._id)}
+                                  >
+                                    🗑️
+                                  </button>
                                 )}
                               </div>
                             </div>
@@ -346,9 +375,12 @@ export const Projects = ({
                                 {post.comments && post.comments.length > 0 ? (
                                   post.comments.map((comment, i) => (
                                     <div key={i} className="comment">
-                                      <div><strong>{comment.author?.email || 'Anonymous'}:</strong> {comment.content} </div>
+                                      <div>
+                                        <strong>{comment.author?.email || 'Anonymous'}:</strong>{' '}
+                                        {comment.content}
+                                      </div>
 
-                                       {new Date(comment.createdAt).toLocaleString()}
+                                      {new Date(comment.createdAt).toLocaleString()}
                                     </div>
                                   ))
                                 ) : (
@@ -363,16 +395,19 @@ export const Projects = ({
                                     onChange={(e) => handleCommentInput(post._id, e.target.value)}
                                   />
                                   <div>
-                                  <button className="btn-general" style={{ width: '20vw' }} onClick={() => submitComment(post._id) }>
-                                    Post Comment
-                                  </button>
-                                  </div>                                  
+                                    <button
+                                      className="btn-general"
+                                      style={{ width: '20vw' }}
+                                      onClick={() => submitComment(post._id)}
+                                    >
+                                      Post Comment
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                          <div>
-                          </div>
+                          <div></div>
                         </div>
                       );
                     })

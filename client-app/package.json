@@ -8,9 +8,13 @@
     "@testing-library/user-event": "^12.1.10",
     "axios": "^1.8.1",
     "check-password-strength": "^3.0.0",
+    "file-saver": "^2.0.5",
+    "jspdf": "^3.0.1",
     "lodash": "^4.17.21",
+    "quill-to-pdf": "^1.0.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-quill": "^2.0.0",
     "react-router": "^7.5.0",
     "react-scripts": "^5.0.1",
     "react-toastify": "^11.0.5"
