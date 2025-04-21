@@ -11,16 +11,9 @@ const TimeLogSchema = new mongoose.Schema({
     ref: 'Task',
     required: true,
   },
-  time: {
-    type: Number,
-    default: 0,
-    // required: [true, 'Time value is required'],
-    // validate: {
-    //   validator: function (v) {
-    //     return v >= 0;
-    //   },
-    //   message: (props) => `${props.value} is not a positive number!`,
-    // },
+  description: {
+    type: String,
+    default: '',
   },
   type: {
     type: String,

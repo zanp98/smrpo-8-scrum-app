@@ -48,6 +48,7 @@ export const Storyboard = ({
 }) => {
   const [selectedUserStory, setSelectedUserStory] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasActiveTask, setHasActiveTask] = useState(false);
   const [tasks, setTasks] = useState([]);
 
   const getStatusColumnUserStories = (filters) => {
@@ -59,7 +60,9 @@ export const Storyboard = ({
     if (!isExpanded) return;
     try {
       const response = await backendApi.get(`/tasks/${selectedUserStory._id}`);
-      setTasks(response.data);
+      const { hasActiveTask, tasks } = response.data;
+      setTasks(tasks);
+      setHasActiveTask(hasActiveTask);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
     } finally {
@@ -91,7 +94,7 @@ export const Storyboard = ({
     try {
       console.log(storyId);
       await backendApi.patch(`/userStories/accept/${projectId}/${storyId}`);
-      reloadUserStories?.()
+      reloadUserStories?.();
     } catch (error) {
       console.error('Accept failed', error);
     }
@@ -101,30 +104,30 @@ export const Storyboard = ({
     const comment = prompt('Why are you denying this story?');
     try {
       await backendApi.patch(`/userStories/deny/${projectId}/${storyId}`, { comment });
-      reloadUserStories?.()
+      reloadUserStories?.();
     } catch (error) {
       console.error('Deny failed', error);
     }
   };
 
-  const handleDeleteStory = async(projectId, storyId) => {
+  const handleDeleteStory = async (projectId, storyId) => {
     try {
       await backendApi.delete(`/userStories/${projectId}/${storyId}`);
-      reloadUserStories?.()
+      reloadUserStories?.();
     } catch (error) {
       console.error('Delete failed', error);
     }
-
-  }
+  };
 
   const renderUserStoryCard = (userStory) => {
     const priorityClass = `priority-${userStory.priority}`;
     const typeIcon = getTypeIcon(userStory.type);
 
-    const canEditAndDeleteUserStory = 
-    (currentUserRole === ProjectRole.PRODUCT_OWNER || currentUserRole === ProjectRole.SCRUM_MASTER) &&
-    !userStory.sprint && 
-    userStory.status !== UserStoryStatus.DONE;
+    const canEditAndDeleteUserStory =
+      (currentUserRole === ProjectRole.PRODUCT_OWNER ||
+        currentUserRole === ProjectRole.SCRUM_MASTER) &&
+      !userStory.sprint &&
+      userStory.status !== UserStoryStatus.DONE;
 
     const showStoryPoints = canSeeBusinessValues && userStory.points > 0;
     return (
@@ -136,28 +139,28 @@ export const Storyboard = ({
         <div className="user-story-header">
           <span className="user-story-type">{typeIcon}</span>
           <div className="user-story-actions">
-            {canEditAndDeleteUserStory && ( 
+            {canEditAndDeleteUserStory && (
               <div className="user-story-actions">
-              <button
-              className="edit-user-story-btn"
-              onClick={(event) => {
-                event.stopPropagation();
-                onEditStoryClick?.(userStory);
-              }}
-            >
-              ✏️
-            </button>
-            <button
-              className="delete-user-story-btn"
-              onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteStory(project._id, userStory._id);
-              }}
-            >
-              🗑️
-            </button>
-            </div>
-          )}
+                <button
+                  className="edit-user-story-btn"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEditStoryClick?.(userStory);
+                  }}
+                >
+                  ✏️
+                </button>
+                <button
+                  className="delete-user-story-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteStory(project._id, userStory._id);
+                  }}
+                >
+                  🗑️
+                </button>
+              </div>
+            )}
 
             <button
               className="edit-user-story-btn"

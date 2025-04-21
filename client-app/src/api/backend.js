@@ -6,6 +6,22 @@ export const backendApi = axios.create({
   baseURL: `${restApiUrl}/api/v1`,
 });
 
+backendApi.interceptors.response.use(
+  (r) => r,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Remove from localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+
+      // Remove axios default header
+      delete axios.defaults.headers.common['x-auth-token'];
+      delete backendApi.defaults.headers.common['x-auth-token'];
+    }
+    return Promise.reject(error);
+  },
+);
+
 export const getUserQRCode = async () => {
   try {
     return backendApi.get(`/auth/get-qr-code`);
@@ -133,19 +149,9 @@ export const startTimer = async (taskId) => {
   }
 };
 
-export const stopTimer = async (taskId) => {
+export const stopTimer = async (taskId, description) => {
   try {
-    const response = await backendApi.post(`/time-log/stop/${taskId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch all users:', error);
-    throw error;
-  }
-};
-
-export const addManualTimer = async (taskId, time) => {
-  try {
-    const response = await backendApi.post(`/time-log/manual/${taskId}`, { time });
+    const response = await backendApi.post(`/time-log/stop/${taskId}`, { description });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch all users:', error);

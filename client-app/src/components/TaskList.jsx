@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { backendApi, getProjectUsers, startTimer, stopTimer } from '../api/backend';
 import '../styles/task-list.css';
 import TaskForm from './TaskForm';
 import { AuthContext } from '../context/AuthContext';
+import { TimeLogStopTimer } from './timelog/TimeLogStopTimer';
 
 export const TaskList = ({
   tasks,
@@ -16,6 +17,7 @@ export const TaskList = ({
   canStartTimer,
 }) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [isStoppingTimer, setIsStoppingTimer] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isEditingTask, setIsEditingTask] = useState(false);
@@ -71,6 +73,19 @@ export const TaskList = ({
       console.error(err);
     }
   };
+
+  const stopCurrentTaskTimer = useCallback(
+    async (description = '') => {
+      try {
+        await stopTimer(isStoppingTimer, description);
+        setIsStoppingTimer(false);
+        onTasksUpdate();
+      } catch (error) {
+        console.error('Failed to stop current task:', error);
+      }
+    },
+    [selectedTask, isStoppingTimer],
+  );
 
   // --------------------------------------------------------------------------
   // Assign the selected task to the current user
@@ -266,23 +281,28 @@ export const TaskList = ({
           onClick={() => setSelectedTask(task)}
           style={{ cursor: 'pointer' }}
         >
-          {canStartTimer && false && !hasActiveTask && (
+          {canStartTimer && !hasActiveTask && (
             <button
               className="timer-button"
               onClick={async (e) => {
                 e.stopPropagation();
-                await startTimer(task._id);
+                try {
+                  await startTimer(task._id);
+                  onTasksUpdate();
+                } catch (e) {
+                  console.error(e);
+                }
               }}
             >
               ▶️
             </button>
           )}
-          {canStartTimer && false && task.isActive && (
+          {canStartTimer && task.isActive && (
             <button
               className="timer-button"
               onClick={async (e) => {
                 e.stopPropagation();
-                await stopTimer(task._id);
+                setIsStoppingTimer(task._id);
               }}
             >
               ⏹️
@@ -314,6 +334,19 @@ export const TaskList = ({
                 onSubmit={handleAddTask}
                 onCancel={() => setIsAddingTask(false)}
                 users={users}
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {isStoppingTimer &&
+        ReactDOM.createPortal(
+          <div className="task-modal-overlay" onClick={() => setIsAddingTask(false)}>
+            <div className="task-modal-content" onClick={(e) => e.stopPropagation()}>
+              <TimeLogStopTimer
+                stopTimer={(description) => stopCurrentTaskTimer(description)}
+                close={() => setIsStoppingTimer(false)}
               />
             </div>
           </div>,

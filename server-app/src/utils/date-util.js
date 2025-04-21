@@ -19,3 +19,7 @@ export const isDateChanged = (date, other) => {
   const d2 = new Date(other);
   return d1.getTime() !== d2.getTime();
 };
+
+export const timeDifferenceInHours = (startedAt, stoppedAt) => {
+  return Math.abs(stoppedAt - startedAt) / 36e5;
+};

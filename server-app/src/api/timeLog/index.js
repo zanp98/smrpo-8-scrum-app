@@ -4,6 +4,9 @@ import { CAN_LOG_TIME } from '../../configuration/rolesConfiguration.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { validateStartTimer, validateStopTimer, validateTime } from './time-log-validator.js';
 import { TimeLog } from '../../db/TimeLog.js';
+import { ValidationError } from '../../middleware/errors.js';
+import { timeDifferenceInHours } from '../../utils/date-util.js';
+import { TimeLogEntry } from '../../db/TimeLogEntry.js';
 
 export const timeLogRouter = express.Router();
 
@@ -24,17 +27,22 @@ timeLogRouter.post(
   projectRolesRequired(CAN_LOG_TIME),
   errorHandlerWrapped(async (req, res) => {
     const { taskId } = req.params;
+    const { description } = req.body;
     const userId = req.user.id;
     await validateStopTimer(userId, taskId);
     const existingTimeLog = await TimeLog.findOne({ user: userId, task: taskId, stoppedAt: null });
+    if (!existingTimeLog) {
+      throw new ValidationError('Timer not started for the selected task');
+    }
     const stoppedAt = Date.now();
 
     // Round it up to hours
-    existingTimeLog.time = Math.abs(stoppedAt - existingTimeLog.startedAt) / 36e5;
+    const timeInHours = timeDifferenceInHours(existingTimeLog.startedAt, stoppedAt);
     existingTimeLog.stoppedAt = stoppedAt;
-
     await existingTimeLog.save();
-    res.status(201).json({ message: 'Timer stopped' });
+
+    await TimeLogEntry.create({ user: userId, task: taskId, time: timeInHours, description });
+    res.status(201).json({ message: 'Timer stopped and time logged successfully' });
   }),
 );
 

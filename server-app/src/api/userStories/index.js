@@ -8,7 +8,7 @@ import {
   CAN_READ_USER_STORIES,
   CAN_UPDATE_USER_STORIES,
   CAN_UPDATE_USER_STORIES_POINTS,
-  CAN_ACCEPT_STORIES
+  CAN_ACCEPT_STORIES,
 } from '../../configuration/rolesConfiguration.js';
 import { ValidationError } from '../../middleware/errors.js';
 import { getCaseInsensitiveRegex } from '../../utils/string-util.js';
@@ -30,7 +30,8 @@ userStoriesRouter.get(
           ...{ sprint: sprintId },
         })
           .populate('assignee', 'username firstName lastName')
-          .populate('sprint');
+          .populate('sprint')
+          .lean();
 
         return res.json(userStories);
       }
@@ -46,7 +47,8 @@ userStoriesRouter.get(
           project: projectId,
         })
           .populate('assignee', 'username firstName lastName')
-          .populate('sprint');
+          .populate('sprint')
+          .lean();
         return res.json(userStories);
       }
       const userStories = await UserStory.find({
@@ -60,7 +62,8 @@ userStoriesRouter.get(
         ],
       })
         .populate('assignee', 'username firstName lastName')
-        .populate('sprint');
+        .populate('sprint')
+        .lean();
       res.json(userStories);
     } catch (error) {
       console.error(error);
@@ -155,7 +158,7 @@ userStoriesRouter.patch(
     if (!currentStory) {
       throw new NotFoundError('User story not found');
     }
-    
+
     if (title && title.toLowerCase() !== currentStory.title.toLowerCase()) {
       const existingStory = await UserStory.findOne({
         _id: { $ne: userStoryId },
@@ -248,7 +251,7 @@ userStoriesRouter.patch(
 //Product owner can check user stories as done -  denied
 userStoriesRouter.patch(
   '/deny/:projectId/:userStoryId',
-  projectRolesRequired(CAN_ACCEPT_STORIES), 
+  projectRolesRequired(CAN_ACCEPT_STORIES),
   errorHandlerWrapped(async (req, res) => {
     const { projectId, userStoryId } = req.params;
     const { comment } = req.body;

@@ -20,6 +20,7 @@ tasksRouter.get(
     const userId = req.user.id;
     const tasks = await Task.find({ userStory: userStoryId })
       .populate('assignedUser', 'description timeEstimation userStory firstName lastName')
+      .lean()
       .exec();
 
     const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
@@ -28,13 +29,16 @@ tasksRouter.get(
     );
     if (activeTask) {
       tasks.forEach((task) => {
-        if (task._id === activeTask.task._id) {
+        if (task._id.toString() === activeTask.task._id.toString()) {
           task.isActive = true;
         }
       });
     }
 
-    res.json(tasks);
+    res.json({
+      hasActiveTask: true,
+      tasks,
+    });
   }),
 );
 
