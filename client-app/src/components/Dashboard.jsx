@@ -59,7 +59,7 @@ const Dashboard = () => {
       const result = await getAllUserRoles();
       setAllProjectRoles(result);
     } catch (err) {
-      console.err(err);
+      console.error(err);
     }
   };
 
