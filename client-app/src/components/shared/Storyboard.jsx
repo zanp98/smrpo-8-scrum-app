@@ -39,7 +39,7 @@ const getStoryPredicates = (filters) => {
 };
 
 const calculateTotalHours = (tasks) =>
-  tasks.reduce((total, task) => total + task.timeEstimation, 0);
+  (tasks ?? []).reduce((total, task) => total + task.timeEstimation, 0);
 
 const calculateTotalLoggedHours = (tasks) => {
   const allTimeLogEntries = tasks.flatMap((task) => task.timeLogEntries ?? []);
