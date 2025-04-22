@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { deleteTimeLogEntry, getTimeLogEntries, updateTimeLogEntry } from '../../api/backend';
 import { formatDateTime, roundNumberToPointOne } from '../../utils/datetime';
 import '../../styles/timelog/time-log-table.css';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { ProjectRole } from '../project/ProjectForm';
 
-export const TimeLogTable = ({}) => {
+export const TimeLogTable = ({ projects, projectRoles }) => {
   const [counter, setCounter] = useState(0);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(0);
   const [pendingDelete, setPendingDelete] = useState(false);
   const [timeLogEntries, setTimeLogsEntries] = useState([]);
@@ -40,18 +42,60 @@ export const TimeLogTable = ({}) => {
     }
   };
 
-  const fetchTimeLogEntries = async () => {
-    const data = await getTimeLogEntries();
+  const fetchTimeLogEntries = async (projectId) => {
+    const data = await getTimeLogEntries(projectId);
     setTimeLogsEntries(data);
   };
 
   useEffect(() => {
-    fetchTimeLogEntries();
-  }, [counter]);
+    if (!selectedProject) {
+      return;
+    }
+    fetchTimeLogEntries(selectedProject);
+  }, [selectedProject, counter]);
 
+  const activeProjectRole = useMemo(() => {
+    if (!selectedProject) {
+      return null;
+    }
+    return projectRoles.find((pr) => pr.project._id === selectedProject)?.role;
+  }, [selectedProject]);
+
+  if ((projects ?? []).length === 0) {
+    return 'You have no projects';
+  }
   return (
     <div className="overflow-x-auto p-4">
       <div>Time log entries</div>
+      <div style={{ width: '100%', textAlign: 'left' }}>
+        <label
+          className="select-project"
+          htmlFor="project-select"
+          style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}
+        >
+          Select Project:
+        </label>
+        <select
+          id="project-select"
+          onChange={(e) => setSelectedProject(e.target.value)}
+          value={selectedProject || ''}
+          style={{
+            padding: '0.5rem',
+            fontSize: '1rem',
+            marginBottom: '1rem',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            maxWidth: '250px',
+          }}
+        >
+          <option value="">-- Choose a project --</option>
+          {projects.map((project) => (
+            <option key={project._id} value={project._id}>
+              {project.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <table className="time-log-table">
         <thead>
           <tr className="">
@@ -60,7 +104,9 @@ export const TimeLogTable = ({}) => {
             <th>Time (in hours)</th>
             <th>Description</th>
             <th>Created At</th>
-            <th>Actions</th>
+            {[ProjectRole.DEVELOPER, ProjectRole.ADMIN].includes(activeProjectRole) && (
+              <th>Actions</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -100,33 +146,48 @@ export const TimeLogTable = ({}) => {
                     )}
                   </td>
                   <td className="px-4 py-2">{formatDateTime(tle.createdAt)}</td>
-                  <td className="px-4 py-2 space-x-2">
-                    {editingEntry === tle._id ? (
-                      <>
-                        <button className="btn-save" onClick={async () => await saveChanges(tle)}>
-                          Save
-                        </button>
-                        <button className="btn-cancel" onClick={() => setEditingEntry(null)}>
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button className="btn-edit" onClick={() => startEditing(tle)}>
-                          Edit
-                        </button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => {
-                            setIsConfirmOpen(true);
-                            setPendingDelete(tle._id);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </td>
+                  {[ProjectRole.DEVELOPER, ProjectRole.ADMIN].includes(activeProjectRole) && (
+                    <td className="px-4 py-2 space-x-2">
+                      {editingEntry === tle._id ? (
+                        <>
+                          <button
+                            className="btn-save"
+                            disabled={task.status === 'DONE' || story.status === 'DONE'}
+                            onClick={async () => await saveChanges(tle)}
+                          >
+                            Save
+                          </button>
+                          <button
+                            className="btn-cancel"
+                            disabled={task.status === 'DONE' || story.status === 'DONE'}
+                            onClick={() => setEditingEntry(null)}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="btn-edit"
+                            disabled={task.status === 'DONE' || story.status === 'DONE'}
+                            onClick={() => startEditing(tle)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn-delete"
+                            disabled={task.status === 'DONE' || story.status === 'DONE'}
+                            onClick={() => {
+                              setIsConfirmOpen(true);
+                              setPendingDelete(tle._id);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  )}
                 </tr>
               )),
             ),

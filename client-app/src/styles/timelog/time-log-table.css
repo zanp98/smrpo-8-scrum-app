@@ -52,9 +52,23 @@
   color: white;
 }
 
+.time-log-table .btn-edit:disabled {
+  background-color: #93c5fd; /* blue-300 */
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .time-log-table .btn-save {
   background-color: #10b981; /* green-500 */
   color: white;
+}
+
+.time-log-table .btn-save:disabled {
+  background-color: #6ee7b7; /* green-300 */
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .time-log-table .btn-cancel {
@@ -62,11 +76,30 @@
   color: white;
 }
 
+.time-log-table .btn-cancel:disabled {
+  background-color: #d1d5db; /* gray-300 */
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .time-log-table .btn-delete {
   background-color: #ef4444; /* red-500 */
   color: white;
 }
 
+.time-log-table .btn-delete:disabled {
+  background-color: #fca5a5; /* red-300 */
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
 .time-log-table .btn + .btn {
   margin-left: 0.5rem;
+}
+
+.select-project {
+  color: white;
 }

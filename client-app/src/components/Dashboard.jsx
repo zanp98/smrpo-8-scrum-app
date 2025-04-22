@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { Routes, Route } from 'react-router';
 import { Link } from 'react-router';
-import { backendApi, getProjectSprints } from '../api/backend';
+import { backendApi, getAllUserRoles, getProjectSprints } from '../api/backend';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/dashboard.css';
 import { Projects } from './Projects';
@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedSprint, setSelectedSprint] = useState(null);
   const [selectedProjectSprints, setSelectedProjectSprints] = useState([]);
+  const [allProjectRoles, setAllProjectRoles] = useState([]);
 
   const currentActiveSprint = useMemo(
     () =>
@@ -53,8 +54,18 @@ const Dashboard = () => {
     }
   };
 
+  const fetchAllProjectRoles = async () => {
+    try {
+      const result = await getAllUserRoles();
+      setAllProjectRoles(result);
+    } catch (err) {
+      console.err(err);
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
+    fetchAllProjectRoles();
   }, []);
 
   const fetchProjectSprints = async () => {
@@ -213,7 +224,10 @@ const Dashboard = () => {
             path="/projects"
             element={<ProjectForm onProjectCreate={() => handleProjectCreate()} />}
           />
-          <Route path="/timelogs" element={<TimeLogTable />} />
+          <Route
+            path="/timelogs"
+            element={<TimeLogTable projects={projects} projectRoles={allProjectRoles} />}
+          />
           {/* Added route for SprintForm */}
           <Route
             path="/project/:projectId/sprint/:sprintId"

@@ -63,16 +63,14 @@ timeLogRouter.post(
 );
 
 timeLogRouter.get(
-  '/list/:projectId?',
-  // TODO SST: Fix the required roles
-  // systemRolesRequired(UserRoles.USER, UserRoles.ADMIN),
-  // projectRolesRequired(CAN_SEE_LOGGED_TIME),
+  '/list/:projectId',
+  projectRolesRequired(CAN_SEE_LOGGED_TIME),
   errorHandlerWrapped(async (req, res) => {
     const { projectId } = req.params;
     const userId = req.user.id;
     const projectRole = req.projectRole;
-    if (projectRole === ProjectRole.SCRUM_MASTER && !!projectId) {
-      // todo sst: load all time log entries for the whole project
+    if (projectRole === ProjectRole.SCRUM_MASTER) {
+      // NOTE SST: load all time log entries for the whole project
       const allProjectStories = await UserStory.find({
         project: projectId,
       })
@@ -87,13 +85,15 @@ timeLogRouter.get(
         .lean()
         .exec();
       allProjectStories.forEach(
-        (s) => (s.tasks = s.tasks.filter((t) => t.timeLogEntries?.length > 0)),
+        (s) => (s.tasks = (s.tasks ?? []).filter((t) => t.timeLogEntries?.length > 0)),
       );
       const filteredOut = allProjectStories.filter((s) => s.tasks.length > 0);
       return res.json(filteredOut);
     }
     // NOTE SST: loads only for the current user
-    const allUserStories = await UserStory.find({})
+    const allUserStories = await UserStory.find({
+      project: projectId,
+    })
       .populate({
         path: 'tasks',
         populate: {
@@ -105,7 +105,9 @@ timeLogRouter.get(
       })
       .lean()
       .exec();
-    allUserStories.forEach((s) => (s.tasks = s.tasks.filter((t) => t.timeLogEntries?.length > 0)));
+    allUserStories.forEach(
+      (s) => (s.tasks = (s.tasks ?? []).filter((t) => t.timeLogEntries?.length > 0)),
+    );
     const filteredOut = allUserStories.filter((s) => s.tasks.length > 0);
     return res.json(filteredOut);
   }),

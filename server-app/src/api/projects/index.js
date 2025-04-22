@@ -73,7 +73,10 @@ projectsRouter.get(
   '/projectUserRoles',
   errorHandlerWrapped(async (req, res) => {
     try {
-      const projectUserRoles = await ProjectUserRole.find().populate('project user');
+      const userId = req.user.id;
+      const projectUserRoles = await ProjectUserRole.find({ user: userId }).populate(
+        'project user',
+      );
       res.status(200).json(projectUserRoles);
     } catch (error) {
       console.error(error);
@@ -81,20 +84,6 @@ projectsRouter.get(
     }
   }),
 );
-
-/* // Get roles for a project
-projectsRouter.get(
-  '/projectUserRoles',
-  errorHandlerWrapped(async (req, res) => {
-    try {
-      const projectUserRoles = await ProjectUserRole.find().populate('project user');
-      res.status(200).json(projectUserRoles);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
-  })
-); */
 
 // Add a new project
 projectsRouter.post(
