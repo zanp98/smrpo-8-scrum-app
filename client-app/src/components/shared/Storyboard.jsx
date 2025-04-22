@@ -4,6 +4,7 @@ import { backendApi } from '../../api/backend';
 import { TaskList } from '../TaskList';
 import { ProjectRole } from '../project/ProjectForm';
 import { UserStoryStatus } from '../project/UserStoryForm';
+import { roundNumberToPointOne, toHours } from '../../utils/datetime';
 
 const defaultColumnConfiguration = [
   {
@@ -47,8 +48,6 @@ const calculateTotalLoggedHours = (tasks) => {
   }
   return allTimeLogEntries.reduce((total, tle) => total + tle.time, 0);
 };
-
-const roundNumberToPointOne = (num) => (Math.ceil(num * 10) / 10).toFixed(1);
 
 export const Storyboard = ({
   project,
@@ -141,7 +140,7 @@ export const Storyboard = ({
 
     const renderLoggedTime = () => {
       const totalLoggedHours = roundNumberToPointOne(
-        Math.abs(calculateTotalLoggedHours(userStory.tasks) / 36e5),
+        toHours(calculateTotalLoggedHours(userStory.tasks)),
       );
       if (totalLoggedHours < 0.1) {
         return '';

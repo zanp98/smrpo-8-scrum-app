@@ -15,3 +15,7 @@ export const isNowBetween = (startDate, endDate) => {
   toDateEoD.setHours(23, 59, 59, 999);
   return new Date(startDate) < now && now < toDateEoD;
 };
+
+export const roundNumberToPointOne = (num) => (Math.ceil(num * 10) / 10).toFixed(1);
+
+export const toHours = (num) => Math.abs(num / 36e5);

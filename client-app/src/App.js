@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router';
 import { ToastContainer } from 'react-toastify';
 import './App.css';
 import './styles/overrides.css';
+import './styles/shared/confirm-dialog.css';
 import 'react-toastify/dist/ReactToastify.css';
 import Dashboard from './components/Dashboard';
 import Login from './components/auth/Login';

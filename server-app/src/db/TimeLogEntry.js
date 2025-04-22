@@ -34,11 +34,37 @@ const TimeLogEntrySchema = new mongoose.Schema({
 TimeLogEntrySchema.post('save', async function (doc, next) {
   try {
     const task = await Task.findOne({ _id: doc.task });
-    task.timeLogEntries = uniq([...(task.timeLogEntries ?? []), this._id]);
+    task.timeLogEntries = uniq([this._id, ...(task.timeLogEntries ?? [])]);
     await task.save();
     next();
   } catch (e) {
     console.error('Error assigning time log entry to task', e);
+  }
+});
+
+TimeLogEntrySchema.post('delete', async function (doc, next) {
+  try {
+    const task = await Task.findOne({ _id: doc.task });
+    task.timeLogEntries = (task.timeLogEntries ?? []).filter(
+      (t) => t.toString() !== doc._id.toString(),
+    );
+    await task.save();
+    next();
+  } catch (e) {
+    console.error('Error removing time log entry from task', e);
+  }
+});
+
+TimeLogEntrySchema.post('deleteOne', async function (doc, next) {
+  try {
+    const task = await Task.findOne({ _id: doc.task });
+    task.timeLogEntries = (task.timeLogEntries ?? []).filter(
+      (t) => t.toString() !== doc._id.toString(),
+    );
+    await task.save();
+    next();
+  } catch (e) {
+    console.error('Error removing time log entry from task', e);
   }
 });
 

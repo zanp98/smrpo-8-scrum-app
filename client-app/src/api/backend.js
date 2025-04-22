@@ -161,11 +161,32 @@ export const stopTimer = async (taskId, description) => {
 
 export const getTimeLogEntries = async (projectId) => {
   try {
-    const response = await backendApi.post(`/time-log/list/${projectId}`);
+    const path = [`/time-log/list`, projectId].filter(Boolean).join('/');
+    const response = await backendApi.get(path);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch all users:', error);
     throw error;
+  }
+};
+
+export const updateTimeLogEntry = async (timeLogEntryId, payload) => {
+  try {
+    const response = await backendApi.put(`/time-log/update/${timeLogEntryId}`, payload);
+    return response.data;
+  } catch (err) {
+    console.error('Failed to update time log entry', err);
+    throw err;
+  }
+};
+
+export const deleteTimeLogEntry = async (timeLogEntryId) => {
+  try {
+    const response = await backendApi.delete(`/time-log/delete/${timeLogEntryId}`);
+    return response.data;
+  } catch (err) {
+    console.error('Failed to delete time log entry', err);
+    throw err;
   }
 };
 

@@ -62,7 +62,7 @@ timeLogRouter.post(
 );
 
 timeLogRouter.get(
-  '/for-project/:projectId?',
+  '/list/:projectId?',
   projectRolesRequired(CAN_SEE_LOGGED_TIME),
   errorHandlerWrapped(async (req, res) => {
     const { projectId } = req.params;
@@ -75,18 +75,75 @@ timeLogRouter.get(
       })
         .populate({
           path: 'tasks',
-          populate: { path: 'timeLogEntries', populate: { path: 'user' } },
+          populate: {
+            path: 'timeLogEntries',
+            options: { sort: { createdAt: -1 } },
+            populate: { path: 'user', select: '_id username firstName lastName' },
+          },
         })
-        .lean();
-      return res.json(allProjectStories);
+        .lean()
+        .exec();
+      allProjectStories.forEach(
+        (s) => (s.tasks = s.tasks.filter((t) => t.timeLogEntries?.length > 0)),
+      );
+      const filteredOut = allProjectStories.filter((s) => s.tasks.length > 0);
+      return res.json(filteredOut);
     }
-    // todo sst: load only for the current user
+    // NOTE SST: loads only for the current user
     const allUserStories = await UserStory.find({})
       .populate({
         path: 'tasks',
-        populate: { path: 'timeLogEntries', populate: { path: 'user' }, match: { user: userId } },
+        populate: {
+          path: 'timeLogEntries',
+          options: { sort: { createdAt: -1 } },
+          populate: { path: 'user', select: '_id username firstName lastName' },
+          match: { user: userId },
+        },
       })
+      .lean()
       .exec();
-    return res.json(allUserStories);
+    allUserStories.forEach((s) => (s.tasks = s.tasks.filter((t) => t.timeLogEntries?.length > 0)));
+    const filteredOut = allUserStories.filter((s) => s.tasks.length > 0);
+    return res.json(filteredOut);
+  }),
+);
+
+timeLogRouter.put(
+  '/update/:timeLogEntryId',
+  projectRolesRequired(CAN_LOG_TIME),
+  errorHandlerWrapped(async (req, res) => {
+    const { timeLogEntryId } = req.params;
+    const { description, time } = req.body;
+    const userId = req.user.id;
+    if (time < 0) {
+      throw new ValidationError('Time must be greater than 0');
+    }
+    const entry = await TimeLogEntry.findOne({ _id: timeLogEntryId, user: userId });
+    if (!entry) {
+      throw new ValidationError('Time log entry does not exist');
+    }
+    entry.time = time;
+    entry.description = description;
+    await entry.save();
+    res.status(201).json({ message: 'Time log updated' });
+  }),
+);
+
+timeLogRouter.delete(
+  '/delete/:timeLogEntryId',
+  projectRolesRequired(CAN_LOG_TIME),
+  errorHandlerWrapped(async (req, res) => {
+    const { timeLogEntryId } = req.params;
+    const { description, time } = req.body;
+    const userId = req.user.id;
+    if (time < 0) {
+      throw new ValidationError('Time must be greater than 0');
+    }
+    const entry = await TimeLogEntry.findOne({ _id: timeLogEntryId, user: userId });
+    if (!entry) {
+      throw new ValidationError('Time log entry does not exist');
+    }
+    await TimeLogEntry.deleteOne({ _id: timeLogEntryId, user: userId });
+    res.status(201).json({ message: 'Time log deleted' });
   }),
 );
