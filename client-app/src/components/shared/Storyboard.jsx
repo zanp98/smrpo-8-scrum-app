@@ -86,6 +86,12 @@ export const Storyboard = ({
     [currentUserRole],
   );
 
+  const canMoveLeft = (status) => !['backlog', 'done'].includes(status);
+
+  const canMoveRight = (status) => !['review', 'done'].includes(status);
+
+  const isSprintView = (columnConfiguration == defaultColumnConfiguration)? true : false;
+
   useEffect(() => {
     // fetchTasks();
   }, [isExpanded, selectedUserStory]);
@@ -127,6 +133,18 @@ export const Storyboard = ({
       console.error('Delete failed', error);
     }
   };
+
+  const handleMoveStory = async (projectId, storyId, direction) => {
+    try {
+      await backendApi.patch(`/userStories/move/${projectId}/${storyId}`, {
+        direction,
+      });
+      reloadUserStories?.();
+    } catch (error) {
+      console.error('Move failed', error);
+    }
+  };
+
 
   const renderUserStoryCard = (userStory) => {
     const priorityClass = `priority-${userStory.priority}`;
@@ -252,6 +270,30 @@ export const Storyboard = ({
             </div>
           )}
         </div>
+        {isSprintView && (
+        <div className="story-navigation">
+
+          {canMoveLeft(userStory.status) && (
+            <button
+              className="arrow-button"
+              onClick={(e) => { e.stopPropagation(); handleMoveStory(project._id, userStory._id, 'left') }}
+              disabled={userStory.status === 'backlog'}
+            >
+              ◀️
+            </button>
+          )}
+
+          {canMoveRight(userStory.status) && (
+            <button
+              className="arrow-button"
+              onClick={(e) => { e.stopPropagation(); handleMoveStory(project._id, userStory._id, 'right') }}
+              disabled={userStory.status === 'review'}
+            >
+              ▶️
+            </button>
+          )}
+        </div>
+        )}
       </div>
     );
   };

@@ -17,6 +17,8 @@ import { TimeLog } from '../../db/TimeLog.js';
 
 export const userStoriesRouter = express.Router();
 
+const STATUS_FLOW = ['backlog', 'todo', 'in_progress', 'review', 'done'];
+
 // Get all userStories for a sprint
 userStoriesRouter.get(
   '/:projectId/:sprintId?',
@@ -324,4 +326,36 @@ userStoriesRouter.patch(
 
     return res.status(200).json({ message: 'User story denied with comment', userStory });
   }),
+);
+
+//Changing the status of the story by using arrows
+userStoriesRouter.patch(
+  '/move/:projectId/:userStoryId',
+  errorHandlerWrapped(async (req, res) => {
+    const { projectId, userStoryId } = req.params;
+    const { direction } = req.body;
+
+    const userStory = await UserStory.findOne({ _id: userStoryId, project: projectId });
+    
+    if (!userStory) return res.status(404).json({ error: 'User story not found' });
+
+    const currentIndex = STATUS_FLOW.indexOf(userStory.status);
+    if (currentIndex === -1) return res.status(400).json({ error: 'Invalid current status' });
+
+    let newIndex = direction === 'right' ? currentIndex + 1 : currentIndex - 1;
+
+    // Prevent moving beyond boundaries or from review to done
+    if (userStory.status === 'review' && direction === 'right') {
+      return res.status(400).json({ error: 'Cannot move from review to done directly' });
+    }
+
+    if (newIndex < 0 || newIndex >= STATUS_FLOW.length) {
+      return res.status(400).json({ error: 'Cannot move story in that direction' });
+    }
+
+    userStory.status = STATUS_FLOW[newIndex];
+    await userStory.save();
+
+    res.status(200).json(userStory);
+  })
 );

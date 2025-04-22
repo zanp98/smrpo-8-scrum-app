@@ -187,3 +187,16 @@
   color: white;
 }
 
+.story-navigation {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+
+.arrow-button {
+  width: fit-content;
+  background-color: transparent;
+  border: none;
+}
+
