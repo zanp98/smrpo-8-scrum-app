@@ -42,7 +42,7 @@ const calculateTotalHours = (tasks) =>
   (tasks ?? []).reduce((total, task) => total + task.timeEstimation, 0);
 
 const calculateTotalLoggedHours = (tasks) => {
-  const allTimeLogEntries = tasks.flatMap((task) => task.timeLogEntries ?? []);
+  const allTimeLogEntries = (tasks ?? []).flatMap((task) => task.timeLogEntries ?? []);
   if (!allTimeLogEntries.length) {
     return 0;
   }
@@ -140,7 +140,7 @@ export const Storyboard = ({
 
     const renderLoggedTime = () => {
       const totalLoggedHours = roundNumberToPointOne(
-        toHours(calculateTotalLoggedHours(userStory.tasks)),
+        toHours(calculateTotalLoggedHours(userStory.tasks ?? [])),
       );
       if (totalLoggedHours < 0.1) {
         return '';
@@ -196,7 +196,7 @@ export const Storyboard = ({
         </div>
         {isExpanded && selectedUserStory?._id === userStory._id && (
           <TaskList
-            tasks={userStory.tasks}
+            tasks={userStory.tasks ?? []}
             userStoryId={userStory._id}
             onTasksUpdate={reloadUserStories}
             userStorySprintId={userStory.sprint?._id}
@@ -218,7 +218,7 @@ export const Storyboard = ({
             {showStoryPoints ? `${userStory.points} pts` : ''}
           </span>
           <span className="user-story-hours">
-            {calculateTotalHours(userStory.tasks)}h {renderLoggedTime(userStory.tasks)}
+            {calculateTotalHours(userStory.tasks ?? [])}h {renderLoggedTime(userStory.tasks ?? [])}
           </span>
           {userStory.assignee && (
             <span className="user-story-assignee">
