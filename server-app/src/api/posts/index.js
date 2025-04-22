@@ -125,3 +125,21 @@ postsRouter.post('/comments/:postId', async (req, res) => {
     res.status(500).json({ error: 'Failed to add comment' });
   }
 });
+
+postsRouter.delete('/comments/:postId/:commentId', async (req, res) => {
+  const { postId, commentId } = req.params;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+
+    // Filter out the comment
+    post.comments = post.comments.filter(comment => comment._id.toString() !== commentId);
+
+    await post.save();
+    res.status(200).json({ message: 'Comment deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete comment' });
+  }
+});

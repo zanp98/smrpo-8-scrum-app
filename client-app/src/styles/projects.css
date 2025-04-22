@@ -374,3 +374,8 @@ h3 {
     border: 1px solid #ccc; /* optional for a cleaner border */
     resize: vertical; /* allows user to resize only vertically */
 }
+
+.btn-comment-actions{
+  width:fit-content;
+  background-color: white;
+}

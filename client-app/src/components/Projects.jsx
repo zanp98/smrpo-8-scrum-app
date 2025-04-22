@@ -152,6 +152,15 @@ export const Projects = ({
     }
   };
 
+  const handleDeleteComment = async (postId, commentId) => {
+    try {
+      await backendApi.delete(`/posts/comments/${postId}/${commentId}`);
+      fetchPosts();
+    } catch (err) {
+      console.error('Failed to delete comment:', err);
+    }
+  };
+
   useEffect(() => {
     fetchUserStories();
     fetchProjectUsers();
@@ -400,7 +409,16 @@ export const Projects = ({
                                         {comment.content}
                                       </div>
 
-                                      {new Date(comment.createdAt).toLocaleString()}
+                                      <div>
+                                        {new Date(comment.createdAt).toLocaleString()}
+                                        {currentUserRole === 'scrum_master' && (
+                                          <button
+                                            className="btn-comment-actions"
+                                            onClick={() => handleDeleteComment(post._id, comment._id)}
+                                          >
+                                            🗑️
+                                          </button>)}
+                                      </div>
                                     </div>
                                   ))
                                 ) : (
