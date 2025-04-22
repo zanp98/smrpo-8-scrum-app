@@ -5,6 +5,7 @@ import { ProjectUserRole } from '../db/ProjectUserRole.js';
 import { UserStory } from '../db/UserStory.js';
 import { User } from '../db/User.js';
 import { Task } from '../db/Task.js';
+import { TimeLogEntry } from '../db/TimeLogEntry.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -107,6 +108,15 @@ const getProjectId = async (req) => {
       .populate('project', '_id name owner')
       .exec();
     return userStory.project._id;
+  }
+
+  const timeLogEntryId = req.params.timeLogEntryId;
+  if (timeLogEntryId) {
+    const timeLogEntry = await TimeLogEntry.findOne({ _id: timeLogEntryId }).populate({
+      path: 'task',
+      populate: { path: 'userStory', populate: { path: 'project' } },
+    });
+    return timeLogEntry.task?.userStory?.project?.id;
   }
 
   // If we reach here, we have neither projectId nor sprintId

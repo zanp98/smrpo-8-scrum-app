@@ -1,5 +1,5 @@
 import express from 'express';
-import { projectRolesRequired } from '../../middleware/auth.js';
+import { projectRolesRequired, systemRolesRequired } from '../../middleware/auth.js';
 import { CAN_LOG_TIME, CAN_SEE_LOGGED_TIME } from '../../configuration/rolesConfiguration.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { validateStartTimer, validateStopTimer, validateTime } from './time-log-validator.js';
@@ -9,6 +9,7 @@ import { timeDifferenceInHours } from '../../utils/date-util.js';
 import { TimeLogEntry } from '../../db/TimeLogEntry.js';
 import { ProjectRole } from '../../db/ProjectUserRole.js';
 import { UserStory } from '../../db/UserStory.js';
+import { UserRoles } from '../../db/User.js';
 
 export const timeLogRouter = express.Router();
 
@@ -63,7 +64,9 @@ timeLogRouter.post(
 
 timeLogRouter.get(
   '/list/:projectId?',
-  projectRolesRequired(CAN_SEE_LOGGED_TIME),
+  // TODO SST: Fix the required roles
+  // systemRolesRequired(UserRoles.USER, UserRoles.ADMIN),
+  // projectRolesRequired(CAN_SEE_LOGGED_TIME),
   errorHandlerWrapped(async (req, res) => {
     const { projectId } = req.params;
     const userId = req.user.id;
