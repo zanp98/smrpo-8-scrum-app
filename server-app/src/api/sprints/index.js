@@ -211,23 +211,39 @@ sprintsRouter.put(
           project: projectId,
           _id: { $ne: sprintId }, // exclude the current sprint
         });
-      
+
         if (existingSprint) {
           return res.status(400).json({ message: 'Sprint name already exists in this project' });
         }
       }
-      
+
       // Validate dates
       const isStartDateChanged = isDateChanged(startDate, sprint.startDate);
       if (isStartDateChanged) {
         if (startDate && new Date(startDate) < new Date()) {
           return res.status(400).json({ message: 'Sprint start date cannot be in the past' });
         }
+        // Check for weekends
+        if (isWeekend(startDate)) {
+          return res.status(400).json({ message: 'Sprint start date cannot be weekend' });
+        }
+
+        // Check for holidays
+        if (isHoliday(startDate)) {
+          return res.status(400).json({ message: 'Sprint start date cannot be a holiday' });
+        }
       }
       const isEndDateChanged = isDateChanged(endDate, sprint.endDate);
       if (isStartDateChanged || isEndDateChanged) {
         if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
           return res.status(400).json({ message: 'Sprint end date must be after start date' });
+        }
+        if (isWeekend(endDate)) {
+          return res.status(400).json({ message: 'Sprint end date cannot be weekend' });
+        }
+
+        if (isHoliday(endDate)) {
+          return res.status(400).json({ message: 'Sprint end date cannot be a holiday' });
         }
       }
 
