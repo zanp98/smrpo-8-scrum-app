@@ -205,6 +205,18 @@ sprintsRouter.put(
         return res.status(403).json({ message: 'Only Scrum Masters can update this sprint' });
       }
 
+      if (name && name !== sprint.name) {
+        const existingSprint = await Sprint.findOne({
+          name,
+          project: projectId,
+          _id: { $ne: sprintId }, // exclude the current sprint
+        });
+      
+        if (existingSprint) {
+          return res.status(400).json({ message: 'Sprint name already exists in this project' });
+        }
+      }
+      
       // Validate dates
       const isStartDateChanged = isDateChanged(startDate, sprint.startDate);
       if (isStartDateChanged) {
