@@ -35,7 +35,7 @@ userStoriesRouter.get(
         })
           .populate('assignee', 'username firstName lastName')
           .populate('sprint')
-          .populate({ path: 'tasks', populate: { path: 'timeLogEntries' } })
+          .populate({ path: 'tasks', populate: { path: 'assignedUser timeLogEntries' } })
           .lean();
         const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
           'task',
@@ -65,7 +65,7 @@ userStoriesRouter.get(
         })
           .populate('assignee', 'username firstName lastName')
           .populate('sprint')
-          .populate({ path: 'tasks', populate: { path: 'timeLogEntries' } })
+          .populate({ path: 'tasks', populate: { path: 'assignedUser timeLogEntries' } })
           .lean();
         const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
           'task',
@@ -94,7 +94,7 @@ userStoriesRouter.get(
       })
         .populate('assignee', 'username firstName lastName')
         .populate('sprint')
-        .populate({ path: 'tasks', populate: { path: 'timeLogEntries' } })
+        .populate({ path: 'tasks', populate: { path: 'assignedUser timeLogEntries' } })
         .lean();
 
       const activeTask = await TimeLog.findOne({ user: userId, stoppedAt: null }).populate(
