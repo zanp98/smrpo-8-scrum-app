@@ -6,6 +6,7 @@ import { calculateTotalStoryPoints } from '../../utils/stories';
 import { SprintUserStoryForm } from './SprintUserStoryForm';
 import { SprintEditForm } from './SprintEditForm';
 import { AuthContext } from '../../context/AuthContext';
+import { ProjectRole } from '../project/ProjectForm';
 
 export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) => {
   const { currentUser } = useContext(AuthContext);
@@ -20,12 +21,20 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
   if (sprint?._id !== sprintId) {
     setActiveSprint?.(sprintId);
   }
+  
+  const CAN_EDIT_SPRINTS = [ProjectRole.SCRUM_MASTER];
+
   const [projectUsers, setProjectUsers] = useState([]);
 
   const currentUserRole = useMemo(() => {
     const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
     return projectUserRole?.role;
   }, [currentUser, projectUsers]);
+
+  const canEditSprint = useMemo(
+    () => CAN_EDIT_SPRINTS.includes(currentUserRole),
+    [currentUserRole],
+  );
 
   const [showEditUserStory, setShowEditUserStory] = useState(false);
   const [selectedUserStory, setSelectedUserStory] = useState(null);
@@ -76,14 +85,17 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
       <div className={totalStoryPoints > sprint.expectedVelocity ? 'label-overbooked' : ''}>
         Velocity: {totalStoryPoints}/{sprint.expectedVelocity}
       </div>
-      <button
-        className="btn-general"
-        onClick={() => {
-          setShowSprintEditForm(true);
-        }}
-      >
-        🛠 Edit a Sprint
-      </button>
+      {canEditSprint && (
+        <button
+          className="btn-general"
+          onClick={() => {
+            setShowSprintEditForm(true);
+          }}
+        >
+          🛠 Edit a Sprint
+        </button>
+      )}
+
       {showSprintEditForm && (
         <SprintEditForm
           sprintId={sprintId}
