@@ -122,7 +122,6 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
               if (!confirmed) return;
           
               try {
-                console.log(sprintId);
                 await deleteSprint(sprintId);
                 alert('Sprint deleted successfully!');
                 setActiveSprint(null); // Optional: clear current sprint
