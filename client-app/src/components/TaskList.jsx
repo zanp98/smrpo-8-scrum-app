@@ -118,6 +118,15 @@ export const TaskList = ({
     }
   };
 
+  const isTaskAssignedToTheCurrentUser = useCallback(
+    (task) => {
+      const result = [task.assignedUser?._id, task.assignedUser?.id].includes(currentUser.id);
+      console.log(`${task.description}: ${result}`);
+      return result;
+    },
+    [currentUser],
+  );
+
   /* ───────── modal for a selected task ───────── */
   const renderTaskModal = () => {
     if (!selectedTask) return null;
@@ -281,7 +290,7 @@ export const TaskList = ({
           onClick={() => setSelectedTask(task)}
           style={{ cursor: 'pointer' }}
         >
-          {canStartTimer && !hasActiveTask && (
+          {canStartTimer && !hasActiveTask && isTaskAssignedToTheCurrentUser(task) && (
             <button
               className="timer-button"
               onClick={async (e) => {
@@ -297,7 +306,7 @@ export const TaskList = ({
               ▶️
             </button>
           )}
-          {canStartTimer && task.isActive && (
+          {canStartTimer && task.isActive && isTaskAssignedToTheCurrentUser(task) && (
             <button
               className="timer-button"
               onClick={async (e) => {
