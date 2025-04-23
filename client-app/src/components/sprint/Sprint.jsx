@@ -12,8 +12,8 @@ const CAN_EDIT_SPRINTS = [ProjectRole.SCRUM_MASTER];
 
 export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) => {
   const { currentUser } = useContext(AuthContext);
-  const [ userStories, setUserStories] = useState([]);
-  const [ counter, setCounter] = useState(0);
+  const [userStories, setUserStories] = useState([]);
+  const [counter, setCounter] = useState(0);
   const { projectId, sprintId } = useParams();
   const [showSprintEditForm, setShowSprintEditForm] = useState(false);
   const [selectedProjectSprints, setSelectedProjectSprints] = useState([]);
@@ -25,8 +25,6 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
   if (sprint?._id !== sprintId) {
     setActiveSprint?.(sprintId);
   }
-  
-
 
   const currentUserRole = useMemo(() => {
     const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
@@ -47,10 +45,10 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
       const projectSprints = await getProjectSprints(project._id);
       setSelectedProjectSprints(projectSprints);
     };
-  
+
     fetchProjectSprints();
   }, [project]);
-  
+
   const currentSprint = selectedProjectSprints.find(s => s._id === sprintId);
   const isSprintStartDayPast = currentSprint?.startDate
     ? new Date(currentSprint.startDate) < new Date()
@@ -95,9 +93,12 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
     fetchProjectUsers(project._id);
   }, [project, sprint, counter]);
 
+  const refreshPage = () => window.location.reload(); // 🔁 Full page refresh function
+
   if (!project || !sprint) {
     return;
   }
+
   return (
     <div className="main-content">
       <div>{sprint.name}</div>
@@ -120,12 +121,12 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
             onClick={async () => {
               const confirmed = window.confirm('Are you sure you want to delete this sprint?');
               if (!confirmed) return;
-          
+
               try {
                 await deleteSprint(sprintId);
                 alert('Sprint deleted successfully!');
-                setActiveSprint(null); // Optional: clear current sprint
-                setCounter((c) => c + 1); // or refresh stories/list if needed
+                setActiveSprint(null);
+                refreshPage(); // 🔁 Refresh after deletion
               } catch (err) {
                 alert('Failed to delete sprint.');
                 console.error(err);
@@ -141,7 +142,10 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
         <SprintEditForm
           sprintId={sprintId}
           activeProjectId={projectId}
-          onClose={() => setShowSprintEditForm(false)}
+          onClose={() => {
+            setShowSprintEditForm(false);
+            refreshPage(); // 🔁 Refresh after edit
+          }}
         />
       )}
       <br />
@@ -164,7 +168,7 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
           setShowEditUserStory(true);
         }}
         currentUserRole={currentUserRole}
-        reloadUserStories={() => setCounter((c) => c + 1)} 
+        reloadUserStories={() => setCounter((c) => c + 1)}
       />
     </div>
   );
