@@ -140,7 +140,6 @@ sprintsRouter.post(
 //Delete a sprint
 sprintsRouter.delete(
   '/deleteSprint/:sprintId',
-  projectRolesRequired(CAN_DELETE_SPRINT),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { sprintId } = req.params;
@@ -182,7 +181,6 @@ sprintsRouter.delete(
 //Update a sprint
 sprintsRouter.put(
   '/updateSprint/:sprintId',
-  projectRolesRequired(CAN_UPDATE_SPRINT),
   errorHandlerWrapped(async (req, res) => {
     try {
       const { sprintId } = req.params;
