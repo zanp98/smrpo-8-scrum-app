@@ -233,6 +233,8 @@ export const TaskList = ({
             <option value="IN_PROGRESS">In Progress</option>
             <option value="DONE">Done</option>
           </select>
+          {/*TODO: Add input when the status is DONE */}
+          {/*{selectedTask?.status === 'DONE' && ()}*/}
           {!selectedTask.assignedUser && (
             <button
               style={{ marginTop: '10px', marginRight: '10px' }}

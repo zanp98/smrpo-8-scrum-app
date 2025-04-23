@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import '../../styles/storyboard.css';
 import { backendApi } from '../../api/backend';
 import { TaskList } from '../TaskList';
@@ -86,11 +86,19 @@ export const Storyboard = ({
     [currentUserRole],
   );
 
-  const canMoveLeft = (status) => !['backlog', 'done'].includes(status);
+  const canMoveLeft = useCallback(
+    (status) =>
+      currentUserRole !== ProjectRole.PRODUCT_OWNER && !['backlog', 'done'].includes(status),
+    [currentUserRole],
+  );
 
-  const canMoveRight = (status) => !['review', 'done'].includes(status);
+  const canMoveRight = useCallback(
+    (status) =>
+      currentUserRole !== ProjectRole.PRODUCT_OWNER && !['review', 'done'].includes(status),
+    [currentUserRole],
+  );
 
-  const isSprintView = (columnConfiguration == defaultColumnConfiguration)? true : false;
+  const isSprintView = columnConfiguration == defaultColumnConfiguration ? true : false;
 
   useEffect(() => {
     // fetchTasks();
@@ -116,12 +124,12 @@ export const Storyboard = ({
   };
 
   const handleDenyStory = async (projectId, storyId) => {
-    const comment = prompt('Why are you denying this story?');
+    const comment = prompt('Why are you rejecting this story?');
     try {
       await backendApi.patch(`/userStories/deny/${projectId}/${storyId}`, { comment });
       reloadUserStories?.();
     } catch (error) {
-      console.error('Deny failed', error);
+      console.error('Reject failed', error);
     }
   };
 
@@ -144,7 +152,6 @@ export const Storyboard = ({
       console.error('Move failed', error);
     }
   };
-
 
   const renderUserStoryCard = (userStory) => {
     const priorityClass = `priority-${userStory.priority}`;
@@ -265,34 +272,39 @@ export const Storyboard = ({
                   handleDenyStory(project._id, userStory._id);
                 }}
               >
-                ❌ Deny
+                ❌ Reject
               </button>
             </div>
           )}
         </div>
         {isSprintView && (
-        <div className="story-navigation">
+          <div className="story-navigation">
+            {canMoveLeft(userStory.status) && (
+              <button
+                className="arrow-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoveStory(project._id, userStory._id, 'left');
+                }}
+                disabled={userStory.status === 'backlog'}
+              >
+                ◀️
+              </button>
+            )}
 
-          {canMoveLeft(userStory.status) && (
-            <button
-              className="arrow-button"
-              onClick={(e) => { e.stopPropagation(); handleMoveStory(project._id, userStory._id, 'left') }}
-              disabled={userStory.status === 'backlog'}
-            >
-              ◀️
-            </button>
-          )}
-
-          {canMoveRight(userStory.status) && (
-            <button
-              className="arrow-button"
-              onClick={(e) => { e.stopPropagation(); handleMoveStory(project._id, userStory._id, 'right') }}
-              disabled={userStory.status === 'review'}
-            >
-              ▶️
-            </button>
-          )}
-        </div>
+            {canMoveRight(userStory.status) && (
+              <button
+                className="arrow-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMoveStory(project._id, userStory._id, 'right');
+                }}
+                disabled={userStory.status === 'review'}
+              >
+                ▶️
+              </button>
+            )}
+          </div>
         )}
       </div>
     );
