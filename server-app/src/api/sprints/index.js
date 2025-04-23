@@ -231,6 +231,23 @@ sprintsRouter.put(
         }
       }
 
+      // Check for weekends
+      if (isWeekend(startDate)) {
+        return res.status(400).json({ message: 'Sprint start date cannot be weekend' });
+      }
+      if (isWeekend(endDate)) {
+        return res.status(400).json({ message: 'Sprint end date cannot be weekend' });
+      }
+
+      // Check for holidays
+      if (isHoliday(startDate)) {
+        return res.status(400).json({ message: 'Sprint start date cannot be a holiday' });
+      }
+
+      if (isHoliday(endDate)) {
+        return res.status(400).json({ message: 'Sprint end date cannot be a holiday' });
+      }
+
       // Validate velocity
       if (expectedVelocity !== undefined && (expectedVelocity < 1 || isNaN(expectedVelocity))) {
         return res.status(400).json({ message: 'Sprint velocity must be a positive number' });
