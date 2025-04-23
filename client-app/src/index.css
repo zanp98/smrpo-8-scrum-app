@@ -21,6 +21,9 @@
   
   --btn-general-hover-color: #0747a6;
   --board-column-color: #0747a6;
+
+  --red: #FF0000;
+  --red-hover: #CC0000;
 }
 
 body {
@@ -50,6 +53,18 @@ code {
   transition: background 0.2s ease-in-out;
 }
 
-.btn-general:hover {
-  background: var(--btn-general-hover-color);
+.btn-delete{
+  background: var(--red);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-delete:hover {
+  background: var(--red-hover);
 }

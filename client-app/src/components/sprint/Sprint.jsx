@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Storyboard } from '../shared/Storyboard';
-import { backendApi, getProjectUsers, getSprintUserStories } from '../../api/backend';
+import { backendApi, getProjectUsers, getSprintUserStories, getProjectSprints, deleteSprint } from '../../api/backend';
 import { useParams } from 'react-router';
 import { calculateTotalStoryPoints } from '../../utils/stories';
 import { SprintUserStoryForm } from './SprintUserStoryForm';
@@ -8,12 +8,16 @@ import { SprintEditForm } from './SprintEditForm';
 import { AuthContext } from '../../context/AuthContext';
 import { ProjectRole } from '../project/ProjectForm';
 
+const CAN_EDIT_SPRINTS = [ProjectRole.SCRUM_MASTER];
+
 export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) => {
   const { currentUser } = useContext(AuthContext);
-  const [userStories, setUserStories] = useState([]);
-  const [counter, setCounter] = useState(0);
+  const [ userStories, setUserStories] = useState([]);
+  const [ counter, setCounter] = useState(0);
   const { projectId, sprintId } = useParams();
   const [showSprintEditForm, setShowSprintEditForm] = useState(false);
+  const [selectedProjectSprints, setSelectedProjectSprints] = useState([]);
+  const [projectUsers, setProjectUsers] = useState([]);
 
   if (project?._id !== projectId) {
     setActiveProject?.(projectId);
@@ -22,19 +26,35 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
     setActiveSprint?.(sprintId);
   }
   
-  const CAN_EDIT_SPRINTS = [ProjectRole.SCRUM_MASTER];
 
-  const [projectUsers, setProjectUsers] = useState([]);
 
   const currentUserRole = useMemo(() => {
     const projectUserRole = projectUsers.find((pu) => pu.user._id === currentUser.id);
     return projectUserRole?.role;
   }, [currentUser, projectUsers]);
 
-  const canEditSprint = useMemo(
+  const hasRoleToEditSprint = useMemo(
     () => CAN_EDIT_SPRINTS.includes(currentUserRole),
-    [currentUserRole],
+    [currentUserRole]
   );
+
+  useEffect(() => {
+    const fetchProjectSprints = async () => {
+      if (!project) {
+        setSelectedProjectSprints([]);
+        return;
+      }
+      const projectSprints = await getProjectSprints(project._id);
+      setSelectedProjectSprints(projectSprints);
+    };
+  
+    fetchProjectSprints();
+  }, [project]);
+  
+  const currentSprint = selectedProjectSprints.find(s => s._id === sprintId);
+  const isSprintStartDayPast = currentSprint?.startDate
+    ? new Date(currentSprint.startDate) < new Date()
+    : false;
 
   const [showEditUserStory, setShowEditUserStory] = useState(false);
   const [selectedUserStory, setSelectedUserStory] = useState(null);
@@ -85,15 +105,37 @@ export const Sprint = ({ project, sprint, setActiveProject, setActiveSprint }) =
       <div className={totalStoryPoints > sprint.expectedVelocity ? 'label-overbooked' : ''}>
         Velocity: {totalStoryPoints}/{sprint.expectedVelocity}
       </div>
-      {canEditSprint && (
-        <button
-          className="btn-general"
-          onClick={() => {
-            setShowSprintEditForm(true);
-          }}
-        >
-          🛠 Edit a Sprint
-        </button>
+      {hasRoleToEditSprint && !isSprintStartDayPast && (
+        <div className="column-header">
+          <button
+            className="btn-general"
+            onClick={() => {
+              setShowSprintEditForm(true);
+            }}
+          >
+            🛠 Edit a Sprint
+          </button>
+          <button
+            className="btn-delete"
+            onClick={async () => {
+              const confirmed = window.confirm('Are you sure you want to delete this sprint?');
+              if (!confirmed) return;
+          
+              try {
+                console.log(sprintId);
+                await deleteSprint(sprintId);
+                alert('Sprint deleted successfully!');
+                setActiveSprint(null); // Optional: clear current sprint
+                setCounter((c) => c + 1); // or refresh stories/list if needed
+              } catch (err) {
+                alert('Failed to delete sprint.');
+                console.error(err);
+              }
+            }}
+          >
+            ❌ Delete a Sprint
+          </button>
+        </div>
       )}
 
       {showSprintEditForm && (

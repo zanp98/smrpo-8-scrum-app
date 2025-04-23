@@ -213,3 +213,13 @@ export const updateProjectDocumentation = async (projectId, documentation) => {
     throw err;
   }
 };
+
+export const deleteSprint = async (sprintId) => {
+  try {
+    const response = await backendApi.delete(`/deleteSprint/${sprintId}`);
+    return response.data;
+  } catch (err) {
+    console.error('Failed to delete a sprint', err);
+    throw err;
+  }
+};
