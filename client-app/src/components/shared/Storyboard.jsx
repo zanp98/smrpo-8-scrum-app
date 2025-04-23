@@ -5,6 +5,7 @@ import { TaskList } from '../TaskList';
 import { ProjectRole } from '../project/ProjectForm';
 import { UserStoryStatus } from '../project/UserStoryForm';
 import { roundNumberToPointOne, toHours } from '../../utils/datetime';
+import { ConfirmDialog } from './ConfirmDialog';
 
 const defaultColumnConfiguration = [
   {
@@ -62,6 +63,8 @@ export const Storyboard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasActiveTask, setHasActiveTask] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [pendingUserStory, setPendingUserStory] = useState(null);
 
   const getStatusColumnUserStories = (filters) => {
     const chainPredicates = getStoryPredicates(filters);
@@ -133,14 +136,17 @@ export const Storyboard = ({
     }
   };
 
-  const handleDeleteStory = async (projectId, storyId) => {
+  const handleDeleteStory = useCallback(async () => {
     try {
-      await backendApi.delete(`/userStories/${projectId}/${storyId}`);
+      const projectId = project._id;
+      await backendApi.delete(`/userStories/${projectId}/${pendingUserStory}`);
       reloadUserStories?.();
+      setPendingUserStory(null);
+      setIsConfirmDeleteOpen(false);
     } catch (error) {
       console.error('Delete failed', error);
     }
-  };
+  }, [project, pendingUserStory]);
 
   const handleMoveStory = async (projectId, storyId, direction) => {
     try {
@@ -198,7 +204,8 @@ export const Storyboard = ({
                   className="delete-user-story-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDeleteStory(project._id, userStory._id);
+                    setIsConfirmDeleteOpen(true);
+                    setPendingUserStory(userStory._id);
                   }}
                 >
                   🗑️
@@ -333,6 +340,15 @@ export const Storyboard = ({
           </div>
         </div>
       ))}
+      <ConfirmDialog
+        isOpen={isConfirmDeleteOpen}
+        message={'Are you sure you want to delete this user story?'}
+        onConfirm={() => handleDeleteStory()}
+        onCancel={() => {
+          setPendingUserStory(null);
+          setIsConfirmDeleteOpen(false);
+        }}
+      />
     </div>
   );
 };

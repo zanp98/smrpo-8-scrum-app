@@ -1,4 +1,11 @@
-export const ConfirmDialog = ({ isOpen, message, onConfirm, onCancel }) => {
+export const ConfirmDialog = ({
+  isOpen,
+  message,
+  okMessage = 'Yes',
+  cancelMessage = 'Cancel',
+  onConfirm,
+  onCancel,
+}) => {
   if (!isOpen) {
     return null;
   }
@@ -9,10 +16,10 @@ export const ConfirmDialog = ({ isOpen, message, onConfirm, onCancel }) => {
         <p>{message}</p>
         <div className="actions">
           <button className="btn btn-delete" onClick={onConfirm}>
-            Yes, Delete
+            {okMessage}
           </button>
           <button className="btn btn-cancel" onClick={onCancel}>
-            Cancel
+            {cancelMessage}
           </button>
         </div>
       </div>
