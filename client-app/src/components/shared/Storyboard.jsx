@@ -6,6 +6,7 @@ import { ProjectRole } from '../project/ProjectForm';
 import { UserStoryStatus } from '../project/UserStoryForm';
 import { roundNumberToPointOne, toHours } from '../../utils/datetime';
 import { ConfirmDialog } from './ConfirmDialog';
+import { CommentConfirmDialog } from './CommentConfirmDialog';
 
 const defaultColumnConfiguration = [
   {
@@ -65,6 +66,8 @@ export const Storyboard = ({
   const [tasks, setTasks] = useState([]);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [pendingUserStory, setPendingUserStory] = useState(null);
+  const [isDenyCommentOpen, setIsDenyCommentOpen] = useState(false);
+  const [denyComment, setDenyComment] = useState(""); 
 
   const getStatusColumnUserStories = (filters) => {
     const chainPredicates = getStoryPredicates(filters);
@@ -126,15 +129,15 @@ export const Storyboard = ({
     }
   };
 
-  const handleDenyStory = async (projectId, storyId) => {
-    const comment = prompt('Why are you rejecting this story?');
+  const handleDenyStory = async (projectId, storyId, comment) => {
     try {
       await backendApi.patch(`/userStories/deny/${projectId}/${storyId}`, { comment });
       reloadUserStories?.();
+      setIsDenyCommentOpen(false);
     } catch (error) {
       console.error('Reject failed', error);
     }
-  };
+  }
 
   const handleDeleteStory = useCallback(async () => {
     try {
@@ -273,12 +276,13 @@ export const Storyboard = ({
                 ✅ Accept
               </button>
           )}
-          {userStory.status != 'done' && currentUserRole === ProjectRole.PRODUCT_OWNER && isSprintView && (
+          {userStory.status !== 'done' && currentUserRole === ProjectRole.PRODUCT_OWNER && isSprintView && (
             <button
             className="deny-btn"
             onClick={(e) => {
               e.stopPropagation();
-              handleDenyStory(project._id, userStory._id);
+              setPendingUserStory(userStory);
+              setIsDenyCommentOpen(true);
             }}
           >
             ❌ Reject
@@ -350,6 +354,19 @@ export const Storyboard = ({
         onCancel={() => {
           setPendingUserStory(null);
           setIsConfirmDeleteOpen(false);
+        }}
+      />
+
+      <CommentConfirmDialog
+        isOpen={isDenyCommentOpen}
+        message={'Please provide a comment on why you are rejecting this story. '}
+        comment={denyComment}
+        setComment={setDenyComment}
+        onConfirm={(comment) => {handleDenyStory(project._id, pendingUserStory._id, comment); setIsDenyCommentOpen(false); setDenyComment("");}}
+        onCancel={() => {
+          setPendingUserStory(null);
+          setIsDenyCommentOpen(false);
+          setDenyComment("");
         }}
       />
     </div>

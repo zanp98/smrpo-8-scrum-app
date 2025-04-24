@@ -316,13 +316,12 @@ userStoriesRouter.patch(
     const now = new Date();
     const sprint = userStory.sprint;
 
-    //add date checks
 
     // Set comment and send it back to backlog
     userStory.status = 'backlog';
     userStory.comment = comment || 'No comment provided';
     userStory.lastReviewedAt = new Date();
-    userStory.sprint = undefined;
+    userStory.sprint = null;
     await userStory.save();
 
     return res.status(200).json({ message: 'User story denied with comment', userStory });
