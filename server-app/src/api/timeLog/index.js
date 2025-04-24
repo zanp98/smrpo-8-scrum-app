@@ -1,5 +1,5 @@
 import express from 'express';
-import { projectRolesRequired, systemRolesRequired } from '../../middleware/auth.js';
+import { projectRolesRequired } from '../../middleware/auth.js';
 import { CAN_LOG_TIME, CAN_SEE_LOGGED_TIME } from '../../configuration/rolesConfiguration.js';
 import { errorHandlerWrapped } from '../../middleware/error-handler.js';
 import { validateStartTimer, validateStopTimer, validateTime } from './time-log-validator.js';
@@ -9,7 +9,6 @@ import { timeDifferenceInHours } from '../../utils/date-util.js';
 import { TimeLogEntry } from '../../db/TimeLogEntry.js';
 import { ProjectRole } from '../../db/ProjectUserRole.js';
 import { UserStory } from '../../db/UserStory.js';
-import { UserRoles } from '../../db/User.js';
 
 export const timeLogRouter = express.Router();
 
@@ -22,6 +21,23 @@ timeLogRouter.post(
     await validateStartTimer(userId, taskId);
     await TimeLog.create({ user: userId, task: taskId });
     res.status(201).json({ message: 'Timer started' });
+  }),
+);
+
+timeLogRouter.post(
+  '/time-log-entry/:taskId',
+  projectRolesRequired(CAN_LOG_TIME),
+  errorHandlerWrapped(async (req, res) => {
+    const { taskId } = req.params;
+    const { time } = req.body;
+    const userId = req.user.id;
+    await TimeLogEntry.create({
+      user: userId,
+      task: taskId,
+      time: time,
+      description: 'Task was completed',
+    });
+    res.status(201).json({ message: 'Entry added successfully' });
   }),
 );
 

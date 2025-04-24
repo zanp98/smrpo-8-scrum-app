@@ -22,6 +22,10 @@ export const TaskList = ({
   const [selectedTask, setSelectedTask] = useState(null);
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [editBuffer, setEditBuffer] = useState({ description: '', timeEstimation: 0 });
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingDone, setPendingDone] = useState(null);
+  const [hoursInput, setHoursInput] = useState('');
+  const [hoursError, setHoursError] = useState('');
 
   const { currentUser } = useContext(AuthContext);
   const hasActiveTask = useMemo(() => tasks?.find((t) => t.isActive), [tasks]);
@@ -59,6 +63,15 @@ export const TaskList = ({
     try {
       await backendApi.patch(`/tasks/${id}`, fields);
       onTasksUpdate();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddTimeEntryLogForTask = async (taskId, fields) => {
+    try {
+      console.log(fields);
+      await backendApi.post(`/time-log/time-log-entry/${taskId}`, fields);
     } catch (err) {
       console.error(err);
     }
@@ -127,6 +140,26 @@ export const TaskList = ({
     [currentUser],
   );
 
+  const handleTaskSetHoursDone = async () => {
+    if (!selectedTask) return;
+    setHoursError('');
+    setIsConfirmOpen(true);
+    setPendingDone(selectedTask._id);
+  };
+
+  const handleTaskDone = async (hoursWorked) => {
+    await handleUpdateTask(selectedTask._id, {
+      status: 'DONE',
+      time: hoursWorked,
+    });
+
+    await handleAddTimeEntryLogForTask(selectedTask._id, { time: hoursWorked });
+    setSelectedTask((prev) => ({
+      ...prev,
+      status: 'DONE',
+    }));
+  };
+
   /* ───────── modal for a selected task ───────── */
   const renderTaskModal = () => {
     if (!selectedTask) return null;
@@ -138,6 +171,10 @@ export const TaskList = ({
 
     const changeStatus = async (e) => {
       const newStatus = e.target.value;
+      if (newStatus === 'DONE') {
+        await handleTaskSetHoursDone();
+        return;
+      }
       await handleUpdateTask(selectedTask._id, { status: newStatus });
       setSelectedTask((prev) => ({ ...prev, status: newStatus }));
     };
@@ -215,31 +252,92 @@ export const TaskList = ({
           <p>
             <strong>Time Estimation:</strong> {selectedTask.timeEstimation}h
           </p>
-          <label htmlFor="status-select">
-            <strong>Status:</strong>
-          </label>
-          <select
-            id="status-select"
-            value={selectedTask.status}
-            onChange={changeStatus}
-            disabled={
-              !selectedTask.assignedUser ||
-              ![selectedTask.assignedUser.id, selectedTask.assignedUser._id].includes(
-                currentUser.id,
-              )
-            }
-          >
-            <option value="TODO">To Do</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="DONE">Done</option>
-          </select>
-          {/*TODO: Add input when the status is DONE */}
-          {/*{selectedTask?.status === 'DONE' && ()}*/}
+
+          {selectedTask.status !== 'DONE' ? (
+            <>
+              <label htmlFor="status-select">
+                <strong>Status:</strong>
+              </label>
+              <select
+                id="status-select"
+                value={selectedTask.status}
+                onChange={changeStatus}
+                disabled={
+                  !selectedTask.assignedUser ||
+                  ![selectedTask.assignedUser.id, selectedTask.assignedUser._id].includes(
+                    currentUser.id,
+                  ) ||
+                  pendingDone === selectedTask._id
+                }
+              >
+                <option value="TODO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="DONE">Done</option>
+              </select>
+
+              {isConfirmOpen && pendingDone === selectedTask._id && (
+                <div style={{ marginTop: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <label htmlFor="hours-input">
+                      <strong>Hours worked:</strong>
+                    </label>
+                    <input
+                      id="hours-input"
+                      type="number"
+                      min="0"
+                      placeholder="Hours worked"
+                      value={hoursInput}
+                      onChange={(e) => {
+                        setHoursInput(e.target.value);
+                        setHoursError(''); // clear error while typing
+                      }}
+                      style={{ width: '60px', margin: '0 8px' }}
+                    />
+                    <button
+                      onClick={() => {
+                        const h = Number(hoursInput);
+                        if (isNaN(h) || h < 0) {
+                          setHoursError('Please enter a non-negative number');
+                          return;
+                        }
+                        handleTaskDone(h).then(() => {
+                          setIsConfirmOpen(false);
+                          setPendingDone(null);
+                          setHoursInput('');
+                        });
+                      }}
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsConfirmOpen(false);
+                        setPendingDone(null);
+                        setHoursInput('');
+                        setHoursError('');
+                      }}
+                      style={{ marginLeft: '8px', background: 'red' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {hoursError && <div style={{ color: 'red', marginTop: '4px' }}>{hoursError}</div>}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <p>
+                <strong>Status:</strong> DONE
+              </p>
+              {/*<p>
+                <strong>Hours worked:</strong> {selectedTask.hoursWorked}h
+              </p>*/}
+            </>
+          )}
+
           {!selectedTask.assignedUser && (
-            <button
-              style={{ marginTop: '10px', marginRight: '10px' }}
-              onClick={handleAssignTaskToMe}
-            >
+            <button style={{ marginTop: '10px' }} onClick={handleAssignTaskToMe}>
               Assign to Me
             </button>
           )}
@@ -249,29 +347,32 @@ export const TaskList = ({
               Reject Task
             </button>
           )}
-          <button
-            style={{ marginTop: '10px', marginRight: '10px' }}
-            onClick={() => {
-              setEditBuffer({
-                description: selectedTask.description,
-                timeEstimation: selectedTask.timeEstimation,
-              });
-              setIsEditingTask(true);
-            }}
-          >
-            Edit Task
-          </button>
-          <button
-            style={{ marginTop: '10px', marginRight: '10px' }}
-            className={`delete-task-button ${Boolean(selectedTask.assignedUser) ? 'disabled' : ''}`}
-            disabled={Boolean(selectedTask.assignedUser)}
-            onClick={() => handleDeleteTask(selectedTask._id)}
-          >
-            Delete Task
-          </button>
-          <button style={{ marginTop: '10px', marginRight: '10px' }} onClick={closeModal}>
-            Close
-          </button>
+          <div style={{ marginTop: '10px' }}>
+            <button
+              onClick={() => {
+                setEditBuffer({
+                  description: selectedTask.description,
+                  timeEstimation: selectedTask.timeEstimation,
+                });
+                setIsEditingTask(true);
+              }}
+            >
+              Edit Task
+            </button>
+            <button
+              className={`delete-task-button ${
+                Boolean(selectedTask.assignedUser) ? 'disabled' : ''
+              }`}
+              disabled={Boolean(selectedTask.assignedUser)}
+              style={{ marginTop: '10px', marginRight: '10px' }}
+              onClick={() => handleDeleteTask(selectedTask._id)}
+            >
+              Delete Task
+            </button>
+            <button style={{ marginTop: '10px', marginRight: '10px' }} onClick={closeModal}>
+              Close
+            </button>
+          </div>
         </div>
       </div>,
       document.body,
