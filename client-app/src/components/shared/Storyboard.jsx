@@ -97,7 +97,7 @@ export const Storyboard = ({
 
   const canMoveRight = useCallback(
     (status) =>
-      currentUserRole !== ProjectRole.PRODUCT_OWNER && !['review', 'done'].includes(status),
+      currentUserRole !== ProjectRole.PRODUCT_OWNER && !['in_progress','review', 'done'].includes(status), 
     [currentUserRole],
   );
 
@@ -260,8 +260,9 @@ export const Storyboard = ({
           {!userStory.assignee && <span className="user-story-unassigned">Unassigned</span>}
         </div>
         <div className="acceptUserStory">
-          {userStory.status === 'review' && currentUserRole === ProjectRole.PRODUCT_OWNER && (
-            <div className="review-buttons">
+        <div className="review-buttons">
+          {userStory.status === 'review' && currentUserRole === ProjectRole.PRODUCT_OWNER && isSprintView &&(
+            
               <button
                 className="accept-btn"
                 onClick={(e) => {
@@ -271,18 +272,20 @@ export const Storyboard = ({
               >
                 ✅ Accept
               </button>
-
-              <button
-                className="deny-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDenyStory(project._id, userStory._id);
-                }}
-              >
-                ❌ Reject
-              </button>
-            </div>
           )}
+          {userStory.status != 'done' && currentUserRole === ProjectRole.PRODUCT_OWNER && isSprintView && (
+            <button
+            className="deny-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDenyStory(project._id, userStory._id);
+            }}
+          >
+            ❌ Reject
+          </button>
+          )}
+              
+        </div>
         </div>
         {isSprintView && (
           <div className="story-navigation">
