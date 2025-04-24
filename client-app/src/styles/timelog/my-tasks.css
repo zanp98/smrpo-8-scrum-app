@@ -1,0 +1,20 @@
+.entity-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.entity-box {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease-in-out;
+  color: black;
+}
+
+.entity-box:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}

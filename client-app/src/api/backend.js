@@ -165,8 +165,25 @@ export const getTimeLogEntries = async (projectId) => {
     const response = await backendApi.get(path);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch all users:', error);
+    console.error('Failed to fetch time log entries:', error);
     throw error;
+  }
+};
+
+export const getMyTasksWithTimeLogEntries = async (projectId) => {
+  try {
+    const response = await backendApi.get(`/time-log/my-tasks/${projectId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch tasks with time log entries:');
+  }
+};
+
+export const saveTimeLogEntries = async (projectId, updates) => {
+  try {
+    const response = await backendApi.put(`/time-log/my-tasks/${projectId}`, updates);
+  } catch (error) {
+    console.error('Failed to update time log entries:', error);
   }
 };
 

@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 import { Task } from './Task.js';
 import uniq from 'lodash/uniq.js';
 
+export const TimeLogEntryType = Object.freeze({
+  MANUAL: 'manual',
+  TIMER: 'timer',
+});
+
 const TimeLogEntrySchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -17,6 +22,14 @@ const TimeLogEntrySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  timeLeft: {
+    type: Number,
+    default: 0,
+  },
+  date: {
+    type: Date,
+    default: null,
+  },
   description: {
     type: String,
     default: '',
@@ -28,6 +41,11 @@ const TimeLogEntrySchema = new mongoose.Schema({
   deletedAt: {
     type: Date,
     default: null,
+  },
+  type: {
+    type: String,
+    enum: Object.values(TimeLogEntryType),
+    default: TimeLogEntryType.TIMER,
   },
 });
 

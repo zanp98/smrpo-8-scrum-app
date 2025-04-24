@@ -48,7 +48,10 @@ const calculateTotalLoggedHours = (tasks) => {
   if (!allTimeLogEntries.length) {
     return 0;
   }
-  return allTimeLogEntries.reduce((total, tle) => total + tle.time, 0);
+  return allTimeLogEntries.reduce(
+    (total, tle) => total + (tle.type === 'manual' ? tle.time * 36e5 : tle.time),
+    0,
+  );
 };
 
 export const Storyboard = ({
@@ -67,7 +70,7 @@ export const Storyboard = ({
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [pendingUserStory, setPendingUserStory] = useState(null);
   const [isDenyCommentOpen, setIsDenyCommentOpen] = useState(false);
-  const [denyComment, setDenyComment] = useState(""); 
+  const [denyComment, setDenyComment] = useState('');
 
   const getStatusColumnUserStories = (filters) => {
     const chainPredicates = getStoryPredicates(filters);
@@ -100,7 +103,8 @@ export const Storyboard = ({
 
   const canMoveRight = useCallback(
     (status) =>
-      currentUserRole !== ProjectRole.PRODUCT_OWNER && !['in_progress','review', 'done'].includes(status), 
+      currentUserRole !== ProjectRole.PRODUCT_OWNER &&
+      !['in_progress', 'review', 'done'].includes(status),
     [currentUserRole],
   );
 
@@ -137,7 +141,7 @@ export const Storyboard = ({
     } catch (error) {
       console.error('Reject failed', error);
     }
-  }
+  };
 
   const handleDeleteStory = useCallback(async () => {
     try {
@@ -263,33 +267,35 @@ export const Storyboard = ({
           {!userStory.assignee && <span className="user-story-unassigned">Unassigned</span>}
         </div>
         <div className="acceptUserStory">
-        <div className="review-buttons">
-          {userStory.status === 'review' && currentUserRole === ProjectRole.PRODUCT_OWNER && isSprintView &&(
-            
-              <button
-                className="accept-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAcceptStory(project._id, userStory._id);
-                }}
-              >
-                ✅ Accept
-              </button>
-          )}
-          {userStory.status !== 'done' && currentUserRole === ProjectRole.PRODUCT_OWNER && isSprintView && (
-            <button
-            className="deny-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              setPendingUserStory(userStory);
-              setIsDenyCommentOpen(true);
-            }}
-          >
-            ❌ Reject
-          </button>
-          )}
-              
-        </div>
+          <div className="review-buttons">
+            {userStory.status === 'review' &&
+              currentUserRole === ProjectRole.PRODUCT_OWNER &&
+              isSprintView && (
+                <button
+                  className="accept-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAcceptStory(project._id, userStory._id);
+                  }}
+                >
+                  ✅ Accept
+                </button>
+              )}
+            {userStory.status !== 'done' &&
+              currentUserRole === ProjectRole.PRODUCT_OWNER &&
+              isSprintView && (
+                <button
+                  className="deny-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPendingUserStory(userStory);
+                    setIsDenyCommentOpen(true);
+                  }}
+                >
+                  ❌ Reject
+                </button>
+              )}
+          </div>
         </div>
         {isSprintView && (
           <div className="story-navigation">
@@ -362,11 +368,15 @@ export const Storyboard = ({
         message={'Please provide a comment on why you are rejecting this story. '}
         comment={denyComment}
         setComment={setDenyComment}
-        onConfirm={(comment) => {handleDenyStory(project._id, pendingUserStory._id, comment); setIsDenyCommentOpen(false); setDenyComment("");}}
+        onConfirm={(comment) => {
+          handleDenyStory(project._id, pendingUserStory._id, comment);
+          setIsDenyCommentOpen(false);
+          setDenyComment('');
+        }}
         onCancel={() => {
           setPendingUserStory(null);
           setIsDenyCommentOpen(false);
-          setDenyComment("");
+          setDenyComment('');
         }}
       />
     </div>

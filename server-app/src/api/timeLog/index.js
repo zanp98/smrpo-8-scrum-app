@@ -6,9 +6,10 @@ import { validateStartTimer, validateStopTimer, validateTime } from './time-log-
 import { TimeLog } from '../../db/TimeLog.js';
 import { ValidationError } from '../../middleware/errors.js';
 import { timeDifferenceInHours } from '../../utils/date-util.js';
-import { TimeLogEntry } from '../../db/TimeLogEntry.js';
+import { TimeLogEntry, TimeLogEntryType } from '../../db/TimeLogEntry.js';
 import { ProjectRole } from '../../db/ProjectUserRole.js';
-import { UserStory } from '../../db/UserStory.js';
+import { UserStory, UserStoryStatus } from '../../db/UserStory.js';
+import { Sprint } from '../../db/Sprint.js';
 
 export const timeLogRouter = express.Router();
 
@@ -155,7 +156,7 @@ timeLogRouter.delete(
   projectRolesRequired(CAN_LOG_TIME),
   errorHandlerWrapped(async (req, res) => {
     const { timeLogEntryId } = req.params;
-    const { description, time } = req.body;
+    const { time } = req.body;
     const userId = req.user.id;
     if (time < 0) {
       throw new ValidationError('Time must be greater than 0');
@@ -166,5 +167,126 @@ timeLogRouter.delete(
     }
     await TimeLogEntry.deleteOne({ _id: timeLogEntryId, user: userId });
     res.status(201).json({ message: 'Time log deleted' });
+  }),
+);
+
+timeLogRouter.get(
+  '/my-tasks/:projectId',
+  projectRolesRequired(CAN_LOG_TIME),
+  errorHandlerWrapped(async (req, res) => {
+    const { projectId } = req.params;
+    const userId = req.user.id;
+
+    // Step 1: Get active sprint for project
+    const now = new Date();
+    const currentSprint = await Sprint.findOne({
+      project: projectId,
+      $and: [{ startDate: { $lte: now } }, { endDate: { $gt: now } }],
+    });
+
+    if (!currentSprint) {
+      return res.status(200).json({
+        userStories: [],
+      });
+    }
+
+    // Step 2: calculate first and last day for the sprint
+    const firstDay = new Date(currentSprint.startDate);
+    const lastDay = new Date(currentSprint.endDate);
+
+    // Step 3: fetch all in progress user stories in the sprint, nested with tasks and time log entries
+    const userStories = await UserStory.find({
+      project: projectId,
+      sprint: currentSprint._id,
+      status: UserStoryStatus.IN_PROGRESS,
+    })
+      .populate({
+        path: 'tasks',
+        populate: {
+          path: 'timeLogEntries',
+          options: { sort: { createdAt: -1 } },
+          populate: { path: 'user', select: '_id username firstName lastName' },
+          match: { type: TimeLogEntryType.MANUAL, user: userId },
+        },
+        match: { assignedUser: userId },
+      })
+      .lean()
+      .exec();
+
+    // Step 4: Iterate through all stories and create for missing days
+    let hasCreatedEntry = false;
+    for (const story of userStories) {
+      for (const task of story.tasks) {
+        const firstDayEpoch = firstDay.valueOf();
+        for (let day = firstDayEpoch; day <= lastDay.valueOf(); day += 86400e3) {
+          const matchDate = new Date(day).toISOString().substring(0, 10);
+          const entryExists = (task.timeLogEntries ?? [])
+            .map((tle) => new Date(tle.date).toISOString().substring(0, 10))
+            .some((d) => d === matchDate);
+
+          if (!entryExists) {
+            console.log(
+              `Creating missing TLEntry for user[${userId}], task[${task._id}], day[${matchDate}]`,
+            );
+            await TimeLogEntry.create({
+              user: userId,
+              task: task._id,
+              time: 0,
+              type: TimeLogEntryType.MANUAL,
+              date: new Date(day),
+            });
+            hasCreatedEntry = true;
+          }
+        }
+      }
+    }
+
+    if (!hasCreatedEntry) {
+      return res.status(200).json({ userStories });
+    }
+
+    // Reload the data, just in case
+    const newUserStories = await UserStory.find({
+      project: projectId,
+      sprint: currentSprint._id,
+      status: UserStoryStatus.IN_PROGRESS,
+    })
+      .populate({
+        path: 'tasks',
+        populate: {
+          path: 'timeLogEntries',
+          options: { sort: { date: -1 } },
+          populate: { path: 'user', select: '_id username firstName lastName' },
+          match: { type: TimeLogEntryType.MANUAL, user: userId },
+        },
+      })
+      .lean()
+      .exec();
+    return res.status(200).json({ userStories: newUserStories });
+  }),
+);
+
+timeLogRouter.put(
+  '/my-tasks/:projectId',
+  projectRolesRequired(CAN_LOG_TIME),
+  errorHandlerWrapped(async (req, res) => {
+    const userId = req.user.id;
+    const updates = req.body;
+    if (!updates?.length) {
+      throw new ValidationError('Time log updates missing');
+    }
+
+    // Step 1: map the updates to operations
+    const bulkOps = updates.map(({ _id, time, timeLeft }) => ({
+      updateOne: {
+        filter: { _id },
+        update: { $set: { time, timeLeft } },
+      },
+    }));
+
+    // Step 2: perform bulk-write
+    await TimeLogEntry.bulkWrite(bulkOps);
+
+    return res.status(201).json({ message: 'Time logs updated successfully' });
   }),
 );
