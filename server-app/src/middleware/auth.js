@@ -15,6 +15,9 @@ const getToken = (req) => {
     return token;
   }
   const bearerToken = req.header('authorization');
+  if (!bearerToken) {
+    return null;
+  }
   const [bearer, authToken] = bearerToken?.split(' ');
   if (bearer === 'Bearer') {
     return authToken;

@@ -290,3 +290,13 @@ timeLogRouter.put(
     return res.status(201).json({ message: 'Time logs updated successfully' });
   }),
 );
+
+// Added for debugging purposes to stop all active timers
+timeLogRouter.get(
+  '/stop-all-active-timers',
+  errorHandlerWrapped(async (req, res) => {
+    const now = new Date();
+    await TimeLog.updateMany({ stoppedAt: null }, { stoppedAt: now });
+    return res.status(201).json({ message: 'All active timers stopped successfully' });
+  }),
+);
