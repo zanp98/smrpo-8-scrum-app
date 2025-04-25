@@ -8,6 +8,9 @@ export const validateStartTimer = async (userId) => {
     type: 'timer',
   }).populate('task', '_id');
   if (activeTimer) {
+    console.log(
+      `Validation error: Active timer exists for taskId[${activeTimer?.task?._id}], timerId[${activeTimer?._id}]`,
+    );
     throw new ValidationError(`Active timer already exists for another user story`);
   }
 };
@@ -20,6 +23,9 @@ export const validateStopTimer = async (userId, taskId) => {
     type: 'timer',
   }).populate('task', '_id');
   if (!activeTimer) {
+    console.log(
+      `Validation error: Active timer does not exist for taskId[${activeTimer?.task?._id}], timerId[${activeTimer?._id}]`,
+    );
     throw new ValidationError(`Active timer not found for the task`);
   }
 };
